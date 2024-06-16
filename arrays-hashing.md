@@ -52,4 +52,34 @@ class Solution:
             prev_map[value] = index
 ```
 
+## Product of array except self
+
+https://leetcode.com/problems/product-of-array-except-self/
+
+For each index we have to get the product of its prefixes(elements coming before it) and its suffixes (elements that come after it)
+
+Constraints - to be done in `O(n)` without the division operator
+
+Solution would be to calculate the prefix product for each index and store it in an array and similarly the same for the postfix products for an index.
+Then multiply each of these index by index to get the resultant array.
+
+Complexity: space- O(n) time- O(n)
+
+```
+class Solution:
+    def productExceptSelf(self, nums: List[int]) -> List[int]:
+        n = len(nums)
+        prefix, postfix = [1] * n, [1] * n
+
+        for i in range(1, n):
+            prefix[i] = prefix[i-1] * nums[i-1]
+        for i in range(n-2, -1, -1):
+            postfix[i] = postfix[i+1] * nums[i+1]
+        
+        result = []
+        for i in range(n):
+            result.append(prefix[i]*postfix[i])
+        
+        return result
+```
 
