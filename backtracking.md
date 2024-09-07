@@ -326,4 +326,3 @@ def nqueens(n):
 ```
 ### Soduko Solver
 Similar to N-Queens just the is_safe logic would be for Sudoku
-
