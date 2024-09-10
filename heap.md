@@ -66,7 +66,7 @@ That is where heap is to be used which is `O(n * log k)`.
 ### Kth Largest Element
 We would be using the `heapq` module of python collections. As discussed we would be requiring a min heap in this case.
 The top of the heap is in the `0th` index unlike stack.
-```
+```python
 import heapq
 
 def kth_largest(nums, k):  
@@ -81,7 +81,7 @@ Another variant of these problems would be return `k largest elements` - same th
 
 ### Kth Smallest Element
 As discussed above this would be a max-heap, but since python doesn't support this by default we would be adding values with `-ve` to the heap.
-```
+```python
 import heapq
 
 def kth_smallest(nums, k):
@@ -124,7 +124,7 @@ The logic for solving this problem is keep joining the minimum length ropes and 
 In this heap would be especially helpful as a min-heap would always give the minimum element at the top.
 
 Code
-```
+```python
 def min_cost(arr):
     min_heap = heapq.heapify(arr)
     total_cost = 0

@@ -27,7 +27,7 @@
 - Induction - print n to the output
 - Base Condition - if the value reaches 0 - return as this is the largest invalid input
 
-```
+```python
 def solve(n):
     if n == 0: # Base condition
         return
@@ -68,7 +68,7 @@ Here we get all the possible substrings as the leaf-nodes of the recursive tree.
 - Induction: The height would be - 1(for the current node) + max(left subtree, right subtree)
 - Base Condition: When the node is None
 
-```
+```python
 def height(root):
     if root is None: # Base condition
         return 0
@@ -80,7 +80,7 @@ def height(root):
 - Hypothesis: Calling the sort function after removing the top element - would return it sorted
 - Induction: Insert the current element in the correct position in the stack and push the elements greater after it
 - Base Condition: The stack has a single element
-```
+```python
 def sort(stack):
     # Base Condition
     if len(stack) <= 1:
@@ -104,19 +104,19 @@ def sort(stack):
 -  Hypothesis:
 -  Induction:
 -  Base Condition:
-```
+```python
 ``` 
 #### Reverse stack
 -  Hypothesis:
 -  Induction:
 -  Base Condition:
-```
+```python
 ``` 
 #### [Kth Symbol in Grammar](https://leetcode.com/problems/k-th-symbol-in-grammar)
 -  Hypothesis: For input (n+1) we hypothise that we would get the answer, k remains constant
 -  Induction: Generate the string for n and pass as the one of the parameter for hypothesis call
 -  Base Condition: When we reach `nth` row, return `kth` element 
-```
+```python
 def solve(n, k):
     def helper(row, k, curr):
         # Base Condition
@@ -140,7 +140,7 @@ def solve(n, k):
    -  the first half of elements in row `n` is equal to the elements in row `n-1` - if k < mid - call with k
    -  the second half of elements in row `n` is equal to the complement of elements in row `n-1` - if k >= mid call with k-mid and complement the answer 
 -  Base Condition: When row == 1 and k == 1 return 0
-```
+```python
 def solve(n, k):
     if n == 1 and k == 1:
         return 0
@@ -160,7 +160,7 @@ def solve(n, k):
    -  For the hypothesis
       -  Moving the last plate from s - source `s`, helper `h`, destination `d` - same as the problem
       -  Moving the `n-1` plates to destination - source `h`, helper `s`, destination `d`
-```
+```python
 source = 's'
 helper = 'h'
 destination = 'd'
@@ -214,7 +214,7 @@ graph TD
     O["[], [1, 2, 3]"]
 ```
 Code
-```
+```python
 def subsets(nums):
     result = []
     n = len(nums)
@@ -296,7 +296,7 @@ graph TD
 ```
 
 Code
-```
+```python
 def distinct_subsets(nums):
     nums.sort()
     result = []
@@ -356,7 +356,7 @@ graph TD
 
 ```
 Code:
-```
+```python
 def permutations_space(s):
     n = len(s)
     result = []
@@ -399,7 +399,7 @@ graph TD
     G["AB"]
 ```
 Code: Here we would use another approach of handling strings permutations
-```
+```python
 def permutation_case_change(s):
     n = len(s)
     result = []
@@ -482,7 +482,7 @@ graph TD
     W["()()()"]  
 ```
 Code
-```
+```python
 def generateParenthesis(n):
     result = []
     def solve(open, close, curr):

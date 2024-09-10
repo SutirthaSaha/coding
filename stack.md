@@ -7,7 +7,7 @@ But when to use this?
 - Brute force solution is `O(n^2)` and the second loop is dependent on the first one.
 
 **For example**
-```
+```python
 for i in range(n):
     for j in range(i+1, n):
 ```
@@ -17,7 +17,7 @@ In this case the solution can be made linear and improvised using stack.
 ## Problems
 ### Nearest Greater to Right (NGR) - Next Larger Element
 Brute force:
-```
+```python
 def ngl(nums):
     n = len(nums)
     result = [-1] * n
@@ -46,7 +46,7 @@ In the above example we would always see a stack in which values are decreasing 
 So for solving next greater element - the stack would be monotonically decreasing and vice versa.
 
 Code
-```
+```python
 def ngr(nums):
     n = len(nums)
     result = [-1] * n
@@ -72,7 +72,7 @@ The only modification from the previous problem would be that we would now need 
 The stack would still be monotonic decreasing in nature.
 
 Code
-```
+```python
 def ngl(nums):
     n = len(nums)
     result = [-1] * n
@@ -90,7 +90,7 @@ def ngl(nums):
 Here there would be a twist - instead of removing the elements which are smaller than the current element we would now be popping elements which are greater - to find the next smaller element.
 The resultant would again be a **monotonic stack** but this time it would be an increasing one as the current element would pop all the elements which are greater than it, thus **monotonic increasing stack**.
 
-```
+```python
 def nsr(nums):
     n = len(nums)
     result = [-1] * n
@@ -109,7 +109,7 @@ def nsr(nums):
 ### Nearest Smaller to Left (NSL)
 Again the only modification from the previous NSR problem would be that we now start from the left.
 
-```
+```python
 def nsl(nums):
     n = len(nums)
     result = [-1] * n

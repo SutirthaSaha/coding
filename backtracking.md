@@ -25,7 +25,7 @@ Search for these keywords in the problem statement (may work)
 
 ## Generalisation
 Psuedocode - Blueprint
-```
+```python
 def solve(variable) -> void:
     # base condition
     if is_solved():
@@ -63,7 +63,7 @@ Similar problem:
 - https://leetcode.com/problems/permutations/description/
 
 Code
-```
+```python
 def permutation(str):
     str_arr = list(str)
     n = len(str_arr)
@@ -81,7 +81,7 @@ def permutation(str):
 
 If there are duplicates in the string or array there would be a small check that the value to swapped is not the same as the current value.
 
-```
+```python
 for swap_index in range(index, n):
     if arr[swap_index] != arr[index]: # this would help avoid the redundant sub trees
         arr[index], arr[swap_index] = arr[swap_index], arr[index]
@@ -102,7 +102,7 @@ Flow:
 - **Horizontal drifting** - after exploring all choices with the current index we drift to the right index without reducing the `k` value.
 
 Code
-```
+```python
 num_arr = list(num_str)
 result = float('-inf')
 n = len(num_arr)
@@ -127,7 +127,7 @@ Flow:
   - For 2+ digits number we have choices from 1-9 - if the first digit is 0 the number automatically is N-1 digit and since the values are always increasing
 - Base Condition: N digit number found
 - here we pass the current result as `pass by reference` so any changes must be reverted.
-```
+```python
 result = []
 def solve(start, curr):
     if N == len(curr):
@@ -160,7 +160,7 @@ Flow:
 - Base Condition
   - When the rat reaches target position(m, n) - add the path to the result
 - Code
-```
+```python
 result = []
 m, n = len(grid), len(grid[0])
 direction = [(0, -1), (0, 1), (-1, 0), (1, 0)]
@@ -190,7 +190,7 @@ Flow:
   - Ensure that the substrings are palindrome and then only go for the rest of the substrings
 - Base Condition: End of the string
 - Code
-```
+```python
 def all_palindrome_partitions(string):
     n = len(string)
     result = []
@@ -224,7 +224,7 @@ Flow:
   - If any substring exists then only proceed for the rest of the stirng and continue with the same process
 - Base Condition: End of the string
 - Code
-```
+```python
 def word_break(string, dictionary):
     n = len(string)
     dictionary = set(dictionary)
@@ -252,7 +252,7 @@ Flow:
   - For each digit consider all the letter combinations that it can represent
 - Base Condition: End of the digits in input
 - Code:
-```
+```python
 def letter_combination(digits):
     digit_map = {
         "2": "abc",
@@ -288,7 +288,7 @@ Flow:
   - Condition is that the placed queen is safe from any other queen in the board 
 - Base Condition: Completed all the rows of the board
 - Code
-```
+```python
 def nqueens(n):
     board = [["."] * n for _ in range(n)]
     result = []
