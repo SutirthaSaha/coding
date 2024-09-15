@@ -294,4 +294,172 @@ def subsets_with_given_diff(arr, diff):
 ##### Target Sum
 Given an array and a target value. Count the number of ways to reach the target but modifying the sign of each of the array element.
 
+This is modification of the `Subset Sum` problem, just that here we have 2 choices for selecting an element:
+- Positive(+ve) value of the element
+- Negative(-ve) value of the element
+
 ### Unbounded Knapsack
+Knapsack is a bag to store items and you are given a list of items with `weight` and `value`. The bag would have a `capacity` and we can either select an item or ignore it. The only change from `0-1 Knapsack` would be that the items can taken any number of times.
+
+The choice diagram remains the same:
+#### Choice Diagram:
+```mermaid
+graph TD  
+    A[Item 1<br/>w1] --> B{w1 ≤ W}  
+    A --> C{w1 > W}  
+    B --> D[Take]  
+    B --> E[Don't Take]  
+    C --> F[Don't Take]  
+```
+
+Example:
+```mermaid
+graph TD  
+    A["(1,1), (2,2), Capacity: 4, Value: 0"] -->|Take item 1| B["(1,1), (2,2), Capacity: 3, Value: 1"]  
+    A -->|Ignore item 1| C["(2,2), Capacity: 4, Value: 0"]  
+      
+    B -->|Take item 1| D["(1,1), (2,2), Capacity: 2, Value: 2"]  
+    B -->|Ignore item 1| E["(2,2), Capacity: 3, Value: 1"]  
+      
+    C -->|Take item 2| F["(2,2), Capacity: 2, Value: 2"]  
+    C -->|Ignore item 2| G["No items left, Capacity: 4, Value: 0"]  
+      
+    D -->|Take item 1| H["(1,1), (2,2), Capacity: 1, Value: 3"]  
+    D -->|Ignore item 1| I["(2,2), Capacity: 2, Value: 2"]  
+      
+    E -->|Take item 2| J["(2,2), Capacity: 1, Value: 3"]  
+    E -->|Ignore item 2| K["No items left, Capacity: 3, Value: 1"]  
+      
+    F -->|Take item 2| L["Invalid (Capacity < 0)"]  
+    F -->|Ignore item 2| M["No items left, Capacity: 2, Value: 2"]  
+      
+    H -->|Take item 1| N["(1,1), (2,2), Capacity: 0, Value: 4"]  
+    H -->|Ignore item 1| O["(2,2), Capacity: 1, Value: 3"]  
+      
+    I -->|Take item 2| P["Invalid (Capacity < 0)"]  
+    I -->|Ignore item 2| Q["No items left, Capacity: 2, Value: 2"]  
+      
+    J -->|Take item 2| R["Invalid (Capacity < 0)"]  
+    J -->|Ignore item 2| S["No items left, Capacity: 1, Value: 3"]  
+      
+    N["Final Value: 4"]  
+    O["Final Value: 3"]  
+    M["Final Value: 2"]  
+    Q["Final Value: 2"]  
+    S["Final Value: 3"]  
+    G["Final Value: 0"]  
+    K["Final Value: 1"]
+```
+
+Here you can observe that if an item is taken, then also it is considered for the next choice, but if it is ignored once then is would no longer be a part of the choice space.
+
+#### Recursive Solution:
+- Choices: To take an item or ignore it. If the weight of the item is greater than the capacity then there is no choice but to ignore it.
+- Base Condition: All the items are already considered.
+
+#### Code:
+```python
+def knapsack(weights, values, capacity):
+    n = len(weights)
+    def solve(index, capacity):
+        if index == n or capacity == 0:
+            return 0
+        if weights[index] <= capacity:
+            # here would be the only change where the index is not updated if the item is considered
+            return max(solve(index+1, capacity), solve(index, capacity-weights[index]) + values[index])
+        return solve(index+1, capacity)
+    return solve(0, capacity)
+```
+
+This is again the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
+
+#### 3 Problems based on 0-1 Knapsack:
+- Rod-Cutting Problem
+- Coin Change Problem: Possible number of ways
+- Coin Change Problem: Minimum number of coins
+
+##### Rod-Cutting Problem
+Given a rod of length n inches and an array of prices that includes prices of all pieces of size smaller than n. Determine the maximum value obtainable by cutting up the rod and selling the pieces.
+
+This problem is similar to the unbounded knapsack problem where:
+- length array: weights array
+- prices array: values array
+- length of the rod: capacity of the bag
+
+Example:
+Let's consider a rod of length (n = 4).
+The prices array would be: [2, 5, 7, 8]
+The corresponding lengths array would be: [1, 2, 3, 4]
+
+Choice Diagram:
+The choice diagram is similar to the Unbounded Knapsack problem:
+```mermaid
+graph TD  
+    A[Length 1<br/>l1] --> B{l1 ≤ L}  
+    A --> C{l1 > L}  
+    B --> D[Cut]  
+    B --> E[Don't Cut]  
+    C --> F[Don't Cut]  
+```
+The code too would remain the same. There can be modifications where the length array can be restricted and their prices would be provided.
+
+##### Coin Change Problem: Possible number of ways
+Given a value N, if we want to make change for N cents, and we have infinite supply of each of S = { S1, S2, .. , Sm} valued coins, how many ways can we make the change? The order of coins doesn’t matter.
+Example:
+for N = 4 and S = {1,2,3}, there are four solutions: {1,1,1,1},{1,1,2},{2,2},{1,3}. So output should be 4.
+
+**This problem is another modification of the Subset Sum problem**. But till now we have performed subset sum where the same element cannot be used again. In this case we can use the same denomination multiple times so `(Unbounded + Subset Sum)`.
+
+Similarity:
+- denominations: arr
+- amount: target sum 
+
+###### Recursive Solution:
+- Choices: To consider a domination or to ignore it. If the left amount is less than the current denomination, you have only one choice.
+- Base Condition: The amount is already made or no more denominations are left.
+
+Code
+```python
+def coin_ways(amount, denominations):
+    n = len(denominations)
+    def solve(index, amount):
+        if amount == 0:
+            return 1
+        if index == n:
+            return 0
+        if denominations[index] <= amount:
+            return solve(index+1, amount) + solve(index, amount - denominations[index])
+        else:
+            return solve(index+1, amount)
+    return solve(0, amount)
+```
+This is again the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
+
+##### Coin Change Problem: Minimum number of coins
+Given a value V, if we want to make change for V cents, and we have infinite supply of each of C = { C1, C2, .. , Cm} valued coins, what is the minimum number of coins to make the change?
+Example:
+
+Input: coins[] = {25, 10, 5}, V = 30
+Output: Minimum 2 coins required
+We can use one coin of 25 cents and one of 5 cents.
+
+This problem is similar to the previous problem where we have `Unbounded + Subset Sum`. The difference from the previous problem would be that we need to find out which combination of denominations awould require the minimum number.
+
+```python
+def min_coins(amount, denominations):
+    n = len(denominations)
+    def solve(index, coins, amount):
+        if amount == 0:
+            return coins
+        if index == n:
+            return float('inf')
+        if denominations[index] <= amount:
+            return min(solve(index+1, coins, amount), solve(index, coins+1, amount-denominations[index]))
+        else:
+            return solve(index+1, coins, amount)
+    return solve(0, 0, amount)
+```
+
+This is again the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
+
+
