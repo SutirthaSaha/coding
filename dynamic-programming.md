@@ -81,7 +81,7 @@ def knapsack(weights, values, capacity):
     return solve(0, capacity)
 ```
 
-This solution has a time complexity of `O(2^n)` as we have 2 choices (to include the item or not) for each of the `n` items so (2 * 2 * ... n times).
+This solution has a time complexity of `O(2^n)` as we have 2 choices (to include the item or not) for each of the `n` items so (2 * 2 * ... n *).
 
 So there would be overlapping sub-problems. By this we mean that while we are going through the recursive solution we would encounter the same problem for which we have solved before.
 So we can memoize the answer and use it again to avoid any calculations again.
@@ -299,7 +299,7 @@ This is modification of the `Subset Sum` problem, just that here we have 2 choic
 - Negative(-ve) value of the element
 
 ### Unbounded Knapsack
-Knapsack is a bag to store items and you are given a list of items with `weight` and `value`. The bag would have a `capacity` and we can either select an item or ignore it. The only change from `0-1 Knapsack` would be that the items can taken any number of times.
+Knapsack is a bag to store items and you are given a list of items with `weight` and `value`. The bag would have a `capacity` and we can either select an item or ignore it. The only change from `0-1 Knapsack` would be that the items can taken any number of *.
 
 The choice diagram remains the same:
 #### Choice Diagram:
@@ -408,7 +408,7 @@ Given a value N, if we want to make change for N cents, and we have infinite sup
 Example:
 for N = 4 and S = {1,2,3}, there are four solutions: {1,1,1,1},{1,1,2},{2,2},{1,3}. So output should be 4.
 
-**This problem is another modification of the Subset Sum problem**. But till now we have performed subset sum where the same element cannot be used again. In this case we can use the same denomination multiple times so `(Unbounded + Subset Sum)`.
+**This problem is another modification of the Subset Sum problem**. But till now we have performed subset sum where the same element cannot be used again. In this case we can use the same denomination multiple * so `(Unbounded + Subset Sum)`.
 
 Similarity:
 - denominations: arr
@@ -462,4 +462,298 @@ def min_coins(amount, denominations):
 
 This is again the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
 
+### Longest Common Subsequence
 
+### Matrix Chain Multiplication
+Always solve using **recursion**.
+
+#### Identification
+- Input as a string or an array, and we would have an intuition that we would have to break the input into 2 problems.
+- We would take in two pointers at both left and right ends: `start` and `end`.
+- For `k` between `start` and `end` we would break the input array into sub-arrays of `[start... k]` and `[k... end ]`. Get answers for all of the possible sub-arrays with different values of `k`.
+- Within these possible answers we would find out the optimal solution as per the question.
+
+#### Format
+
+##### Steps
+- Find `start` and `end`
+- Find Base Condition
+- Find the `k` loop scheme
+- Calculate answer for temporary answer and calulcate the optimised one and return
+
+##### Code Format
+```python
+def solve(arr, start, end):
+    # Base Condition
+    if start > end:
+        return
+    
+    # intitialise result
+    result = ""
+
+    # consider for all the possible choices for k
+    for k in range(start, end+1):
+        temp_result = solve(arr, start, start+k) + solve(arr, start+k+1, end)
+        result = optimise(result, temp_result) # optimise can be min, max
+
+    return result
+```
+
+#### 7 problems of MCM
+- MCM
+- Printing MCM
+- Evaluate Expression to True/Boolean Parenthesis
+- Min/max value of an Expression
+- Palindrome Partitioning
+- Scrambled String
+- Egg Dropping Problem
+
+#### Problems
+
+#### Matrix Chain Mulitplication
+Given a sequence of matrices, find the most efficient way to multiply these matrices together. The problem is not actually to  perform the multiplications, but merely to decide in which order to perform the multiplications.
+
+##### Example: Matrix Chain Multiplication
+You have 3 matrices:
+- A: ( 5 * 10 )
+- B: ( 10 * 3 )
+- C: ( 3 * 12 )
+The dimensions array is: ([5, 10, 3, 12])
+Determine the order of matrix multiplications that minimizes the total number of scalar multiplications.
+
+###### Possible Parenthesizations:
+1. ((A * B) * C)
+2. (A * (B * C))
+We'll calculate the cost of scalar multiplications for each parenthesization.
+
+###### 1. ((A * B) * C)
+
+**First, compute ( A * B ):**
+- Dimensions: ( 5 * 10 ) and ( 10 * 3 )
+- Cost: ( 5 * 10 * 3 = 150 ) scalar multiplications
+- Resulting matrix dimensions: ( 5 * 3 )
+
+**Next, compute the result with ( C ):**
+- Dimensions: ( 5 * 3 ) and ( 3 * 12 )
+- Cost: ( 5 * 3 * 12 = 180 ) scalar multiplications
+
+**Total cost for ((A * B) * C):**
+- ( 150 + 180 = 330 ) scalar multiplications
+
+###### 2. (A * (B * C))
+**First, compute ( B * C ):**
+- Dimensions: ( 10 * 3 ) and ( 3 * 12 )
+- Cost: ( 10 * 3 * 12 = 360 ) scalar multiplications
+- Resulting matrix dimensions: ( 10 * 12 )
+
+**Next, compute the result with ( A ):**
+- Dimensions: ( 5 * 10 ) and ( 10 * 12 )
+- Cost: ( 5 * 10 * 12 = 600 ) scalar multiplications
+
+**Total cost for (A * (B * C)):**
+- ( 360 + 600 = 960 ) scalar multiplications
+
+##### Summary of Costs:
+- ((A * B) * C): 330 scalar multiplications
+- (A * (B * C)): 960 scalar multiplications
+
+The most efficient way to multiply these matrices is (((A * B) * C)) with a total cost of 330 scalar multiplications.
+
+##### Identification
+- If we take an array consisting of the dimensions of the matrices and `start` and `end` pointing to the two ends of the array.
+- For different values of `k` ranging from `start+1` to `end-1`, we can calculate the cost of the multiplication. For each matrix at index `k` - (row: `k-1` and col: `k`). Thus the range values. 
+- Then we can recursively call - multiply(arr, start, k) and multiply(arr, k + 1, end).
+
+##### Format:
+###### Recursive Solution
+- Choices: k can have values from `start` to `end-1`. Perform Matrix Multiplication and divide into 2 groups and then break the array into - (start, k) and (k+1, end).
+- Base Condition: `end` >= `start` as even if start == end - would be a single value -invalid for matrix dimensions - minimum 2 elements needed. 
+
+```python
+def matrix_chain_multiplication(arr):
+    n = len(arr)
+    # Matrix A[i] has dimension arr[i-1] * arr[i] - so 0 is invalid
+    start, end = 1, n-1
+
+    def solve(start, end):
+        # minimum size 2
+        if start >= end:
+            return 0
+
+        result = 0
+        for k in range(start, end):
+            temp = solve(start, k) + solve(k+1, end) + arr[start] * arr[k] * arr[end]
+            result = max(result, temp)
+        
+        return result
+    fr
+    return solve(start, end)
+```
+
+###### With Memoization
+We need to add a `mem` which is a dictionary storing already calculated results.
+```python
+def matrix_chain_multiplication(arr):
+    n = len(arr)
+    start, end = 1, n - 1
+
+    mem = dict()
+    def solve(start, end):
+        if start >= end:
+            return 0
+
+        if (start, end) not in mem:
+            result = 0
+            for k in range(start, end):
+                temp = solve(start, k) + solve(k+1, end) + arr[start-1] * arr[k] * arr[end]
+                result = max(result, temp)
+
+        mem[(start, end)] = result
+        return mem[(start, end)]
+    
+    return solve(start, end)
+```
+
+For the for loop condition and the values for the further recursive calls, should be calculated. Don't memorize.
+
+#### Palidrome Partitioning
+Given a string, a partitioning of the string is a palindrome partitioning if every substring of the partition is a palindrome. 
+Example: “aba|b|bbabb|a|b|aba” is a palindrome partitioning of “ababbbabbababa”.
+
+##### Format
+- `start` and `end` - 0 and n-1 where n is the length of the string
+- Base Condition - start <= end: as single letter string valid.
+- `k` loop scheme: k value can range from start to end. The partitions would be (start, k) and (k+1, end).
+- Calculate the temporary answer - which is True if all the strings can be partitioned into a palindrome.
+
+Code
+```python
+def palindrome_partition(string):
+    n = len(string)
+    start, end = 0, n-1
+
+    result = []
+
+    def solve(start, end, curr):
+        if start > end:
+            return result.append(cur[:])
+        for k in range(start, end+1):
+            if is_palindrome(start, k):
+                solve(k+1, end, curr.append(string[start: k+1]))
+    
+    solve(start, end, [])
+    return result
+```
+This is the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
+
+#### Evaluate Expression To True
+
+#### Scrambled String
+
+#### Egg Dropping
+
+### DP on Trees
+DP can also be applied on trees to solve some specific problems.
+
+We define functions for nodes of the trees, which we calculate recursively based on children of a nodes. One of the states in our DP usually is a node i, denoting that we are solving for the subtree of node i.
+
+Let's solve for the problem for **Diameter of a Binary Tree**.
+Given a binary tree, you need to compute the length of the diameter of the tree. The diameter of a binary tree is the length of the longest path between any two nodes in a tree. This path may or may not pass through the root.
+
+Example:
+Given a binary tree
+```mermaid
+graph TD;  
+    1  
+    1 --> 2  
+    1 --> 3  
+    2 --> 4  
+    2 --> 5
+```
+Return 3, which is the length of the path [4,2,1,3] or [5,2,1,3].
+
+For calculating the diameter at each node, there can be 2 choices:
+- Path considering the node: 1 + height(left sub-tree) + height(right sub-tree)
+- Path not considering the node: We pass the current max_height possible from this node to its callers - 1 + max(height(left sub-tree), height(right sub-tree))
+
+Whichever is maximum amongst these would be the diameter of the tree.
+
+We can use Dynamic Programming here to save the previous computed answers and return whenever needed.
+
+#### General Syntax
+Any recursive solution for tree follows the Base Condition-Induction-Hypothesis approach and the syntax looks like:
+
+```python
+def func(input):
+    # Base Condition - exit condition
+    # Hypotheisis - don't question how this works - for the left and the right subtrees
+    # Induction - take the result from the hypothesis step and calculate for the current node
+```
+
+For example for finding the diameter of a binary tree:
+```python
+def diameter(root):
+    res = 0
+    def solve(root):
+        # Base Condition
+        if root is None:
+            return 0
+        # Hypothesis
+        left_height = height(root.left)
+        right_height = height(root.right)
+        # Induction
+        # considering the current node and set if maximum
+        res = max(res, 1 + left_height + right_height)
+        # pass to the parent as the max height, this helps in using the results for further calculations in the parent
+        # this prevents duplicate calculations
+        return 1 + max(left_height, right_height) 
+
+    solve(root)
+    return result
+```
+
+#### Problems
+#### Diameter of a Binary Tree
+Already solved above.
+
+#### Maximum Path Sum from two leaf nodes
+The implementation logic will remain the same and at each node there would be 2 choices:
+- Considering the current node as root: val + path_sum(left) + path_sum(right)
+- Considering the current node as another node: val + max(path_sum(left), path_sum(right))
+
+Code
+```python
+def maximum_path_sum(root):
+    result = float('-inf')
+    def solve(root):
+        if root is None:
+            return 0
+        left_path_sum = solve(root.left)
+        right_path_sum = solve(root.right)
+
+        result = max(result, root.val + left_path_sum + right_path_sum)
+        return root.val + max(left_path_sum, right_path_sum)
+    solve(root)
+    return result
+```
+
+#### Maximum Path Sum from any node to any
+Here, since we consider from any node to any node. The conditions here would change a bit as there can be negative nodes in the path to the leaf, then either you consider the entire path or just the current node.
+
+The choices now become:
+- Considering the current node as root: max(val, val + path_sum(left) + path_sum(right))
+- Considering the current node as another node: max(val, val + max(path_sum(left), path_sum(right)))
+
+Code:
+```python
+def maximum_path_sum(root):
+    result = float('inf')
+    def solve(root):
+        if root is None:
+            return 0
+        left_path_sum = solve(root.left)
+        right_path_sum = solve(root.right)
+
+        result = max(result, max(root.val, root.val + left_path_sum + right_path_sum))
+        return max(root.val, root.val + max(left_path_sum, right_path_sum))
+```
