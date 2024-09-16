@@ -371,8 +371,164 @@ def topological_sort(graph):
 ### Flood Fill Algorithm
 ### Shortest Path Algorithms
 #### 1. Single Source Shortest Path - Dijkstra
+Dijkstra's algorithm is a graph search algorithm that solves the single-source shortest path problem for a graph with **non-negative edge weights**, producing a shortest path tree. This means it finds the shortest paths from a starting node (source) to all other nodes in the graph.
+
+##### How it Works:
+- **Initialization**: Start with a distance array, dist, where dist[source] is 0 (distance to itself) and all other distances are set to infinity.
+- **Priority Queue**: Use a priority queue (min-heap) to select the node with the smallest distance.
+- **Relaxation**: For each selected node, update the distances of its neighbors if a shorter path is found via the current node.
+- **Repeat**: Continue until all nodes have been processed.
+
+Code
+```python
+def dijkstra(start, graph):
+    # map to store shortest distance
+    dist = {}
+    # min-heap to store the minimum distance node at the root
+    priority_queue = [(0, start)]
+
+    while priority_queue:
+        current_distance, current_node = heapq.heappop(priority_queue)
+
+        # Nodes can be added to the priority queue multiple times. We only  
+        # process a node the first time we remove it from the priority queue.
+        if current_node in dist:
+            continue
+
+        dist[current_node] = current_distance
+
+        for neighbor, weight in graph[current_node]:
+            distance = current_distance + weight
+
+            # Only consider this new path if it's better
+            if neighbor not in dist:
+                dist[neighbor] = distance 
+                heapq.heappush(priority_queue, (distance, neighbor))
+    
+    for node in graph:
+        if node not in dist:
+            dist[node] = -1
+    return dist
+```
+
 #### 2. Multi Source Shortest Path
 ### Disjoint Union Set - DSU
+Two sets are called disjoint if they don’t share any element; their intersection is an empty set. Also known as Union-Find as it supports the following operations:
+- Merging disjoint sets into a single disjoint set using the **Union** operation.
+- Finding the representative of a disjoint set using the **Find** operation.
+
+**Union By Rank**:
+The idea is to always attach the smaller tree under the root of the larger tree, thereby minimizing the maximum height of the trees. This technique is known as union by rank.
+
+#### Find
+The **Find** operation is used to determine which subset a particular element is in. This can be used to check if two elements are in the same subset.
+
+##### Example:
+```mermaid
+graph BT  
+    A1[1] --> B2[2]  
+    B2 --> C3[3]  
+    D4[4] --> E5[5]  
+    F6[6] --> G7[7]  
+    G7 --> H8[8]
+```
+- Find(1): To find the representative of the set containing element 1, we follow the pointer from 1 to 2, and from 2 to 3. Thus, the representative for element 1 is 3.
+- Find(4): To find the representative of the set containing element 4, we follow the pointer from 4 to 5. Thus, the representative for element 4 is 5.
+
+##### Code
+```python
+def find(node):
+    if node != parent[node]:
+        parent[node] = find(parent[node]) #path compression
+    return parent[node]
+```
+
+#### Union
+The Union operation is used to merge two subsets into a single subset. This is useful when you need to combine the sets containing two different elements.
+
+##### Example
+Consider the following sets represented as a forest:
+
+```mermaid
+graph BT  
+    A1[1] --> B2[2]  
+    B2 --> C3[3]  
+    D4[4] --> E5[5]  
+    F6[6] --> G7[7]  
+    G7 --> H8[8]  
+```
+
+Let's say we want to merge the sets containing elements 1 and 4:
+- First, we find the representatives of each set:
+- Find(1) returns 3.
+- Find(4) returns 5.
+- Then, we merge the sets by making one representative the parent of the other.
+
+##### Code
+```python
+def union(node1, node2):  
+    root1 = find(node1)  
+    root2 = find(node2)  
+      
+    if root1 != root2:  
+        parent[root2] = root1  # Merge the sets
+```
+
+#### Union By Rank
+The Union-Find algorithm can be optimized using the `Union by Rank` technique to keep the tree shallow, which improves the efficiency of both find and union operations.
+
+##### Code
+```python
+n = 8
+rank = [1] * n
+def union(node1, node2):  
+    parent1 = find(node1)  
+    parent2 = find(node2)  
+      
+    if parent1 != parent2:
+        if rank[parent1] >= rank[parent2]:
+            parent[parent2] = parent1 # Merge the sets
+            rank[parent1] = rank[parent1] + rank[parent2]
+        else:  
+            parent[parent1] = parent2
+            rank[parent2] = rank[parent2] + rank[parent1]
+```
+
+#### Problems
+##### Number of Connected Components in an Undirected Graph
+Given an undirected graph with n nodes and edges, find the number of connected components in the graph.
+```python
+def count_components(n, edges):
+    parent = {i: i for i in range(n)}
+    rank = [1] * n
+
+    def find(node):
+        if node != parent[node]:
+            parent[node] = find(parent[node])
+        return parent[node]
+
+    def union(node1, node 2):
+        parent1 = find(node1)
+        parent2 = find(node2)
+
+        if parent1 != parent2:
+            if rank[parent1] >= rank[parent2]:
+                parent[node2] = parent1
+                rank[parent1] = rank[parent1] + rank[parent2]
+            else:
+                parent[node1] = parent2
+                rank[parent2] = rank[parent2] + rank[parent1]
+
+    for src, dest in edges:
+        union(src, dest)
+
+    components = set()
+    for node in range(n):
+        components.add(find(node))
+
+    return len(components) 
+```
+
 ### Minimum Spanning Tree
 #### 1. Prim's
 #### 2. Kruskal's
