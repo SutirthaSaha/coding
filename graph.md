@@ -311,7 +311,6 @@ def cycle_detection(graph):
     return False
 ```
 
-
 ### Topological Sort
 Topological sort is a way of arranging the nodes in a directed acyclic graph (DAG) in a linear order such that for every directed edge from node `u` to node `v`:
 - Node `u` appears before node `v` in the ordering.
@@ -369,11 +368,45 @@ def topological_sort(graph):
 ```
 
 ### Flood Fill Algorithm
+The Flood Fill algorithm is used to fill a contiguous region of pixels with a particular color, starting from a given seed pixel.
+
+Code
+```python
+def flood_fill(grid, row, col, new_color):  
+    rows, cols = len(grid), len(grid[0])  
+    original_color = grid[row][col]
+    # possible directions
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+  
+    # Base case: If the new color is the same as the original color, no change is needed  
+    if original_color == new_color:  
+        return grid  
+  
+    def is_valid(row, col):
+        return 0<=row<rows and 0<=col<cols
+
+    def fill(row, col):  
+        # Set the new color  
+        grid[row][col] = new_color
+
+        # Recursively fill the neighboring cells
+        for direction in directions:
+            n_row, n_col = row + direction[0], col + direction[1]
+            if is_valid(n_row, n_col) and grid[n_row][n_col] == original_color:        
+                fill(n_row, n_col)
+  
+    # Start the flood fill from the given starting cell  
+    fill(row, col)  
+    return grid
+```
+The recursive approach handles the issue of visiting the same cell again by marking cells with the new color as they are visited. Once a cell is changed to the new color, it will no longer match the original_color, which prevents it from being revisited.
+
 ### Shortest Path Algorithms
-#### 1. Single Source Shortest Path - Dijkstra
+### 1. Single Source Shortest Path
+##### Dijkstra
 Dijkstra's algorithm is a graph search algorithm that solves the single-source shortest path problem for a graph with **non-negative edge weights**, producing a shortest path tree. This means it finds the shortest paths from a starting node (source) to all other nodes in the graph.
 
-##### How it Works:
+###### How it Works:
 - **Initialization**: Start with a distance array, dist, where dist[source] is 0 (distance to itself) and all other distances are set to infinity.
 - **Priority Queue**: Use a priority queue (min-heap) to select the node with the smallest distance.
 - **Relaxation**: For each selected node, update the distances of its neighbors if a shorter path is found via the current node.
@@ -383,7 +416,9 @@ Code
 ```python
 def dijkstra(start, graph):
     # map to store shortest distance
-    dist = {}
+    dist = {node: float('inf') for node in graph}
+    dist[start] = 0
+    
     # min-heap to store the minimum distance node at the root
     priority_queue = [(0, start)]
 
@@ -392,26 +427,127 @@ def dijkstra(start, graph):
 
         # Nodes can be added to the priority queue multiple times. We only  
         # process a node the first time we remove it from the priority queue.
-        if current_node in dist:
+        if current_node in visited:
             continue
-
-        dist[current_node] = current_distance
+        
+        visited.add(current_node)
 
         for neighbor, weight in graph[current_node]:
             distance = current_distance + weight
 
             # Only consider this new path if it's better
-            if neighbor not in dist:
+            if dist[neighbor] > distance:
                 dist[neighbor] = distance 
                 heapq.heappush(priority_queue, (distance, neighbor))
     
     for node in graph:
-        if node not in dist:
+        # for nodes that are not reachable from the start node
+        if dist[node] == float('inf'):
             dist[node] = -1
     return dist
 ```
+##### Bellman Ford
+The Bellman-Ford algorithm is another algorithm for finding the shortest paths from a single source vertex to all other vertices in a weighted graph. Unlike Dijkstra's algorithm, Bellman-Ford can handle graphs with negative edge weights. It is slower but more versatile.
+
+**Negative Weight Cycle**
+A negative weight cycle in a graph is a loop where the sum of the edge weights is negative. These cycles are crucial in shortest path algorithms because they allow you to keep decreasing the path length endlessly by looping through the cycle. This makes it impossible to define a "shortest path" accurately.
+
+###### How it Works
+- **Initialization**: Start with a distance array, dist, where dist[source] i  0 (distance to itself) and all other distances are set to infinity.
+- **Relaxation**: For each edge, update the distances of the two vertices if a shorter path is found.
+- **Repeat**: Repeat the relaxation process for `|V| - 1` times (where `|V|` is the number of vertices).
+- **Negative Cycle Check**: Perform an additional relaxation to detect negative weight cycles. If a shorter path is found, then a negative weight cycle exists.
+
+Code
+1. When the adjacency list is provided as an input
+```python
+def bellman_ford(start, graph):
+    dist = {node: float('inf') for node in graph}
+    dist[start] = 0
+    n = len(graph)
+
+    for _ in range(n - 1):
+        for node in graph:
+            for neighbor, weight in graph[node]:
+                if dist[node] != float('inf') and dist[node] + weight < dist[neighbor]:
+                    dist[neighbor] = dist[node] + weight
+    
+    # Check for negative weight cycles
+    for node in graph:
+        for neighbor, weight in graph[node]:
+            if dist[node] != float('inf') and dist[node] + weight < dist[neighbor]:
+                # graph contains a negative weight cycle
+                return -1
+
+    return dist  
+ ```
+2. When the edges are provided as an input
+```python
+def bellman_ford_edges(start, edges, num_vertices):  
+    dist = {i: float('inf') for i in range(num_vertices)}  
+    dist[start] = 0  
+  
+    for _ in range(num_vertices - 1):  
+        for u, v, w in edges:  
+            if dist[u] != float('inf') and dist[u] + w < dist[v]:  
+                dist[v] = dist[u] + w  
+  
+    # Check for negative weight cycles  
+    for u, v, w in edges:  
+        if dist[u] != float('inf') and dist[u] + w < dist[v]:  
+            # Graph contains a negative weight cycle  
+            return -1  
+  
+    return dist
+```
+**Why on |V|-1 we get the result?**
+Since the longest possible path without repeating any vertex in a graph with |V| vertices has |V| - 1 edges, the algorithm needs up to |V| - 1 iterations to ensure that the shortest path to each vertex is found.
+
+Example:
+```mermaid
+graph LR
+    A[1] --> B[2]
+    B --> C[3]
+    C --> D[4]
+    D --> E[5] 
+```
+
+Starting with node 1, for this graph to relax till E we would need `|V| - 1` or 4 iterations.
 
 #### 2. Multi Source Shortest Path
+##### Floyd Warshall Algorithm
+The Floyd-Warshall algorithm is used to find the shortest paths between all pairs of vertices in a weighted graph. It can handle positive and negative edge weights but not negative weight cycles.
+
+###### How it Works:
+- **Initialization**: Create a distance matrix `dist` where `dist[i][j]` is the weight of the edge from vertex `i` to vertex `j`. If no such edge exists, initialize `dist[i][j]` to infinity. the diagonal elements `dist[i][i]` are set to 0.
+- **Relaxation**: For each pair of vertices (i, j), update the `dist[i][j]` to be the minimum of `dist[i][k] + dist[k][j]` for each intermediate vertex k.
+- **Repeat**: Repeat the relaxation for all pairs of vertices and all intermediate vertices.
+- **Negative Cycle Check**: After computing the shortest paths, if the distance from a vertex to itself becomes negative (dist[i][i] < 0 for any vertex i), it indicates a negative weight cycle.
+
+Code
+```python
+def floyd_warshall(graph):
+    n = len(graph)
+    dist = [[float('inf')] * n for _ in range(n)]
+
+    for i in range(n):
+        dist[i][i] = 0
+        for j, weight in graph[i]:
+            dist[i][j] = weight
+    
+    for k in range(n):
+        for i in range(n):
+            for j in range(n):
+                dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+    
+    # check for negative weight cycles
+    for i in range(n):
+        if dist[i][i] < 0:
+            # graph contains a negative weight cycle
+            return -1
+    return dist
+``` 
+
 ### Disjoint Union Set - DSU
 Two sets are called disjoint if they don’t share any element; their intersection is an empty set. Also known as Union-Find as it supports the following operations:
 - Merging disjoint sets into a single disjoint set using the **Union** operation.
@@ -530,11 +666,103 @@ def count_components(n, edges):
 ```
 
 ### Minimum Spanning Tree
-#### 1. Prim's
-#### 2. Kruskal's
+A Minimum Spanning Tree (MST) of a weighted, connected, undirected graph is a spanning tree that has the minimum possible total edge weight compared to all other spanning trees of the graph.
+**Easy words**: A Minimum Spanning Tree connects all the vertices in a graph with the minimum possible total edge weight, ensuring no cycles are formed.
+
+#### Characteristics
+- Spanning Tree: A spanning tree of a graph is a subgraph that includes all the vertices of the original graph and is a tree (i.e., it is connected and acyclic).
+- Minimum Total Edge Weight: Among all possible spanning trees, the MST has the least sum of the weights of its edges.
+- Uniqueness: If all the edge weights are distinct, the MST is unique. If there are edges with equal weights, there may be multiple MSTs with the same total weight.
+
+#### Algorithms to find MST
+##### 1. Prim's
+Prim's Algorithm is a greedy algorithm that finds a Minimum Spanning Tree (MST) for a weighted, connected, undirected graph. The algorithm operates by growing the MST one vertex at a time, starting from an arbitrary vertex and repeatedly adding the smallest edge that connects a vertex in the MST to a vertex outside the MST.
+
+**Step-by-Step Process:**
+- Initialization:
+  - Start with an arbitrary vertex, and mark it as part of the MST.
+  - Initialize a priority queue (min-heap) to keep track of the smallest edges that connect vertices inside the MST to vertices outside the MST.
+- Growing the MST:
+  - While there are still vertices not included in the MST:
+  - Extract the edge with the smallest weight from the priority queue.
+  - Add the edge and the vertex it connects to the MST (if the vertex is not already in the MST).
+  - For the newly added vertex, add all edges connecting it to vertices outside the MST to the priority queue.
+- Completion:
+  - The algorithm completes when all vertices are included in the MST.
+
+Code
+```python
+def prim(start, graph):
+    min_heap = [(0, start)]
+    visited = set()
+    min_cost = 0
+
+    while min_heap:
+        node_weight, node = heapq.heappop(min_heap)
+        
+        # If the node has already been visited, skip it
+        if node in visited:  
+            continue 
+
+        visited.add(node)
+        min_cost = min_cost + node_weight
+
+        for neighbor, weight in graph[node]:
+            if neighbor not in visited:
+                heapq.heappush(min_heap, (weight, neighbor))
+    
+    return min_cost
+```
+##### 2. Kruskal's
 ### Hamiltonian Path - Travelling Salesman Problem
 ### Graph Coloring
 ### Strongly connected components - Kosaraju's Algorithm
+#### Definition
+A maximal subgraph of a directed graph such that for every pair of vertices (u) and (v) in the subgraph, there is a directed path from (u) to (v) and a directed path from (v) to (u).
+
+Example:
+```mermaid
+graph LR 
+    2 --> 0  
+    0 --> 1  
+    1 --> 2  
+    2 --> 3  
+    3 --> 4  
+    4 --> 5  
+    5 --> 6  
+    4 --> 7  
+    6 --> 7  
+    6 --> 4
+```
+
+SCCs:
+```mermaid
+graph LR  
+    subgraph SCC1  
+        A0[0] --> A1[1]  
+        A1[1] --> A2[2]  
+        A2[2] --> A0[0]  
+    end  
+  
+    subgraph SCC2  
+        B3[3]  
+    end  
+  
+    subgraph SCC3  
+        C4[4] --> C5[5]  
+        C5[5] --> C6[6]  
+        C6[6] --> C4[4]  
+    end  
+  
+    subgraph SCC4  
+        C7[7]  
+    end  
+  
+    A2 --> B3  
+    B3 --> C4
+    C4 --> C7  
+    C6 --> C7 
+```
 ### Network Flow
 #### 1. Ford-Fulkerson
 #### 2. Edmonds Karp
