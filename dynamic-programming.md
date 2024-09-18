@@ -463,6 +463,214 @@ def min_coins(amount, denominations):
 This is again the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
 
 ### Longest Common Subsequence
+Given two sequences, find the length of longest subsequence present in both of them. 
+
+**Subsequence**: A subsequence is a sequence that appears in the same relative order, but not necessarily contiguous. 
+For example, “abc”,  “abg”, “bdf”, “aeg”,  ‘”acefg”, .. etc are subsequences of “abcdefg”.
+
+#### Recursive Solution:
+- **Choices**: To consider the two characters in both of the strings. Now the behavior would vary on the basis of their comparison result:
+  - **Equal**: We proceed to the next characters in both
+  - **Not equal**: We have two choices:
+    - Consider the current character of the first string and go to the next character of the second string.
+    - Consider the next character of the first string and go to the current character of the second string.
+- **Base Condition**: Either of the string reaches its end.
+
+Code
+```python
+def longest_common_subsequence(string1, string2):
+    m, n = len(string1), len(string2)
+    def solve(index1, index2):
+        if index1 == m or index2 == n:
+            return 0
+        if string1[index1] == string2[index2]:
+            return 1 + solve(index1 + 1, index2 + 1)
+        else:
+            return max(solve(index1 + 1, index2), solve(index1, index2+1))
+    return solve(0, 0)
+```
+
+#### Memoized Solution:
+We know that this can be memoized and the complexity can be imporoved as there are multiple choices possible - think of them as sub-problems. There is a possibility that the same sub-problem might have happened earlier and re-compute can be avoided by saving their result somewhere. This is where **memoization** comes into play.
+In this case too, if the characters do not match - there are 2 possible choices and can be memoized to solve faster.
+
+```python
+def longest_common_subsequence(string1, string2):
+    m, n = len(string1), len(string2):
+    mem = dict()
+
+    def solve(index1, index2):
+        if index1 == m or index2 == n:
+            return 0
+        if (index1, index2) not in mem:
+            if string1[index1] == string2[index2]:
+                mem[(index1, index2)] = 1 + solve(index1+1, index2+1)
+            else:
+                mem[(index1, index2)] = max(solve(index, index2+1), solve(index+1, index2))
+        return mem[(index1, index2)]
+    
+    return solve(0, 0)
+```
+
+#### Problems based on Longest Common Subsequence:
+- Print Longest Common Subsequence
+- Longest Common Substring
+- Shortest Common Supersequence
+- Minimum number of Insertion and Deletion to convert string a to string b
+- Longest Palindromic Subsequence
+- Print Shortest Common Supersequence
+- Longest repeating subsequence
+- Sequence Pattern Matching
+- Minimum number of Insertion to make a string palindrome 
+
+
+#### Print Longest Common Subsequence between 2 Strings
+```
+// TODO
+```
+
+#### Longest Common Substring
+In LCS(Longest Common Subsequence), it was possible to select non-contiguous sequence. But in this case we can only take in sub-strings so the intuition for the solution would be as follows:
+
+##### Intuition
+For LCS since we could take any part of the string for both of the strings we could traverse through both of the strings together. Here in addition to the logic of LCS we would have the explore for all possible index combinations as starting positions as:
+- Contiguous Requirement: Because we are looking for contiguous matches, once a mismatch occurs, the current substring is invalidated, and we need to start a new search.
+- Localized Nature: Since we are looking for the longest contiguous match, the problem is more localized, and we need to consider different starting points in both strings to ensure we find the longest contiguous match.
+- By exploring all starting positions, we ensure that all possible contiguous substrings are considered.
+
+##### Recursive Solution
+- **Choices**: Now along with the indexes we also pass the result.
+  - **Equal**: We add the character to the result and increase both the index
+  - **Not Equal**: For strings starting at index `index1` and `index2` respectively, this would be the longest possible common substring.
+- **Base Condition**: When we reach the end of the either of hte strings.
+
+We can notice that this can just be a modification in the existing LCS solution.
+
+```python
+def longest_common_substring(string1, string2):
+    m, n = len(string1), len(string2)
+    result = 0
+
+    for solve(index1, index2):
+        if index1 == m or index2 == n:
+            return 0
+        if string1[index1] == string2[index2]:
+            return 1 + solve(index1+1, solve(index2+1))
+        else:
+            return 0
+    
+    for index1 in range(m):
+        for index2 in range(n):
+            result = max(result, solve(index1, index2))
+
+    return result
+```
+
+#### Shortest Common Supersequence
+Given two strings str1 and str2, find the shortest string that has both str1 and str2 as subsequences.
+Examples:
+
+Input:   str1 = "geek",  str2 = "eke"
+Output: "geeke"
+
+##### Intution
+- In this we need both the strings in the resultant string, but we need to ensure that it is in the same order (although may not be contiguous).
+- We already know how to calculate the LCS from both the strings, if you take the other characters count from both of them we would get the shortest super length as we have alreay considered the common ones (LCS).
+- `SCS = len(string1) + len(string2) - LCS` - since LCS would occur twice.
+
+#### Minimum number of Insertion and Deletion to convert string a to string b
+Given two strings ‘str1’ and ‘str2’ of size m and n respectively. The task is to remove/delete and insert minimum number of characters from/in str1 so as to transform it into str2. It could be possible that the same character needs to be removed/deleted from one point of str1 and inserted to some another point.
+
+Example:
+Input: str1 = "geeksforgeeks", str2 = "geeks"
+Output: Minimum Deletion = 8, Minimum Insertion = 0 
+
+##### Intuition
+From out knowledge we know how to use LCS - compare the characters of the 2 strings and take choices. Here too if you observe when we encounter characters from each string we have the following choices:
+- **Equal** - no addition needed, we move forward for both the strings
+- **Not Equal**
+  - add the character to string a - add 1, increase the index in b
+  - remove the character from string a - add 1, increase the index in a
+
+From the choices when characters not equal, we have to minimise the operations.
+
+#### Longest Palindromic Subsequence
+Given a sequence, find the length of the longest palindromic subsequence in it.
+Example :
+Input:"bbbab"
+Output:4
+
+##### Intuition
+Palindrome is a string which same from front as well as back.
+In order to find the LPS, we can reverse the string and treat it as the second string. The LCS between both odf them would be the LPS.
+
+#### Minimum number of Deletion to make a string palindrome
+Given a string of size ‘n’. The task is to remove or delete minimum number of characters from the string so that the resultant string is palindrome.
+Examples :
+
+Input : aebcbda
+Output : 2
+Remove characters 'e' and 'd'. Resultant string will be 'abcba' which is a palindromic string
+
+##### Intuition
+- We already know `Longest Palindromic Subsequence`, and delete the rest of the characters.
+- `len(string)- LPS` - would give us the minimum deletions.
+
+#### Minimum number of Insertion to make a string palindrome
+Given a string, find the minimum number of characters to be inserted to form Palindrome string out of given string.
+
+Examples:
+- ab: Number of insertions required is 1. bab
+- aa: Number of insertions required is 0. aa
+
+##### Intution
+- With our knowledge of finding out `Longest Palindromic Subsequence`, the characters that we would need to add is the ones that are missing from it.
+- `len(string)- LPS` - would give us the minimum insertions.
+- Same as minimum number of deletions.
+
+#### Print Shortest Common Supersequence
+
+```
+// TODO
+```
+
+#### Longest repeating subsequence
+Given a string, print the longest repeating subsequence such that the two subsequence don’t have same string character at same position, i.e., any i’th character in the two subsequences shouldn’t have the same index in the original string.
+
+Example:
+Input: str = "aab"
+Output: "a"
+The two subsequence are 'a'(first) and 'a' (second). Note that 'b' cannot be considered as part of subsequence as it would be at same index in both.
+
+##### Intuition
+This problem is basically LCS with the same string as the second string. The only catch is that we can't consider the same index for matching. If the different index matches as we traverse, we are sure that the sequence is maintained as well as the character is a different character.
+
+Only the matching condition now changes to:
+```python
+if index1 != index2 and string1[index1] == string2[index2]:
+    return 1 + solve(index1+1, index2+1)
+```
+
+#### Sequence Pattern Matching
+Given two strings s and t, return true if s is a subsequence of t, or false otherwise.
+
+A subsequence of a string is a new string that is formed from the original string by deleting some (can be none) of the characters without disturbing the relative positions of the remaining characters. (i.e., "ace" is a subsequence of "abcde" while "aec" is not).
+
+Example 1:
+Input: s = "abc", t = "ahbgdc"
+Output: true
+
+Example 2:
+Input: s = "axc", t = "ahbgdc"
+Output: false
+
+##### Intuition
+The LCS of both the strings should be equal to the `s`. Only the length calculation would be fine, need not find the exact LCS because it can never be equal to length of `s` without being equal to `s`.
+
+What if it is not specified that `s` would be a subsequence and either can be a subsequence of each other. Then the return condtion would be:
+```python
+return lcs == min(len(s), len(t))
+```
 
 ### Matrix Chain Multiplication
 Always solve using **recursion**.
