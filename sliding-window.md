@@ -213,3 +213,56 @@ def longest_substring(string):
 ```
 
 ### Minimum Window Substring
+Given two strings `s` and `t` of lengths `m` and `n` respectively, return the minimum window 
+substring of `s` such that every character in `t` (including duplicates) is included in the window.
+
+#### Intuition
+The idea is to dynamically adjust the window size to find the smallest substring that contains all characters from the target string t.
+- Create a map for the frequency of each character in t `Need Map` and another map to track the frequency of characters within the current window of s `Have Map`.
+- Increase the window size, adding characters to the `Have Map` until the window contains all required characters from the `Need Map`.
+- Once the window is sufficient (contains all characters from t), contract the window from left and try to minimize its size while still containing all required characters.
+- Keep track of the smallest valid window found.
+
+Code
+```python
+def minimum_window(s, t):
+    # Helper function to check if the current window is sufficient
+    def check_sufficient():
+        for char in need_map:
+            if need_map[char] > have_map[char]:
+                return False
+        return True
+
+    m, n = len(s), len(t)
+    min_start, min_end = 0, m-1
+    start = 0
+    have_map, need_map = defaultdict(int), defaultdict(int)
+
+    # Populate the need_map with the frequency of each character in t
+    for char in t:
+        need_map[char] = need_map[char] + 1
+    
+    # Flag to indicate if a valid window has been found
+    is_sufficient = False
+
+    for end in range(m):
+        have_map[s[end]] = have_map[s[end]] + 1
+
+        # Check if the current window is sufficient and try to contract it
+        while check_sufficient():
+            is_sufficient = True
+            curr_window = end - start + 1
+
+            # Update the minimum window if the current one is smaller
+            if (min_end - min_start + 1) > curr_window:
+                min_start, min_end = start, end
+
+                # Contract the window from the left
+                have_map[s[start]] = have_map[s[start]] - 1
+                start = start + 1
+    
+    # If a valid window was found, return the smallest window substring
+    if is_sufficient:
+        return s[min_start: min_end+1]
+    return ""
+```
