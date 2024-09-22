@@ -437,8 +437,8 @@ This is again the recursive code, ensure to implement memoization with dictionar
 
 ##### Coin Change Problem: Minimum number of coins
 Given a value V, if we want to make change for V cents, and we have infinite supply of each of C = { C1, C2, .. , Cm} valued coins, what is the minimum number of coins to make the change?
-Example:
 
+Example:
 Input: coins[] = {25, 10, 5}, V = 30
 Output: Minimum 2 coins required
 We can use one coin of 25 cents and one of 5 cents.
@@ -463,13 +463,152 @@ def min_coins(amount, denominations):
 This is again the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
 
 ### Fibonacci Numbers
+In this pattern, you'll notice that the problem is being solved by repeatedly calculating the same sub-problems. This redundant computation can be avoided by using memoization.
 
 #### Problems
-- Fibonacci Number
-- Climbing Stairs
-- House Robber
-- Maximum Alternating Subsequence Sum
+#### Fibonacci Number
+The Fibonacci sequence is a series of numbers where each number is the sum of the two preceding ones, usually starting with 0 and 1. The sequence goes: 0, 1, 1, 2, 3, 5, 8, 13, 21, and so forth. The problem is to find the `nth` Fibonacci number.
 
+##### Naive Approach - Recursive Solution
+The naive approach to solving the Fibonacci problem is to use a simple recursive function.
+
+Code
+```python
+def fib(n):
+    if n<=1:
+        return n
+    return fib(n-1) + fib(n-2)
+```
+
+However, this approach has an exponential time complexity of `O(2^n)` because it recalculates the same values multiple times.
+
+##### Recrusion Call Graph
+```mermaid
+graph TD;  
+    F5["F(5)"] --> F4a["F(4)"];  
+    F5 --> F3b["F(3)"];  
+    F4a --> F3a["F(3)"];  
+    F4a --> F2b["F(2)"];  
+    F3a --> F2a["F(2)"];  
+    F3a --> F1a["F(1)"];  
+    F2a --> F1b["F(1)"];  
+    F2a --> F0a["F(0)"];  
+    F2b --> F1c["F(1)"];  
+    F2b --> F0b["F(0)"];  
+    F3b --> F2c["F(2)"];  
+    F3b --> F1d["F(1)"];  
+    F2c --> F1e["F(1)"];  
+    F2c --> F0c["F(0)"];
+```
+In the graph, you can see that F(3), F(2), F(1), and F(0) are computed multiple times. Using memoization, we store the results of these computations.
+
+##### Intuition
+- We can see that the same sub-problems are being solved multiple times, thus we calculate it once and store the results.
+- Thus **Dynamic Programming**, although this is not related to choices but this is avoiding redundant calculations.
+
+###### Memoization
+Code 
+```python
+def fib(n):
+    mem = dict()
+    def solve(n):
+        if n <= 1:
+            return n
+        if n not in mem:
+            mem[n] = fib(n-1) + fib(n-2)
+        return mem[n]     
+
+    return solve(n)
+```
+
+Dynamic programming approach that stores intermediate results to avoid redundant calculations, reducing the time complexity to `O(n)`.
+
+#### Climbing Stairs
+You are climbing a staircase. It takes n steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?
+
+##### Intuition
+- The total number of possible ways would be to sum the possible ways with both 1 step and 2 step.
+
+##### Recursive Solution
+Code
+```python
+def climbing_stairs(n):
+    if n <= 1:
+        return n
+    return climbing_stairs(n-1) + climbing_stairs(n-2)
+```
+This is again the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
+
+#### House Robber
+You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed. All houses at this place are arranged in a circle. That means the first house is the neighbor of the last one. Meanwhile, adjacent houses have a security system connected, and it will automatically contact the police if two adjacent houses were broken into on the same night. Given an integer array `nums` representing the amount of money of each house, return the maximum amount of money you can rob tonight without alerting the police.  
+
+##### Parent problem
+For the same house robber, let's first try to solve when the houses are not in a circle but in a straight line. The first and the last house are not adjacent, this makes it easier to calculate.
+
+##### Intuition
+- Choices: Find the maximum between either choosing the current house or the adjacent house.
+- Base Condition: When we reach the end of the houses row.
+
+##### Recursive Solution
+Code
+```python
+def house_robber(houses):
+    n = len(houses)
+    def solve(index):
+        if index >= n:
+            return 0
+        return max(houses[index] + solve(index+2), solve(index+1))
+    return solve(0)
+```
+
+This is again the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
+
+The circular houses robbery would just be a modification where either the first house or the last house can be robbed. So we can extend the previous house robber problem into:
+- Pass all the houses apart from the first one
+- Pass all the houses apart form the last one
+- The maximum between these 2 would be giving the optimal solution of the maximum amount that can be robbed.
+
+#### Maximum Alternating Subsequence Sum
+Given an array of numbers, find the maximum sum of an alternating subsequence, where the difference between consecutive elements in the subsequence is strictly positive or strictly negative.
+
+##### Intuition
+- Choices: Either choose the element or not choose it. Along with it we also have to consider the operation that we would be performing - (add/subtract).
+- Base Condition: The end of the array.
+
+##### Recursive Solution
+Code
+```python
+def maximum_alternative_subsequence_sum(arr):
+    n = len(arr)
+    def solve(index, is_positive):
+        if index == n:
+            return 0
+        val = arr[index]
+        if not is_positive:
+            val = -val
+        return max(solve(index+1, is_positive), val + solve(index+1, not is_positive))
+    return solve(0, True)
+```
+
+##### Memoized Solution
+Now for the memoization, only the index as the key wouldn't suffice as you would also have the sign of the value as a part of the sub-problem.
+
+Code
+```python
+def maximum_alternative_subsequence_sum(arr):
+    n = len(arr)
+    mem = dict()
+    def solve(index, is_positive):
+        if index == n:
+            return 0
+        if (index, is_positive) not in mem:
+            val = arr[index]
+            if not is_positive:
+                val = -val
+            mem[(index, is_positive)] max(solve(index+1, is_positive), val + solve(index+1, not is_positive))
+        return mem[(index, is_positive)]
+    return solve(0, True)
+```
 
 ### Longest Common Subsequence
 Given two sequences, find the length of longest subsequence present in both of them. 
@@ -679,6 +818,138 @@ The LCS of both the strings should be equal to the `s`. Only the length calculat
 What if it is not specified that `s` would be a subsequence and either can be a subsequence of each other. Then the return condtion would be:
 ```python
 return lcs == min(len(s), len(t))
+```
+
+### Longest Increasing Subsequence
+The Longest Increasing Subsequence problem is a classic dynamic programming problem that asks for the length of the longest subsequence in a given array such that all elements of the subsequence are sorted in increasing order.
+
+#### Problem
+Given an array of integers, find the length of the longest subsequence such that all elements of the subsequence are in increasing order.
+
+##### Intuition
+We would have to track the longest subsequence ending at each postion by comparing with the previous elements. By comparing with the previous element we can decide whether we want toe xtedn the subsequence or not.
+
+##### Recursive Solution
+- **Choices**: For each element we have 2 choices:
+  - **Include** the element in the subsequenceif:
+    - current subsequence is empty
+    - value of the element is greater than the previous element and forms an increasing sequence.
+  - **Exclude** and move to the next element
+- **Base Condition** - End of the array.
+
+Code
+```python
+def longest_increasing_subsequence(nums):
+    n = len(nums)
+
+    def solve(current, prev):
+        if current == n:
+            return 0
+        
+        # exclude
+        exclude = solve(current+1, prev)
+
+        # include
+        include = 0
+        if prev == -1 or nums[prev] < nums[current]:
+            include = 1 + solve(current + 1, current)
+        
+        return max(include, exclude)
+    
+    return solve(0, -1)
+```
+
+##### Memoization
+To optimize the recursive solution and avoid redundant calculations, we'll use memoization to store the results of subproblems with the key for the memoization would be the current index and the previous index combination.
+
+Code
+```python
+def longest_increasing_subsequence(nums):
+    n = len(nums)
+    mem = dict()
+
+    def solve(current, prev):
+        if current == n:
+            return 0
+        
+        if (current, prev) not in mem:
+            # exclude
+            exclude = solve(current+1, prev)
+
+            # include
+            include = 0
+            if prev == -1 or nums[prev] < nums[current]:
+                include = 1 + solve(current + 1, current)
+            
+            mem[(current, prev)] = max(exclude, include)
+        return mem[(current, prev)]
+    
+    return solve(0, -1)
+```
+
+### Kadane's Algorithm
+Kadane's algorithm is a famous algorithm used to solve the `Maximum Subarray Problem` in linear time.
+
+#### Problem
+The problem is to find the contiguous subarray within a one-dimensional array of numbers - **both positive and negative numbers** - that has the largest sum.
+
+#### Intuition
+Kadane's Algorithm makes a greedy choice at each step by selecting the option that maximizes the sum up to the current element. This choice ensures that the local maximum is always the best option for achieving the global maximum.
+
+##### Working:
+- The algorithm keeps track of two key pieces of information: the maximum sum of the subarray that ends at the current position and the maximum sum of any subarray encountered so far.
+- As you iterate through the array, for each element, you decide whether to include it in the current subarray or to start a new subarray with this element. This decision is based on which option yields a higher sum.
+  - If including the element in the current subarray results in a higher sum, you continue with the current subarray.
+  - If starting a new subarray with the current element results in a higher sum, you start a new subarray.
+- Compare this value with the global maximum and update if needed.
+
+Code
+```python
+def maximum_subarray_problem(nums):
+    max_ending_here = nums[0]
+    max_subarray = nums[0]
+
+    for num in nums[1:]:
+        max_ending_here = max(num, max_ending_here + num)
+        max_subarray = max(max_subarray, max_ending_here)
+    
+    return max_subarray
+```
+
+#### Problems based on Kadane's Algorithm
+- Maximum Product Subarray
+
+#### Maximum Product Subarray
+Given an array of integers, find the contiguous subarray within the array that has the largest product.
+
+##### Intuition
+The intuition behind the Maximum Product Subarray is similar to Kadane's Algorithm, but with a twist as the product of two negative numbers is positive, you need to keep track of both the maximum and minimum products upto the current position.
+
+##### Working
+- The algorithm keeps track of three key pieces of information:
+  - The maximum product of the subarray that ends in the current position
+  - The minimum product of the subarray that ends in the current position
+  - The maximum product subarray encountered so far.
+- As you iterate through the array, for each element: 
+  - Swap the current max and current min if the element is negative
+  - Update them by considering the current element and their product with the current element.
+  - Update the global maximum if needed.
+
+Code
+```python
+def maximum_product_subarray(nums):
+    max_product = min_product = result = nums[0]
+
+    for num in nums[1:]:
+        if num < 0:
+            # TWIST: negative multiplied by negative is positive
+            max_product, min_product = min_product, max_product
+        
+        # same old same old
+        max_product = max(num, max_product * num)
+        min_product = max(num, min_product * num)
+
+        result = max(result, max_product)
 ```
 
 ### Matrix Chain Multiplication
@@ -974,3 +1245,73 @@ def maximum_path_sum(root):
         result = max(result, max(root.val, root.val + left_path_sum + right_path_sum))
         return max(root.val, root.val + max(left_path_sum, right_path_sum))
 ```
+
+### DP on Grid
+Dynamic Programming (DP) on grids is a common topic in algorithmic problem-solving. These problems typically involve finding paths, sums, or counts on a 2D grid (matrix) while adhering to certain constraints.
+
+#### Problems on DP on Grid
+- Unique Paths
+- Unique Paths (with Obstacles)
+- Minimum Path Sum
+- Longest Increasing Path in a Matrix
+
+#### Unique Paths
+Given an m x n grid, find the number of possible unique paths from the top-left corner to the bottom-right corner. You can only move either down or right at any point in time.
+
+##### Recursive Solution
+- **Choices**- At each index in the matrix you have 2 choices: right or bottom (if valid index). sum all possible ways you can reach the end of the matix from that index would give you answer.
+- **Base Condition**- At the bottom right corner - satisfied the condition  return 1. We wont reach any invalid index in the base condition as they are not treated as valid inputs.
+
+Code
+```python
+def unique_paths(grid):
+    m, n = len(grid), len(grid[0])
+    directions = [(1, 0), (0, 1)]
+
+    def is_valid(row, col):
+        if 0<=row<m and 0<=col<m
+    
+    def solve(row, col):
+        if row == m-1 and col == n-1:
+            return 1
+        result = 0
+        for direction in directions:
+            n_row, n_col = n_row + direction[0], n_col + direction[1]
+            if is_valid(n_row, n_col):
+                result = result + solve(n_row, n_col)
+        return result
+    
+    return solve(0, 0)
+```
+
+#### Unique Paths(With Obstacles)
+Given an m x n grid with obstacles (represented by 1s), find the number of unique paths from the top-left corner to the bottom-right corner.
+
+##### Hint:
+The only change from the previous problem would be the condition for traversion to the next index:
+
+```python
+for direction in directions:
+    n_row, n_col = n_row + direction[0], n_col + direction[1]
+    if is_valid(n_row, n_col) and grid[n_row][n_col] != 1:
+        # if valid and not an obstacle
+        result = result + solve(n_row, n_col)
+```
+
+#### Minimum Path Sum
+Given an m x n grid filled with non-negative numbers, find a path from the top-left corner to the bottom-right corner which minimizes the sum of all numbers along its path.
+
+##### Hint
+The only change again from `Unique Paths` would be just the way the result is being calculated, here we would consider both the paths and take the minimum and return the same.
+
+```python
+result = float('inf') # maximum possible value
+for direction in directions:
+    n_row, n_col = n_row + direction[0], n_col + direction[1]
+    if is_valid(n_row, n_col):
+        result = min(result, grid[row][col] + solve(n_row, n_col))
+return result
+```
+
+#### Longest Increasing Path in a Matrix
+Given an m x n matrix of integers, find the length of the longest increasing path in the matrix. You can move in four directions: up, down, left, and right.
