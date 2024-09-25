@@ -673,8 +673,34 @@ def longest_common_subsequence(string1, string2):
 
 
 #### Print Longest Common Subsequence between 2 Strings
-```
-// TODO
+Given two sequences, find the length of longest subsequence present in both of them. 
+
+We have already seen the problem to calculate the length of the longest common subsequence in 2 strings. This would be a modification on the same.
+
+##### Intuition
+- Add a character to the result if they are equal
+- If not equal, update the grid position to whichever is the maximum.
+
+Code
+```python
+def print_lcs(mem, string1, string2):
+    result = []
+    n1, n2 = len(string1), len(string2)
+
+    index1, index2 = 0, 0
+
+    while index1 < n1 and index2 < n2:
+        if string1[index1] == string2[index2]:
+            result.append(string1[index1])
+            index1 = index1 + 1
+            index2 = index2 + 1
+        else:
+            if mem(index1+1, index2) >= mem(index1, index2+1): # index lookup out-of-bound and key error can be resolved by using default dict
+                index1= index1 + 1
+            else:
+                index2 = index2 + 1 
+
+    return "".join(result) 
 ```
 
 #### Longest Common Substring
@@ -715,7 +741,7 @@ def longest_common_substring(string1, string2):
 ```
 
 #### Shortest Common Supersequence
-Given two strings str1 and str2, find the shortest string that has both str1 and str2 as subsequences.
+Given two strings str1 and str2, find the length of the shortest string that has both str1 and str2 as subsequences.
 Examples:
 
 Input:   str1 = "geek",  str2 = "eke"
@@ -777,10 +803,42 @@ Examples:
 - Same as minimum number of deletions.
 
 #### Print Shortest Common Supersequence
+Given two strings str1 and str2, find the shortest string that has both str1 and str2 as subsequences.
 
+##### Intuition
+We are already solved the print LCS problem earlier and there is only a slight modification in it. In LCs we used to add to the result only if they were equal, here we would add in either case - for the option we are not going with.
+
+Code
+```python
+def print_scs(mem, string1, string2):
+    n1, n2 = len(string1), len(string2)
+    index1, index2 = 0, 0
+    result = []
+
+    while index1 < n1 and index2 < n2:
+        if string1[index1] == string2[index2]:
+            result.append(string1[index1])
+            index1 = index1 + 1
+            index2 = index2 + 1
+        else:
+            if mem(index1+1, index2) >= mem(index1, index2+1):
+                result.append(string1[index1])
+                index1 = index1 + 1
+            else:
+                result.append(string2[index2])
+                index2 = index2 + 1
+        
+    while index1 < n1:
+        result.append(string1[index1])
+        index1 = index1 + 1
+    
+    while index2 < n2:
+        result.append(string2[index2])
+        index2 = index2 + 1
+    
+    return "".join(result)
 ```
-// TODO
-```
+
 
 #### Longest repeating subsequence
 Given a string, print the longest repeating subsequence such that the two subsequence don’t have same string character at same position, i.e., any i’th character in the two subsequences shouldn’t have the same index in the original string.
@@ -827,7 +885,7 @@ The Longest Increasing Subsequence problem is a classic dynamic programming prob
 Given an array of integers, find the length of the longest subsequence such that all elements of the subsequence are in increasing order.
 
 ##### Intuition
-We would have to track the longest subsequence ending at each postion by comparing with the previous elements. By comparing with the previous element we can decide whether we want toe xtedn the subsequence or not.
+We would have to track the longest subsequence ending at each postion by comparing with the previous elements. By comparing with the previous element we can decide whether we want to extend the subsequence or not.
 
 ##### Recursive Solution
 - **Choices**: For each element we have 2 choices:

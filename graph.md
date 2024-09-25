@@ -714,6 +714,59 @@ def prim(start, graph):
     return min_cost
 ```
 ##### 2. Kruskal's
+Kruskal's Algorithm is another greedy algorithm for finding the Minimum Spanning Tree of a graph. It works by sorting all the edges in the graph by their weight and then adding them one by one to the MST, ensuring that no cycles are formed.
+
+###### Step-by-Step Process
+- **Initialization**:
+  - Sort all edges in the graph by their weight
+  - Initialize a **Disjoint Set(Union Find)** to keep track of wich vertices are which components.
+- **Building the MST**:
+  - For each edge in the sorted list:
+    - If the edge connects 2 vertices that are not already in the same component, add the edge to the MST and join the components.
+- **Completion**:
+  - The algorithm completes when there are exactly `n-1` edges in the MST.
+
+Code
+```python
+def kruskal(n , edges):
+    parent = {i: i for i in range(n)}
+    rank = [1] * n
+
+    def find(node):
+        if node != parent[node]:
+            parent[node] = find(parent[node])
+        return parent[node]
+    
+    def union(node1, node2):
+        parent1 = find(node1)
+        parent2 = find(node2)
+
+        if parent1 != parent2:
+            if rank[parent1] >= rank[parent2]:
+                parent[parent2] = parent1
+                rank[parent1] = rank[parent1] + rank[parent2]
+            else:
+                parent[parent1] = parent2
+                rank[parent2] = rank[parent2] + rank[parent1]
+    
+    # edge has the structure - src, dest, weight
+    edges.sort(lambda edge: edge[2])
+
+    mst_cost = 0
+    mst_edges = 0
+
+    for edge in edges:
+        src, dest, weight = edge
+        if find(src) != find(dest):
+            union(src, dest)
+            mst_cost = mst_cost + weight
+            mst_edges = mst_edges + 1
+            if mst_edges == n-1:
+                break
+    
+    return mst_cost
+```
+
 ### Hamiltonian Path - Travelling Salesman Problem
 ### Graph Coloring
 ### Strongly connected components - Kosaraju's Algorithm
