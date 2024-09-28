@@ -112,10 +112,13 @@ def count_anagrams(string, sub_string):
 ```
 Always remember for each new index you encounter - you perform some work. Whenever the window size exceeds the limit, you revert the changes.
 
-### Maximum of all subarrays of size k
+### Maximum of all subarrays of size k*
 Given an array and a size of window k, we need to find out all the maximums in a window of size k.
+
+### Intuition
 For this we need a data structure that has efficient operations on both ends - double ended queue, and we would store the possible contenders for the maximum value in it. So we pop if we encounter any value greater than it in the window.
-- this ensures that we have already the next maximum with us when we are removing elements that are not in the window but was also a contender for the maximum
+- this ensures that we have already the next maximum with us when we are removing elements that are not in the window but was also a contender for the maximum.
+
 ```python
 def subarray_max(nums, k):
     result = []
@@ -191,7 +194,7 @@ def longest_substring_k_unique(string, k):
     return result
 ```
 
-### Longest Substring Without any Repeating Characters
+### Longest Substring Without any Repeating Characters*
 Input is a string and we need to provide the longest substring with no repeating characters.
 ```python
 def longest_substring(string):
@@ -212,7 +215,7 @@ def longest_substring(string):
     return result
 ```
 
-### Minimum Window Substring
+### Minimum Window Substring*
 Given two strings `s` and `t` of lengths `m` and `n` respectively, return the minimum window 
 substring of `s` such that every character in `t` (including duplicates) is included in the window.
 
@@ -265,4 +268,197 @@ def minimum_window(s, t):
     if is_sufficient:
         return s[min_start: min_end+1]
     return ""
+```
+
+### Best Time to Buy And Sell Stock*
+You are given an array prices where prices[i] is the price of a given stock on the ith day.
+You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock.
+Return the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.
+
+Example 1:
+Input: prices = [7,1,5,3,6,4]
+Output: 5
+Explanation: Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5.
+Note that buying on day 2 and selling on day 1 is not allowed because you must buy before you sell.
+Example 2:
+
+Input: prices = [7,6,4,3,1]
+Output: 0
+Explanation: In this case, no transactions are done and the max profit = 0.
+
+#### Intuition
+To solve this problem efficiently, we can use a single pass approach. The key is to keep track of the minimum price encountered so far as we iterate through the array and calculate the potential profit at each step.
+
+Code
+```python
+def max_profit(prices):
+    min_price = float('inf')
+    max_profit = 0
+
+    for price in prices:
+        # Update the minimum price encountered so far - this would be the buy price
+        if price < min_price:
+            min_price = price
+        
+        # Calculate the potential profit for the current price
+        profit = price - min_price
+
+        # Update the maximum profit if the current profit is higher
+        max_profit = max(max_profit, profit)
+    
+    return max_profit
+```
+
+### Permutation in String*
+Given two strings s1 and s2, return true if s2 contains a 
+permutation of s1, or false otherwise.
+In other words, return true if one of s1's permutations is the substring of s2.
+
+Example 1:
+Input: s1 = "ab", s2 = "eidbaooo"
+Output: true
+Explanation: s2 contains one permutation of s1 ("ba").
+
+Example 2:
+Input: s1 = "ab", s2 = "eidboaoo"
+Output: false
+
+#### Intuition:
+- Two strings are permutations of each other if and only if they have the same character frequencies. For example, both "ab" and "ba" contain one 'a' and one 'b'.
+- **A sliding window of fixed size** (length of s1) can be used to traverse s2. This allows us to check each substring of s2 of the same length as s1 for matching character frequencies.
+
+```python
+def permutation(s1, s2):
+    n1, n2 = len(s1), len(s2)
+    count1, count2 = defaultdict(int), defaultdict(int)
+
+    # Count characters in s1
+    for char in s1:
+        count1[char] = count1[char] + 1
+    
+    # Sliding window initialization
+    start = 0
+    for end in range(n2):
+        char = s2[end]
+        count2[char] = count2[char] + 1
+
+        # Ensure the window size does not exceed the length of s1
+        if (end - start + 1) > n1:
+            count2[s2[start]] = count2[s2[start]] - 1
+            if count2[s2[start]] == 0:
+                del count2[s2[start]]
+            start = start + 1
+        
+        # Check if the current window matches the character counts of s1
+        if (end - start + 1) == n1:
+            if count1 == count2:
+                return True
+    
+    return False
+```
+
+### Sliding Window Maximum* - Already solved above as Maximum of Subarrays of Size k
+You are given an array of integers nums, there is a sliding window of size k which is moving from the very left of the array to the very right. You can only see the k numbers in the window. Each time the sliding window moves right by one position.
+
+Return the max sliding window.
+Example 1:
+Input: nums = [1,3,-1,-3,5,3,6,7], k = 3  
+Output: [3,3,5,5,6,7]  
+  
+Explanation:
+```  
+Window position                Max  
+---------------               -----  
+[1  3  -1] -3  5  3  6  7       3  
+ 1 [3  -1  -3] 5  3  6  7       3  
+ 1  3 [-1  -3  5] 3  6  7       5  
+ 1  3  -1 [-3  5  3] 6  7       5  
+ 1  3  -1  -3 [5  3  6] 7       6  
+ 1  3  -1  -3  5 [3  6  7]      7  
+```
+
+Example 2:
+Input: nums = [1], k = 1
+Output: [1]
+
+#### Intuition
+- **Fixed Sliding Window** - The problem requires finding the maximum value in each sliding window of size `k` as it moves across the array from left to right.
+- **Deque** - We use a deque to store the indices of elements in such a way that the largest element for the current window is always at the front. This allows efficient access to the maximum value.
+- For maintaining the deque we have 2 major operations:
+  - Pop all the elements in deque from the end which are lesser than the current element.
+  - If the front element (the maximum one) is out of the window - pop it out.
+
+```python
+def sliding_window_maximum(nums):
+    n = len(nums)
+    queue = deque()
+    result = []
+
+    start = 0
+    for end in range(n):
+        # Remove elements from the front of the queue that are out of the current window
+        if queue and queue[0] < start:
+            queue.popleft()
+        
+        # Remove elements from the back of the queue that are smaller than the current element
+        while queue and nums[queue[-1]] < nums[end]:
+            queue.pop()
+        
+        # Add the current element index to the queue
+        queue.append(end)
+
+        # Once the window is fully within the bounds of the array (i.e., end >= k - 1)
+        if end >= k-1:
+            # Append the max value for the current window to the result
+            result.append(nums[queue[0]])
+            # Move the start of the window
+            start = start + 1
+    
+    return result
+```
+
+### Longest Repeating Character Replacement*
+You are given a string s and an integer k. You can choose any character of the string and change it to any other uppercase English character. You can perform this operation at most k times.
+
+Return the length of the longest substring containing the same letter you can get after performing the above operations.
+
+Example 1:
+Input: s = "ABAB", k = 2
+Output: 4
+Explanation: Replace the two 'A's with two 'B's or vice versa.
+
+Example 2:
+Input: s = "AABABBA", k = 1
+Output: 4
+Explanation: Replace the one 'A' in the middle with 'B' and form "AABBBBA". The substring "BBBB" has the longest repeating letters, which is 4. There may exists other ways to achieve this answer too.
+
+#### Intuition
+- **Dynamic Sliding Window**- Here the sliding window has to be adjusted to ensure the condition of maximum `k` replacements is always satisfied.
+- We would maintain `max_freq` to keep track of the character that appears the most within the window. This helps us understand how many characters we need to change - when this exceeds `k` we shrunk the window. Although we don't update the `max_freq` on shrinking as if the later substrings don't exceed this value - it would never be a valid candidate - it acts as an upper bound.
+- We also maintain the count of the characters, when expanding we check with the count of the current character if it can be the character with `max_freq` or not. On shrinking the window we reduce the count of the character at start of the window.
+
+```python
+def longest_repeating_character_replacement(s, k):
+    n = len(s)
+    max_freq = 0
+    max_length = 0
+    count = defaultdict(int)
+
+    start = 0
+    for end in range(n):
+        # Increment the frequency of the current character
+        count[s[end]] = count[s[end]] + 1
+
+        # Update the maximum frequency of a single character in the current window
+        max_freq = max(max_freq, count[s[end]])
+
+        # If the number of characters to change exceeds k, shrink the window from the left by 1
+        if (end - start + 1 - max_freq) > k:
+            count[s[start]] = count[s[start]] - 1
+            start = start + 1
+        
+        # Update the maximum length of the substring found so far 
+        max_length = max(max_length, end-start+1)
+    
+    return max_length
 ```
