@@ -654,7 +654,8 @@ A valid BST is defined as follows:
 - Both the left and right subtrees must also be binary search trees.
 
 #### Intuition
-To validate if a binary tree is a BST, we need to ensure that for every node, all nodes in its left subtree are less than the node's value, and all nodes in its right subtree are greater than the node's value. We can achieve this by using a recursive approach where we pass down the allowable range for node values.
+- To validate if a binary tree is a BST, we need to ensure that for every node, all nodes in its left subtree are less than the node's value, and all nodes in its right subtree are greater than the node's value. 
+- We can achieve this by using a recursive approach where we pass down the allowable range for node values.
 
 For each node, we:
 - Check if the node’s value is within the allowable range.
@@ -676,6 +677,7 @@ def is_valid_BST(root):
         # The left and right subtree must also be valid
         return validate(node.left, low, node.val) and validate(node.right, node.val, high)
     
+    # For the root the boundary would be the maximum possible
     return validate(root, float('-inf'), float('inf'))
 ```
 
