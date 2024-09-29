@@ -772,8 +772,38 @@ graph TD
     C20 --> E7
 ```
 
-```
-TODO
+#### Intuition
+- **Preorder traversal** provides the root of the tree first.
+- **Inorder traversal** provides the relative positions of nodes in the left and right subtrees.
+- Using the root from the preorder array, we can split the inorder array into left and right subtrees. Recursively applying this process will help us reconstruct the entire tree.
+
+Code
+```python
+def buildTree(preorder, inorder):
+    if not preorder or inorder:
+        return None
+
+    # The first element in preorder is the root  
+    root_val = preorder[0]  
+    root = TreeNode(root_val)
+
+    # Find the index of the root in inorder  
+    root_index_in_inorder = inorder.index(root_val)  
+
+    # Elements to the left of root_index_in_inorder are in the left subtree  
+    left_inorder = inorder[:root_index_in_inorder]  
+    # Elements to the right of root_index_in_inorder are in the right subtree  
+    right_inorder = inorder[root_index_in_inorder + 1:]
+
+    # The number of elements in the left subtree is len(left_inorder)  
+    left_preorder = preorder[1:1 + len(left_inorder)]  
+    right_preorder = preorder[1 + len(left_inorder):]
+
+    # Recursively build the left and right subtrees  
+    root.left = buildTree(left_preorder, left_inorder)  
+    root.right = buildTree(right_preorder, right_inorder)  
+  
+    return root
 ```
 
 ### Binary Tree Maximum Path Sum
@@ -804,6 +834,57 @@ graph TD
 Input: root = [1,2,3,null,null,4,5]
 Output: [1,2,3,null,null,4,5]
 ```
-```
-TODO
+
+#### Intuition
+To serialize and deserialize a binary tree, we can use a level-order traversal approach with a marker for null nodes. This way, we can reconstruct the exact tree structure during deserialization.
+
+- **Serialization**: Use level-order traversal to convert the tree into a string. Use a marker (e.g., #) to represent null nodes.
+- **Deserialization**: Use the serialized string to reconstruct the binary tree by reading the values in the same level-order sequence.
+
+Code
+```python
+class Codec:  
+    def serialize(self, root):  
+        """Encodes a tree to a single string."""  
+        if not root:  
+            return ""  
+          
+        result = []  
+        queue = deque([root])  
+          
+        while queue:  
+            node = queue.popleft()  
+            if node:  
+                result.append(str(node.val))  
+                queue.append(node.left)  
+                queue.append(node.right)  
+            else:  
+                result.append("#")  
+          
+        return ','.join(result)
+  
+    def deserialize(self, data):  
+        """Decodes your encoded data to tree."""  
+        if not data:  
+            return None  
+        
+        values = data.split(',')  
+        root = TreeNode(int(values[0]))  
+        queue = deque([root])  
+        index = 1  
+        
+        while queue:  
+            node = queue.popleft()  
+            
+            if values[index] != "#":  
+                node.left = TreeNode(int(values[index]))  
+                queue.append(node.left)  
+            index += 1  
+            
+            if values[index] != "#":  
+                node.right = TreeNode(int(values[index]))  
+                queue.append(node.right)  
+            index += 1  
+        
+        return root
 ```
