@@ -27,6 +27,7 @@
 - Induction - print n to the output
 - Base Condition - if the value reaches 0 - return as this is the largest invalid input
 
+Code
 ```python
 def solve(n):
     if n == 0: # Base condition
@@ -68,6 +69,7 @@ Here we get all the possible substrings as the leaf-nodes of the recursive tree.
 - Induction: The height would be - 1(for the current node) + max(left subtree, right subtree)
 - Base Condition: When the node is None
 
+Code
 ```python
 def height(root):
     if root is None: # Base condition
@@ -80,6 +82,8 @@ def height(root):
 - Hypothesis: Calling the sort function after removing the top element - would return it sorted
 - Induction: Insert the current element in the correct position in the stack and push the elements greater after it
 - Base Condition: The stack has a single element
+
+Code
 ```python
 def sort(stack):
     # Base Condition
@@ -100,22 +104,34 @@ def sort(stack):
     while temp_stack:
         stack.append(temp_stack.pop())
 ```
+
 #### Delete middle element of stack
 -  Hypothesis:
 -  Induction:
 -  Base Condition:
-```python
-``` 
+```
+TODO
+```
+
 #### Reverse stack
 -  Hypothesis:
 -  Induction:
 -  Base Condition:
-```python
+```
+TODO
 ``` 
+
 #### [Kth Symbol in Grammar](https://leetcode.com/problems/k-th-symbol-in-grammar)
+On the first row, we write a 0. Now in every subsequent row, we look at the previous row and replace each occurrence of 0 with 01, and each occurrence of 1 with 10.
+
+Given row N and index K, return the K-th indexed symbol in row N. (The values of K are 1-indexed.) (1 indexed).
+
+##### Intuition
 -  Hypothesis: For input (n+1) we hypothise that we would get the answer, k remains constant
 -  Induction: Generate the string for n and pass as the one of the parameter for hypothesis call
 -  Base Condition: When we reach `nth` row, return `kth` element 
+
+Code
 ```python
 def solve(n, k):
     def helper(row, k, curr):
@@ -134,12 +150,14 @@ def solve(n, k):
         return helper(row+1, k, next) 
     return helper(1, k, "0")
 ``` 
-**Another approach:**
+##### Another approach
 -  Hypothesis: For smaller input for row `n-1` and any k value we would get the result.
 -  Induction: On observation we could state:
    -  the first half of elements in row `n` is equal to the elements in row `n-1` - if k < mid - call with k
    -  the second half of elements in row `n` is equal to the complement of elements in row `n-1` - if k >= mid call with k-mid and complement the answer 
 -  Base Condition: When row == 1 and k == 1 return 0
+
+Code
 ```python
 def solve(n, k):
     if n == 1 and k == 1:
@@ -151,15 +169,21 @@ def solve(n, k):
     else:
         return not solve(n-1, k-mid)
 ``` 
+
 #### Tower of Hanoi
--  Hypothesis: Move `n-1` plates from `s` to `h`
--  Induction: Move nth plate from `s` to `d` and `n-1` plate from `h` to `d`
--  Base Condition: When n reaches 1 move from `s` to `d`
+The tower of Hanoi is a famous puzzle where we have three rods and N disks. The objective of the puzzle is to move the entire stack to another rod. You are given the number of discs N. Initially, these discs are in the rod 1. You need to print all the steps of discs movement so that all the discs reach the 3rd rod. Also, you need to find the total moves.
+
+##### Intuition
+-  Hypothesis: Move `n-1` plates from `s` to `h`.
+-  Induction: Move nth plate from `s` to `d` and `n-1` plate from `h` to `d`.
+-  Base Condition: When n reaches 1 move from `s` to `d`.
 -  Remember that the source, helper and the destination are being used interchangeably. Before each call you need to decide what would be assigned what role.
    -  For induction - source `s`, helper `d`, destination `h` - such that we can move the biggest plate to the destination
    -  For the hypothesis
-      -  Moving the last plate from s - source `s`, helper `h`, destination `d` - same as the problem
-      -  Moving the `n-1` plates to destination - source `h`, helper `s`, destination `d`
+      -  Moving the last plate from s - source `s`, helper `h`, destination `d` - same as the problem.
+      -  Moving the `n-1` plates to destination - source `h`, helper `s`, destination `d`.
+
+Code
 ```python
 source = 's'
 helper = 'h'
@@ -174,9 +198,19 @@ def solve(source, helper, destination, n):
     # Induction
     print(f"Plate moved from {source} to {destination}")
     solve(helper, destination, source, n-1)
-``` 
+```
+
 ### Recursive Tree - Input/Output Method
-#### Print all subsets
+#### Print all subsets*
+Given an integer array nums of unique elements, return all possible subsets (the power set). The solution set must not contain duplicate subsets. Return the solution in any order.
+
+Example 1:
+```
+Input: nums = [1,2,3]
+Output: [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+```
+
+##### Intuition
 - **Decision space**: For each element either we include in the result space or not.
 - Base condition: When all the elements of the input are already consider and index goes out of bounds. We add the current subset as one of the possible results.
 
@@ -213,6 +247,7 @@ graph TD
     N["[], [1, 2]"]  
     O["[], [1, 2, 3]"]
 ```
+
 Code
 ```python
 def subsets(nums):
@@ -231,7 +266,17 @@ def subsets(nums):
     solve(0, [])
     return result
 ```
-#### Subset Duplicates + Other variants
+#### Subset Duplicates + Other variants*
+Given an integer array nums that may contain duplicates, return all possible subsets (the power set).
+The solution set must not contain duplicate subsets. Return the solution in any order.
+
+Example:
+```
+Input: nums = [1,2,2]
+Output: [[],[1],[1,2],[1,2,2],[2],[2,2]]
+```
+
+##### Intuition
 If there are duplicate elements in the subset, the recursive tree would look like:
 ```mermaid
 graph TD  
@@ -266,9 +311,9 @@ graph TD
     O["[], [1, 1, 2]"]
 ```
 As you observe in the leaf nodes there are duplicate subsets in the answer.
-Solution:
+###### Solution
 - Store the subsets as a set and thus the duplicates would be automatically removed. But still computation is wasted as all the subtrees are computed.
-- The issue is not with considering the element, just that when we are ignoring an element, ensure that we escape all the occurences of that particular element.
+- The issue is not with considering the element, just that when we are ignoring an element, **ensure that we escape all the occurences of that particular element**.
 
 ```mermaid
 graph TD  
@@ -310,7 +355,7 @@ def distinct_subsets(nums):
         solve(index+1, curr)
         curr.pop()
 
-        # ignore
+        # ignore all the occurences of the element
         while index+1 < n and nums[index] == nums[index+1]:
             index = index + 1
         solve(index+1, curr)
@@ -328,8 +373,15 @@ def distinct_subsets(nums):
   - So the sort logic that we applied for subsets won't work, but the rest of the logic would remain the same.
 
 #### Permutation with spaces
-Choice: To add a space after the current element or not
-Base Condition: When all the elements of the input is considered and the index goes out of bound.
+Given a string you need to print all possible strings that can be made by placing spaces (zero or one) in between them. Output should be printed in sorted increasing order of strings.
+```
+Input:  str[] = "ABC"
+Output: (A B C)(A BC)(AB C)(ABC).
+```
+##### Intuition
+- Choice: To add a space after the current element or not
+- Base Condition: When all the elements of the input is considered and the index goes out of bound.
+
 ```mermaid
 graph TD  
     A["abc, 'a'"] -->|add space| B["bc, 'a '"]  
@@ -353,9 +405,9 @@ graph TD
     I["a bc"]  
     J["ab c"]  
     K["abc"]  
-
 ```
-Code:
+
+Code
 ```python
 def permutations_space(s):
     n = len(s)
@@ -380,8 +432,18 @@ def permutations_space(s):
     return result
 ```
 #### Permutation with case change
-Choice: In the given input for each character we have 2 choices: uppercase or lowercase.
-Base condition: When the index is out of bound or the end of the input string is reached.
+Print all permutations of a string keeping the sequence but changing cases.
+
+Examples:
+```
+Input : ab
+Output : AB Ab ab aB 
+```
+
+##### Intuition
+- Choice: In the given input for each character we have 2 choices: uppercase or lowercase.
+- Base condition: When the index is out of bound or the end of the input string is reached.
+
 ```mermaid
 graph TD  
     A["ab, ''"] -->|lowercase a| B["b, 'a'"]  
@@ -398,7 +460,9 @@ graph TD
     F["Ab"]  
     G["AB"]
 ```
-Code: Here we would use another approach of handling strings permutations
+
+Code
+`Here we would use another approach of handling strings permutations`
 ```python
 def permutation_case_change(s):
     n = len(s)
@@ -412,7 +476,15 @@ def permutation_case_change(s):
     solve(0, "")
     return result
 ```
+
 #### Generate all balanced parenthesis
+Given n pairs of parentheses, write a function to generate all combinations of well-formed parentheses of length 2*n.
+```
+For example, given n = 3, a solution set is:
+"((()))", "(()())", "(())()", "()(())", "()()()" . 
+```
+
+##### Intuition
 - Base Condition: When both open and close reach 0, the current result is added to the response.
 - Choices:
     - If the number of open brackets is greater than zero, we can add an open bracket (.
@@ -481,6 +553,7 @@ graph TD
     U["()(())"]  
     W["()()()"]  
 ```
+
 Code
 ```python
 def generateParenthesis(n):
@@ -499,4 +572,16 @@ def generateParenthesis(n):
     solve(n, n, "") 
     return result   
 ```
+
 #### Josephus problem
+There are n people standing in a circle (numbered clockwise 1 to n) waiting to be executed. The counting begins at point 1 in the circle and proceeds around the circle in a fixed direction (clockwise). In each step, a certain number of people are skipped and the next person is executed. The elimination proceeds around the circle (which is becoming smaller and smaller as the executed people are removed), until only the last person remains, who is given freedom.
+
+Given the total number of persons n and a number k which indicates that k-1 persons are skipped and kth person is killed in circle. The task is to choose the place in the initial circle so that you are the last one remaining and so survive.
+
+Consider if n = 5 and k = 2, then the safe position is 3.
+
+Firstly, the person at position 2 is killed, then person at position 4 is killed, then person at position 1 is killed. Finally, the person at position 5 is killed. So the person at position 3 survives
+
+```
+TODO
+```
