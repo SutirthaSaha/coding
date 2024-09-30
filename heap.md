@@ -432,14 +432,14 @@ class MedianFinder:
         
         # ensure that max-heaph as equal or 1 greater element
         if len(self.min_heap) > len(self.max_heap):
-            val = heapq.heappop(min_heap)
+            val = heapq.heappop(self.min_heap)
             heapq.heappush(self.max_heap, -val)
         elif len(self.max_heap) > len(self.min_heap) + 1:
-            val = -heapq.heappop(max_heap)
+            val = -heapq.heappop(self.max_heap)
             heapq.heappush(self.min_heap, val) 
 
     def findMedian(self) -> float:
-        total_len = len(self.min_heap) + len(max_heap)
+        total_len = len(self.min_heap) + len(self.max_heap)
         if total_len % 2:
             return -self.max_heap[0]
         else:
