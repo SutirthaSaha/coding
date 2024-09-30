@@ -201,7 +201,7 @@ def solve(source, helper, destination, n):
 ```
 
 ### Recursive Tree - Input/Output Method
-#### Print all subsets*
+#### Subsets*
 Given an integer array nums of unique elements, return all possible subsets (the power set). The solution set must not contain duplicate subsets. Return the solution in any order.
 
 Example 1:
@@ -266,7 +266,7 @@ def subsets(nums):
     solve(0, [])
     return result
 ```
-#### Subset Duplicates + Other variants*
+#### Subset II* - With Duplicates
 Given an integer array nums that may contain duplicates, return all possible subsets (the power set).
 The solution set must not contain duplicate subsets. Return the solution in any order.
 

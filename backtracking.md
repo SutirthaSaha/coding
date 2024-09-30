@@ -38,17 +38,110 @@ def solve(variable) -> void:
             revert change in variable - variable
 ```
 
-## Flow
-- IP-OP-PS: Input-Output-Problem Statement
-- Choices -> Controlled
-  - Out of Bound
-  - Repeated
-  - Blocked
-- BC: Base Condition
-- Code
-
 ## Problems
-### [Permutations of String](https://leetcode.com/problems/permutations)*
+### Combination Sum*
+Given an array of distinct integers candidates and a target integer target, return a list of all unique combinations of candidates where the chosen numbers sum to target. You may return the combinations in any order.
+
+The same number may be chosen from candidates an **unlimited number of times**. Two combinations are unique if the 
+frequency of at least one of the chosen numbers is different.
+
+The test cases are generated such that the number of unique combinations that sum up to target is less than 150 combinations for the given input.
+
+Example
+```
+Input: candidates = [2,3,6,7], target = 7
+Output: [[2,2,3],[7]]
+Explanation:
+2 and 3 are candidates, and 2 + 2 + 3 = 7. Note that 2 can be used multiple times.
+7 is a candidate, and 7 = 7.
+These are the only two combinations.
+```
+
+#### Intuition
+- Choices
+  - Consider the element: If the sum is lesser than the element - don't move to the next element as you can use a single element **unlimited number of times**.
+  - Ignore the element: Ignore the current element and move forward to the next one.
+- Base Condition: If either the sum has reached or you have run out of elements.
+  - Sum has reached: Add the combination to the result.
+  - Out of elements: Return empty handed.
+
+```python
+def combinationSum(candidates, target):
+    result = []
+    n = len(candidates)
+    index = 0
+    def solve(index, current_combination, target):
+        if target == 0:
+            result.append(current_combination[:])
+            return
+        if index == n:
+            return
+        # ignore
+        solve(index + 1, current_combination, target)
+        # consider
+        if target >= candidates[index]:
+            current_combination.append(candidates[index])
+            solve(index, current_combination, target-candidates[index])
+            current_combination.pop()
+    
+    solve(0, [], target)
+    return result
+```
+
+#### Combination Sum II
+Given a collection of candidate numbers (candidates) and a target number (target), find all unique combinations in candidates where the candidate numbers sum to target.
+Each number in candidates may only be used once in the combination.
+Note: The solution set must not contain duplicate combinations.
+
+Example
+```
+Input: candidates = [10,1,2,7,6,1,5], target = 8
+Output: 
+[
+[1,1,6],
+[1,2,5],
+[1,7],
+[2,6]
+]
+```
+
+#### Intuition
+- The entire logic would be the same as `Combination Sum` just that if you ignore - ignore all the occurences of that element. If not ignored then it can cause duplicate combinations in the result.
+- To skip all the occurences - we must also sort the incoming candidates such that all the duplicate elements are together.
+- Also there are no **unlimited uses** you can use only the number of times it occurs in the candidates - so the index would always be updated.
+
+**Hint: See Recursion**
+
+Code
+```python
+def combinationSum2(candidates, target):
+    n = len(candidates)
+    candidates.sort()
+    result = []
+
+    def solve(index, current_combination, target):
+        if target == 0:
+            result.append(current_combination[:])
+            return
+        if index == n:
+            return
+        
+        # include
+        value = candidates[index]
+        if target >= value:
+            current_combination.append(value)
+            solve(index+1, current_combination, target-value)
+            current_combination.pop()
+        
+        while index+1 < n  and candidates[index] == candidates[index+1]:
+            index = index + 1
+        solve(index+1, current_combination, target)
+
+    solve(0, [], target)
+    return result
+```
+
+### Permutations of String ~ [Permutations*](https://leetcode.com/problems/permutations)
 Given an array nums of distinct integers, return all the possible 
 permutations. You can return the answer in any order.
 
@@ -189,8 +282,7 @@ Output:
 ['DDRDRR', 'DRDDRR']  
   
 Explanation:  
-The rat can reach the destination at `(3, 3)` from `(0, 0)` by two paths - "DRDDRR" and "DDRDRR". When printed in sorted order, the paths are "DDRDRR" and "DRDDRR".  
-
+The rat can reach the destination at `(3, 3)` from `(0, 0)` by two paths - "DRDDRR" and "DDRDRR". When printed in sorted order, the paths are "DDRDRR" and "DRDDRR".
 ```
 
 #### Intuition
@@ -224,6 +316,52 @@ def solve(row, col, path):
             path.pop()
 solve(0, 0, [], set())
 return result
+```
+
+### Word Search*
+Given an `m x n` grid of characters `board` and a string `word`, return `true` if word exists in the `grid`.
+
+The word can be constructed from letters of sequentially adjacent cells, where adjacent cells are horizontally or vertically neighboring. The same letter cell may not be used more than once.
+
+#### Intuition
+- For each position `(row, col)` in the grid, search for the input word.
+- If the character in the position matches, lookup for the next character in all the four directions - `(left, top, right, bottom)`.
+- Keep all the positions in the grid travelled in a `visited` set.
+- **This is a Depth First Search(DFS) problem**.
+
+Code
+```python
+def exist(board, word):
+    m, n = len(board), len(board[0])]
+    length  = len(word)
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+    def dfs(row, col, index):
+        if board[row][col] != word[index]:
+            return False
+
+        # the characters match move to the next index
+        index = index + 1
+        if index == length:
+            return True
+        
+        visited.add((row, col))
+
+        for direction in directions:
+            n_row, n_col = row + direction[0], col + direction[1]
+            if 0<=n_row<m and 0<=n_col<n and (n_row, n_col) not in visited:  
+                if dfs(n_row, n_col, index):
+                    return True
+        
+        visited.remove((row, col))
+        return False
+    
+    visited = set()
+    for row in range(m):
+        for col in range(n):
+            if dfs(row, col, 0):
+                return True
+    return False
 ```
 
 ### Palindrome Partitioning*
@@ -453,4 +591,8 @@ Each of the digits 1-9 must occur exactly once in each of the 9 3x3 sub-boxes of
 The '.' character indicates empty cells.
 
 #### Intuition
-Similar to N-Queens just the is_safe logic would be for Sudoku
+Similar to N-Queens just the is_safe logic would be for Sudoku.
+
+```
+TODO
+```
