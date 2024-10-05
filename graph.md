@@ -258,18 +258,139 @@ def traverse(graph)
             dfs(node)
 ```
 
-Related problems:
-- Number of Provinces
-- Number of Islands
+#### Problems
+##### Number of Provinces
+```
+TODO
+```
+##### Number of Islands
+Given an `m x n` 2D binary grid grid which represents a map of '1's (land) and '0's (water), return the number of islands.
+An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.
 
+###### Intuition
+For this either DFS or Union-Find a good algorithm to tackle this. Here we would try out the DFS approach for the solution.
+- We traverse the grid element by element and if the element doesn't exist in the visited set, increase the number of islands by 1.
+- Do this untill all the elements are traversed in the grid and then return the island count.
+**Hint: Instead of maintaining a separate visited array just update the 1 to 0 in the grid**
+
+Code
+```python
+def num_islands(grid):
+    m, n = len(grid), len(grid[0])
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    def dfs(row, col):
+        # Mark the current cell as visited by setting it to 0
+        grid[row][col] = "0"
+
+        # Explore all four possible directions
+        for direction in directions:
+            n_row, n_col = row + direction[0], col + direction[1]
+            # Check if the new position is within bounds and is an unvisited land ('1')
+            if 0<=n_row<m and 0<=n_col<n and grid[n_row][n_col] == "1":
+                dfs(n_row, n_col)
+    
+    islands = 0
+    for row in range(m):
+        for col in range(n):
+            if grid[row][col] == "1":
+                islands = islands + 1
+                dfs(row, col)
+    return islands
+``` 
+
+##### Max Area of Island
+You are given an `m x n` binary matrix grid. An island is a group of 1's (representing land) connected 4-directionally (horizontal or vertical.) You may assume all four edges of the grid are surrounded by water.
+
+The area of an island is the number of cells with a value 1 in the island.
+Return the maximum area of an island in grid. If there is no island, return 0.
+
+###### Intuition
+This is an extension of the number of islands problem, just that here we would have to return the total area of each possible islands and return the maximum of them all.
+
+Code
+```python
+def max_area_islands(grid):
+    m, n = len(grid), len(grid[0])
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+    def dfs(row, col):
+        # Mark the current cell as visited by setting it to 0
+        grid[row][col] = 0
+        # Initialize the area of the current island to 1 (counting the current cell)
+        area = 1
+
+        # Explore all four possible directions
+        for direction in directions:
+            n_row, n_col = row + direction[0], col + direction[1]
+            # Check if the new position is within bounds and is an unvisited land ('1')
+            if 0<=n_row<m and 0<=n_col<n and grid[n_row][n_col] == 1:
+                # Add the area returned by the DFS call to the current area
+                area = area + dfs(n_row, n_col)
+        
+        # Return the total area of the island
+        return area
+    
+    max_area = 0
+    for row in range(m):
+        for col in range(n):
+            # If the cell is an unvisited land (1), calculate the area of the island
+            if grid[row][col] == 1:
+                # Update the maximum area if the current island's area is larger
+                max_area = max(max_area, dfs(row, col))
+
+    return max_area
+```
+
+#### Clone Graph
+Given a reference of a node in a connected undirected graph. Return a deep copy (clone) of the graph.
+Each node in the graph contains a value (int) and a list (List[Node]) of its neighbors.
+```
+class Node {
+    public int val;
+    public List<Node> neighbors;
+}
+```
+
+##### Intuition
+- To solve this problem, we need to create a new graph that is structurally identical to the original graph, with new nodes and edges but the same connections.
+- During the traversal, we create new nodes and maintain a mapping from the original nodes to their corresponding cloned nodes to avoid duplicating nodes and to handle cycles in the graph.
+
+Code
+```python
+def clone(node):
+    if node is None:
+        return None
+    
+    clone_map = dict()
+
+    def dfs(node):
+        # If the node is already cloned, return the cloned node
+        if node.val in clone_map:
+            return clone_map[node.val]
+        
+        # Clone the node
+        clone_node = Node(node.val)
+        clone_map[node.val] = clone_node
+
+        # Iterate through the neighbors to clone them
+        for neighbor in node.neighbors:
+            clone_node.neighbors.append(dfs(neighbor))
+        
+        return clone_node
+    
+    # Start cloning from the given node
+    return dfs(node)
+```
+
+## Graph Algorithms
 Now coming to the various algorithms of graph:
 
 ### Cycle Detection
 Given a directed graph, check whether the graph contains a cycle or not.
 This can be done using the DFS method.
-We need to modify the existing DFS implementation to check for a backedge - that can cause cycles. For this we maintain a separate `rec_stack` set along with the existing `visited` set.
+We need to modify the existing DFS implementation to check for a backedge - that can cause cycles. For this we maintain a separate `recursion_stack` set along with the existing `visited` set.
 
-#### Why do we need a separate `rec_stack` set, wouldn't `visited` set be enough?
+#### Why do we need a separate `recursion_stack` set, wouldn't `visited` set be enough?
 No, it would be enough for an undirected graph, but for a directed graph it can give false-positives for cycles.
 ```mermaid
 graph LR  
@@ -283,24 +404,24 @@ When visiting `C` and goind to it's adjacent nodes `D` already exists in the `vi
 ```python
 def cycle_detection(graph):
     # to check for cycles
-    rec_stack = set()
+    recursion_stack = set()
     # to check if already visited
     visited = set()
 
     def dfs(node):        
-        rec_stack.add(node)
+        recursion_stack.add(node)
         visited.add(node)
 
         for adj_node in graph[node]:
             # additonal check if node in recursion stack
-            if adj_node in rec_stack:
+            if adj_node in recursion_stack:
                 return True
             
             if adj_node not in visited:
                 dfs(adj_node)
         
         # no longer, a part of the recursion stack
-        rec_stack.remove(node)
+        recursion_stack.remove(node)
         return False
     
     # Check all nodes in the graph to handle disconnected components  
@@ -332,29 +453,29 @@ A possible topological order for these tasks could be: A, B, C, D or A, C, B, D.
 
 #### 1. Kahn's Algorithm
 #### 2. DFS based
-We add a node to the result only when all the adjacent nodes are already traversed.
-This would be an extesnion of the existing `DFS` where along with the traversal we also empty the outgoing edges adjacency list.
+- **Post-Order Addition**: Once all adjacent nodes of a node are visited, the node itself is added to the result list.
+- **Result Reversal**: Because nodes are added to the result list only after all their dependencies are resolved, the nodes appear in reverse topological order in the result list. Therefore, reversing the list gives you the correct topological order.
 
 Code
 ```python
 def topological_sort(graph):
     visited = set()
     # for detecting cycles
-    rec_stack = set()
+    recursion_stack = set()
     result = []
 
     def dfs(node):
         visited.add(node)
-        rec_stack.add(node)
+        recursion_stack.add(node)
 
         for adj_node in graph[node]:
-            if adj_node in rec_stack:
+            if adj_node in recursion_stack:
                 return False
             if adj_node not in visited:
                 if not dfs(node):
                     return False
         
-        rec_stack.remove(node)
+        recursion_stack.remove(node)
         result.append(node)
         return True
     
@@ -365,6 +486,118 @@ def topological_sort(graph):
     
     result.reverse()
     return result
+```
+
+#### Problems
+#### Course Schedule I
+There are a total of `numCourses` courses you have to take, labeled from `0` to `numCourses - 1`. You are given an array `prerequisites` where `prerequisites[i] = [ai, bi]` indicates that you must take course `bi` first if you want to take course `ai`.
+For example, the pair `[0, 1]`, indicates that to take course `0` you have to first take course `1`.
+Return `true` if you can finish all courses. Otherwise, return `false`.
+
+Example:
+```
+Input: numCourses = 2, prerequisites = [[1,0]]
+Output: true
+Explanation: There are a total of 2 courses to take. To take course 1 you should have finished course 0. So it is possible.
+```
+
+##### Intuition
+- We can model this problem as a graph where each course is a node, and a directed edge from course bi to course ai indicates that bi is a prerequisite of ai. So bi must be completed before ai. 
+- If we can find a topological order for this graph, then all courses can be completed. 
+- Otherwise, a cycle exists, making it impossible to complete all courses.
+
+Code
+```python
+def can_finish(numCourses, prerequisites):
+    graph = [[] for _ in range(numCourses)]
+    for course, prerequisite in prerequisites:
+        # prerequisite must be completed before course
+        graph[prerequisite].append(course)
+    
+    # Sets to keep track of visited nodes and nodes in the current recursion stack
+    visited, recursion_stack = set(), set()
+
+    def dfs(course):
+        visited.add(course)
+        recursion_stack.add(course)
+
+        for next_course in graph[course]:
+            # If the next course is in the recursion stack, a cycle is detected  
+            if next_course in recursion_stack:  
+                return False  
+            # If the next course is not visited and the DFS on it returns False, return False  
+            if next_course not in visited and not dfs(next_course):  
+                return False
+        
+        recursion_stack.remove(course)
+        return True
+    
+    for course in range(numCourses):
+        # If the course is not visited and the DFS on it returns False, a cycle is detected
+        if course not in visited and not dfs(course):
+            return False
+    
+    return True
+```
+
+#### Course Schedule II
+There are a total of `numCourses` courses you have to take, labeled from `0` to `numCourses - 1`. You are given an array prerequisites where `prerequisites[i] = [ai, bi]` indicates that you must take course `bi` first if you want to take course `ai`.
+
+For example, the pair `[0, 1]`, indicates that to take course `0` you have to first take course `1`.
+Return the ordering of courses you should take to finish all courses. If there are many valid answers, return any of them. If it is impossible to finish all courses, return an empty array.
+
+Example:
+```
+Input: numCourses = 2, prerequisites = [[1,0]]
+Output: [0,1]
+Explanation: There are a total of 2 courses to take. To take course 1 you should have finished course 0. So the correct course order is [0,1].
+```
+
+##### Intuition
+The code almost will remain the same, just that we have to maintain the order in result. Also ensure the following points:
+- Add a course to the result after all the next courses are processed.
+- Due to this post order addition the result is reverse topological order, the course having the maximum dependencies are added first. Reversing the list provides the correct topological order.
+
+Code
+```python
+def find_order(numCourses, prerequisites):
+    graph = [[] for _ in range(numCourses)]
+    for course, prerequisite in prerequisites:
+        # prerequisite must be completed before course
+        graph[prerequisite].append(course)
+    
+    # Sets to keep track of visited nodes and nodes in the current recursion stack
+    visited, recursion_stack = set(), set()
+
+    # List to store the topological order of courses    
+    order = []
+
+    def dfs(course):
+        visited.add(course)
+        recursion_stack.add(course)
+
+        for next_course in graph[course]:
+            # If the next course is in the recursion stack, a cycle is detected  
+            if next_course in recursion_stack:  
+                return False  
+            # If the next course is not visited and the DFS on it returns False, return False  
+            if next_course not in visited and not dfs(next_course):  
+                return False
+        
+        recursion_stack.remove(course)
+        # Add the course to the order list after visiting all its adjacent nodes
+        order.append(course)
+        return True
+    
+    # Perform DFS on all the courses
+    for course in range(numCourses):
+        # If the course is not visited and the DFS on it returns False, a cycle is detected
+        if course not in visited and not dfs(course):
+            return []
+    
+    # Reverse the order to get the correct topological order
+    order.reverse()
+    return order
 ```
 
 ### Flood Fill Algorithm
@@ -400,6 +633,162 @@ def flood_fill(grid, row, col, new_color):
     return grid
 ```
 The recursive approach handles the issue of visiting the same cell again by marking cells with the new color as they are visited. Once a cell is changed to the new color, it will no longer match the original_color, which prevents it from being revisited.
+
+#### Problems
+##### Rotten Oranges
+You are given an m x n grid where each cell can have one of three values:
+- 0 representing an empty cell,
+- 1 representing a fresh orange, or
+- 2 representing a rotten orange.
+Every minute, any fresh orange that is 4-directionally adjacent to a rotten orange becomes rotten.
+
+Return the minimum number of minutes that must elapse until no cell has a fresh orange. If this is impossible, return -1.
+
+###### Intuition
+- The "rotten oranges" problem is similar to the flood fill algorithm in that it involves spreading a state (rottenness) from a source (rotten oranges) to its neighbors (fresh oranges) iteratively. 
+- This problem is well-suited for a Breadth-First Search (BFS) approach because it naturally handles the layer-by-layer propagation of the rottenness, simulating the passage of time.
+
+Code
+```python
+def orangesRotting(grid):
+    m, n = len(grid), len(grid[0])
+    queue = deque()
+    fresh = 0
+
+    # Populate the queue with initially rotten oranges and count fresh oranges
+    for row in range(m):
+        for col in range(n):
+            if grid[row][col] == 1:
+                fresh = fresh + 1
+            elif grid[row][col] == 2:
+                queue.append((row, col))
+    
+    if fresh == 0:
+        return 0
+
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    elapsed_time = 0
+
+    while queue:
+        elapsed_time = elapsed_time + 1
+        for _ in range(len(queue)):
+            row, col = queue.popleft()
+            for direction in directions:
+                n_row, n_col = row + direction[0], col + direction[1]
+                if 0<=n_row<m and 0<=n_col<n and grid[n_row][n_col] == 1:
+                    grid[n_row][n_col] = 2
+                    fresh = fresh - 1
+                    queue.append((n_row, n_col))
+
+    # If there are still fresh oranges, return -1
+    return elapsed_time - 1 if fresh == 0 else -1
+```
+###### Extra Points
+- **Extra Increment**:
+  - After processing the last batch of fresh oranges that can rot, we increment minutes_elapsed once more.
+  - This results in minutes_elapsed being one more than the actual number of minutes required to rot all oranges.
+
+#### Pacific Atlantic Water Flow
+There is an `m x n` rectangular island that borders both the Pacific Ocean and Atlantic Ocean. The Pacific Ocean touches the island's left and top edges, and the Atlantic Ocean touches the island's right and bottom edges.
+The island is partitioned into a grid of square cells. You are given an `m x n` integer matrix heights where heights[r][c] represents the height above sea level of the cell at coordinate `(r, c)`.
+The island receives a lot of rain, and the rain water can flow to neighboring cells directly north, south, east, and west if the neighboring cell's height is less than or equal to the current cell's height. Water can flow from any cell adjacent to an ocean into the ocean.
+Return a 2D list of grid coordinates `result` where `result[i] = [ri, ci]` denotes that rain water can flow from cell `(ri, ci)` to both the Pacific and Atlantic oceans.
+
+##### Intution
+To solve this problem, we need to determine which cells can reach both the Pacific and Atlantic Oceans. The key insight is that instead of trying to simulate water flow from every cell to the oceans, we can reverse the problem: simulate water flow from the oceans to the cells.
+- Reverse Flow Simulation:
+  - Instead of checking if water can flow from each cell to the oceans, we check if water can flow from the oceans to each cell.
+  - We perform two separate flood fill operations (DFS or BFS):
+  - One starting from all cells adjacent to the Pacific Ocean.
+  - Another starting from all cells adjacent to the Atlantic Ocean.
+- We can keep 2 sets for keeping track of the cells that can be visited from Pacific and Atlantic oceans.
+
+Code
+```python
+def pacific_atlantic(heights):
+    m, n = len(heights), len(heights[0])
+    # Sets to keep track of the cells tracked
+    atlantic, pacific = set(), set()
+
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    def dfs(row, col, visited):
+        visited.add((row, col))
+        for direction in directions:
+            n_row, n_col = row + direction[0], col + direction[1]
+            if 0<=n_row<m and 0<=n_col<n and (n_row, n_col) not in visited and heights[n_row][n_col] >= heights[row][col]:
+                dfs(n_row, n_col, visited)
+    
+    for row in range(m):
+        # Left edge (Pacific) 
+        if (row, 0) not in pacific:
+            dfs(row, 0, pacific)
+        # Right edge (Atlantic)
+        if (row, n-1) not in atlantic:
+            dfs(row, n-1, atlantic)
+    
+    for col in range(n):
+        # Top edge (Pacific)
+        if (0, col) not in pacific:
+            dfs(0, col, pacific)
+        # Bottom edge (Atlantic)
+        if (m-1, col) not in atlantic:
+            dfs(m-1, col, atlantic)
+    
+    return pacific & atlantic
+```
+#### Surrounded Regions
+You are given an `m x n` matrix board containing letters 'X' and 'O', capture regions that are surrounded:
+- **Connect**: A cell is connected to adjacent cells horizontally or vertically.
+- **Region**: To form a region connect every 'O' cell.
+- **Surround**: The region is surrounded with 'X' cells if you can connect the region with 'X' cells and none of the region cells are on the edge of the board.
+A surrounded region is captured by replacing all 'O's with 'X's in the input matrix board.
+
+##### Intuition
+- **Identify Non-Surrounded Regions**:
+  - Any 'O' connected to the border of the board cannot be surrounded, as it can potentially escape to the edge.
+  - Thus, we need to identify all 'O's that are connected to the border and mark them as non-surrounded.
+- **Mark and Capture Regions**:
+  - After identifying the non-surrounded regions, we can safely assume that any remaining 'O' in the board is a surrounded region.
+  - We can then capture these surrounded regions by converting all 'O's to 'X's.
+- **Use a Temporary Marker**:
+  - To differentiate between the 'O's that are part of non-surrounded regions and the ones that are surrounded, we can use a temporary marker (e.g., 'T') to mark the 'O's that are found to be non-surrounded during our traversal.
+
+Code
+```python
+def surround_regions(grid):
+    m, n = len(grid), len(grid[0])
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+    def dfs(row, col):
+        # This acts as a form of marking visited - Temporary marker
+        grid[row][col] = 'T'
+        for direction in directions:
+            n_row, n_col = row + direction[0], col + direction[1]
+            if 0<=n_row<m and 0<=n_col<n and grid[n_row][n_col] == "O":
+                dfs(n_row, n_col)
+
+    # Mark all 'O's connected to the border with 'T'
+    for row in range(m):
+        if grid[row][0] == "O":
+            dfs(row, 0)
+        if grid[row][n-1] == "O":
+            dfs(row, n-1)
+    
+    for col in range(n):
+        if grid[0][col] == "O":
+            dfs(0, col)
+        if grid[m-1][col] == "O":
+            dfs(m-1, col)
+    
+    # Flip all remaining 'O's to 'X' and 'T's back to 'O'
+    for row in range(m):
+        for col in range(n):
+            if grid[row][col] == "O":
+                grid[row][col] = "X"
+            # Cells are visited or marked they won't be converted as they have boundary with edge
+            elif grid[row][col] == "T":
+                grid[row][col] = "O"
+```
 
 ### Shortest Path Algorithms
 ### 1. Single Source Shortest Path
@@ -446,6 +835,7 @@ def dijkstra(start, graph):
             dist[node] = -1
     return dist
 ```
+
 ##### Bellman Ford
 The Bellman-Ford algorithm is another algorithm for finding the shortest paths from a single source vertex to all other vertices in a weighted graph. Unlike Dijkstra's algorithm, Bellman-Ford can handle graphs with negative edge weights. It is slower but more versatile.
 
@@ -664,6 +1054,7 @@ def count_components(n, edges):
 
     return len(components) 
 ```
+
 
 ### Minimum Spanning Tree
 A Minimum Spanning Tree (MST) of a weighted, connected, undirected graph is a spanning tree that has the minimum possible total edge weight compared to all other spanning trees of the graph.
