@@ -459,31 +459,34 @@ A possible topological order for these tasks could be: A, B, C, D or A, C, B, D.
 Code
 ```python
 def topological_sort(graph):
-    visited = set()
-    # for detecting cycles
+    # Set to keep track of visited nodes  
+    visited = set()  
+    # Set to keep track of nodes in the current recursion stack for cycle detection  
     recursion_stack = set()
     result = []
 
     def dfs(node):
-        visited.add(node)
+        # Mark the current node as visited  
+        visited.add(node)  
+        # Add the current node to the recursion stack  
         recursion_stack.add(node)
 
         for adj_node in graph[node]:
             if adj_node in recursion_stack:
                 return False
-            if adj_node not in visited:
-                if not dfs(node):
-                    return False
+            if adj_node not in visited and not dfs(node):
+                return False
         
         recursion_stack.remove(node)
+        # Add the node to the result list after visiting all its adjacent nodes
         result.append(node)
         return True
     
     for node in graph:
-        if node not in visited:
-            if not dfs(node):
-                return []
+        if node not in visited and not dfs(node):
+            return []
     
+    # Reverse the result to get the correct topological order
     result.reverse()
     return result
 ```
@@ -835,6 +838,96 @@ def dijkstra(start, graph):
             dist[node] = -1
     return dist
 ```
+###### Problems
+###### Network Delay Time
+You are given a network of `n` nodes, labeled from `1 to n`. You are also given times, a list of travel times as directed edges `times[i] = (ui, vi, wi)`, where `ui` is the source node, `vi` is the target node, and `wi` is the time it takes for a signal to travel from source to target.
+
+We will send a signal from a given node `k`. Return the minimum time it takes for all the `n` nodes to receive the signal. If it is impossible for all the `n` nodes to receive the signal, return `-1`.
+
+###### Intuition
+The problem is a classic shortest path problem in graph theory. The objective is to find the shortest time it takes for a signal to travel from a given starting node ( k ) to all other nodes in a directed, weighted graph. 
+This can be solved using **Dijkstra's algorithm**, which is well-suited for finding the shortest paths from a single source node to all other nodes in a graph with non-negative edge weights.
+
+Code
+```python
+def networkDelayTime(times, n, k):
+    graph = {i+1: [] for i in range(n)}
+    for u, v, w in times:
+        graph[u].append((v, w))
+    
+    # Min-heap priority queue to select the edge with the minimum cost
+    min_heap = [(0, k)]
+
+    # Dictionary to store the shortest time to reach each node, initialized to infinity 
+    shortest_time = {i+1: float('inf') for i in range(n)}
+    shortest_time[k] = 0
+
+    while min_heap:
+        time, u = heapq.heappop(min_heap)
+        for v, w in graph[u]:
+            # If a shorter path to the neighbor is found, update the shortest time
+            if w + time < shortest_time[v]:
+                shortest_time[v] = w + time
+                heapq.heappush(min_heap, (w + time, v))
+    
+    # Initialize the maximum shortest time to negative infinity  
+    max_shortest_time = float('-inf')  
+      
+    # Check the shortest time to reach each node  
+    for node in shortest_time:  
+        # If any node is still unreachable, return -1  
+        if shortest_time[node] == float('inf'):  
+            return -1  
+        # Update the maximum shortest time  
+        max_shortest_time = max(max_shortest_time, shortest_time[node])  
+      
+    # Return the maximum shortest time to reach any node  
+    return max_shortest_time
+```
+
+###### Swim in Rising Water
+You are given an `n x n` integer matrix grid where each value `grid[i][j]` represents the elevation at that point `(i, j)`.
+
+The rain starts to fall. At time `t`, the depth of the water everywhere is `t`. You can swim from a square to another 4-directionally adjacent square if and only if the elevation of both squares individually are at most `t`. You can swim infinite distances in zero time. Of course, you must stay within the boundaries of the grid during your swim.
+
+Return the least time until you can reach the bottom right square `(n - 1, n - 1)` if you start at the top left square (0, 0).
+
+###### Intuition
+- **Key Concept: Elevation as "Cost"**: In traditional shortest path problems, we often think about minimizing the distance or cost to travel from a source to a destination. In this problem, instead of distance, we are concerned with minimizing the maximum elevation encountered along the path.
+- The `cost` to move into a cell is represented by the elevation of that cell. To minimize this we use the min-heap - `Dijkstra's Algorithm` to select the adjacent cell which has the minimum elevation change.
+
+Code
+```python
+def swim_in_water(grid):
+    n = len(grid)
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+    # Min-heap priority queue, starting with the top-left corner
+    min_heap = [(grid[0][0], 0, 0)]
+    visited = set()
+    max_elevation = grid[0][0]
+
+    while min_heap:
+        elevation, row, col = heapq.heappop(min_heap)
+
+        if (row, col) in visited:
+            continue
+
+        max_elevation = max(max_elevation, elevation)
+        visited.add((row, col))
+
+        # If we reached the bottom-right corner, return the max elevation
+        if row == n-1 and col == n-1:
+            return max_elevation
+        
+        # Explore the neighbors
+        for direction in directions:
+            n_row, n_col = row + direction[0], col + direction[1]
+            if 0<=n_row<n and 0<=n_col<n and (n_row, n_col) not in visited:
+                heapq.heappush(min_heap, (grid[n_row][n_col], n_row, n_col))
+    
+    return -1
+```
 
 ##### Bellman Ford
 The Bellman-Ford algorithm is another algorithm for finding the shortest paths from a single source vertex to all other vertices in a weighted graph. Unlike Dijkstra's algorithm, Bellman-Ford can handle graphs with negative edge weights. It is slower but more versatile.
@@ -857,10 +950,12 @@ def bellman_ford(start, graph):
     n = len(graph)
 
     for _ in range(n - 1):
+        new_dist = dist.copy()
         for node in graph:
             for neighbor, weight in graph[node]:
                 if dist[node] != float('inf') and dist[node] + weight < dist[neighbor]:
                     dist[neighbor] = dist[node] + weight
+        dist = new_dist
     
     # Check for negative weight cycles
     for node in graph:
@@ -877,10 +972,12 @@ def bellman_ford_edges(start, edges, num_vertices):
     dist = {i: float('inf') for i in range(num_vertices)}  
     dist[start] = 0  
   
-    for _ in range(num_vertices - 1):  
+    for _ in range(num_vertices - 1):
+        new_dist = dist.copy()  
         for u, v, w in edges:  
             if dist[u] != float('inf') and dist[u] + w < dist[v]:  
-                dist[v] = dist[u] + w  
+                dist[v] = dist[u] + w
+        dist = new_dist  
   
     # Check for negative weight cycles  
     for u, v, w in edges:  
@@ -903,6 +1000,67 @@ graph LR
 ```
 
 Starting with node 1, for this graph to relax till E we would need `|V| - 1` or 4 iterations.
+
+###### Problems
+###### Cheapest Flights Within K Stop
+There are n cities connected by some number of flights. You are given an array `flights` where `flights[i] = [fromi, toi, pricei]` indicates that there is a flight from city `fromi` to city `toi` with cost `pricei`.
+
+You are also given three integers `src`, `dst`, and `k`, return the cheapest price from `src` to `dst` with at most `k` stops. If there is no such route, return `-1`.
+
+Example 1:
+```mermaid  
+graph TD  
+    0((0)) -->|100| 1((1))  
+    1((1)) -->|100| 2((2))  
+    2((2)) -->|200| 3((3))  
+    0((0)) -->|100| 2((2))  
+    1((1)) -->|600| 3((3))  
+    2((2)) -->|200| 3((3))  
+  
+    style 0 fill:#ffffff,stroke:#000000,stroke-width:2px  
+    style 1 fill:#ffffff,stroke:#000000,stroke-width:2px  
+    style 2 fill:#ffffff,stroke:#000000,stroke-width:2px  
+    style 3 fill:#ffffff,stroke:#000000,stroke-width:2px  
+  
+    linkStyle 0 stroke:red,stroke-width:2px  
+    linkStyle 4 stroke:red,stroke-width:2px  
+```
+```
+Input: 
+n = 4 
+flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]]
+src = 0 
+dst = 3
+k = 1  
+
+Output: 700
+
+Explanation:
+The graph is shown above. The optimal path with at most 1 stop from city 0 to 3 is marked in red and has a cost of 100 + 600 = 700. Note that the path through cities [0,1,2,3] is cheaper but is invalid because it uses 2 stops.
+```
+
+###### Intuition
+- To solve this problem effectively, we need to find the cheapest price to travel from the source city (src) to the destination city (dst) with at most k stops. This could have been solved with Dijkstra but we don't get to limit the relaxations there.
+- So, the Bellman-Ford algorithm is well-suited for this problem because it allows for the relaxation of edges a specified number of times, effectively considering paths with a limited number of stops. This makes it an appropriate choice for finding the cheapest price from the source to the destination with at most k stops.
+
+Code
+```python
+def find_cheapest_price(n, flights, src, dest, k):
+    cost = {i: float('inf') for i in range(n)}
+    cost[src] = 0
+
+    # Perform relaxation up to k + 1 times 
+    for _ in range(k):
+        # Create a copy of the current costs
+        new_cost = cost.copy()
+        for frm, to, price in flights:
+            if cost[frm] != float('inf') and cost[frm] + price < new_cost[to]:
+                new_cost[to] = cost[frm] + price
+        cost = new_cost
+    return cost[dst] if cost[dst] != float('inf') else -1
+```
+
+**So for single source shortest path, use Bellman Ford if there are negative weights and number of relaxations `k` is restricted.**
 
 #### 2. Multi Source Shortest Path
 ##### Floyd Warshall Algorithm
@@ -937,6 +1095,7 @@ def floyd_warshall(graph):
             return -1
     return dist
 ``` 
+
 
 ### Disjoint Union Set - DSU
 Two sets are called disjoint if they don’t share any element; their intersection is an empty set. Also known as Union-Find as it supports the following operations:
@@ -1055,6 +1214,53 @@ def count_components(n, edges):
     return len(components) 
 ```
 
+#### Redundant Connection
+In this problem, a tree is an **undirected graph** that is connected and has no cycles.
+You are given a graph that started as a tree with `n` nodes labeled from `1` to `n`, with one additional edge added. The added edge has two **different** vertices chosen from `1` to `n`, and was not an edge that already existed. The graph is represented as an array `edges` of length `n` where `edges[i] = [ai, bi]` indicates that there is an edge between nodes `ai` and `bi` in the graph.
+
+Return **an edge that can be removed so that the resulting graph is a tree of `n` nodes**. If there are multiple answers, return the answer that occurs last in the input.
+
+Example:
+```
+Input: edges = [[1,2],[1,3],[2,3]]
+Output: [2,3]
+```
+
+##### Intuition
+The intuition for this problem is very simple, whichever edge causes a cycle can returned as a result. If multiple return the last in input.
+We can utilise our knowledge of find and union to find this edge.
+
+Code
+```python
+def redundant_connection(edges):
+    n = len(edges)
+    parent = {i: i for i in range(1, n+1)}
+    rank = [1] * (n+1)
+    def find(node):
+        if node != parent[node]:
+            parent[node] = find(parent[node])
+        return parent[node]
+    
+    def union(node1, node2):
+        parent1, parent2 = find(node1), find(node2)
+
+        if parent1 == parent2:
+            return False
+        
+        if parent1 != parent2:
+            if rank[parent1] >= rank[parent2]:
+                parent[parent2] = parent1
+                rank[parent1] = rank[parent1] + rank[parent2]
+            else:
+                parent[parent1] = parent2
+                rank[parent2] = rank[parent2] + rank[parent1]
+        
+        return True
+    
+    for u, v in edges:
+        if not union(u, v):
+            return [u, v]
+```
 
 ### Minimum Spanning Tree
 A Minimum Spanning Tree (MST) of a weighted, connected, undirected graph is a spanning tree that has the minimum possible total edge weight compared to all other spanning trees of the graph.
@@ -1156,6 +1362,120 @@ def kruskal(n , edges):
                 break
     
     return mst_cost
+```
+
+#### Problems
+#### Reconstruct Itenary
+You are given a list of airline `tickets` where `tickets[i] = [fromi, toi]` represent the departure and the arrival airports of one flight. Reconstruct the itinerary in order and return it.
+
+All of the tickets belong to a man who departs from `"JFK"`, thus, the itinerary must begin with `"JFK"`. If there are multiple valid itineraries, you should return the itinerary that has the smallest lexical order when read as a single string.
+
+For example, the itinerary `["JFK", "LGA"]` has a smaller lexical order than `["JFK", "LGB"]`.
+You may assume all tickets form at least one valid itinerary. You must use all the tickets once and only once.
+
+##### Example 1:
+```mermaid  
+graph LR  
+    JFK --> MUC  
+    MUC --> LHR  
+    LHR --> SFO  
+    SFO --> SJC
+```
+```
+Input: tickets = [["MUC","LHR"],["JFK","MUC"],["SFO","SJC"],["LHR","SFO"]]
+Output: ["JFK","MUC","LHR","SFO","SJC"]
+```
+
+##### Example 2:
+```mermaid  
+graph LR  
+    JFK --> SFO  
+    JFK --> ATL  
+    SFO --> ATL  
+    ATL --> JFK  
+    ATL --> SFO
+```
+```
+Input: tickets = [["JFK","SFO"],["JFK","ATL"],["SFO","ATL"],["ATL","JFK"],["ATL","SFO"]]
+Output: ["JFK","ATL","JFK","SFO","ATL","SFO"]
+Explanation: Another possible reconstruction is ["JFK","SFO","ATL","JFK","ATL","SFO"] but it is larger in lexical order.
+```
+
+##### Intuition
+To reconstruct the itinerary, we can leverage the properties of Depth-First Search (DFS) and a priority queue (min-heap). 
+- The key idea is to always visit the next airport in the smallest lexical order to ensure the correct itinerary. 
+- By using a DFS approach, we can explore all possible paths, and by utilizing a min-heap, we can guarantee that we always choose the smallest lexical airport available. 
+- This way, we can ensure that our final itinerary is lexicographically smallest. 
+- The final step involves reversing the itinerary since airports are appended to the result after all their destinations have been visited.
+
+Code
+```python
+def findItinerary(tickets):  
+    # Build the graph  
+    graph = defaultdict(list)  
+    for departure, arrival in tickets:  
+        heapq.heappush(graph[departure], arrival)  
+      
+    # Perform DFS  
+    itinerary = []  
+      
+    def dfs(airport):  
+        while graph[airport]:  
+            next_destination = heapq.heappop(graph[airport])  
+            dfs(next_destination)  
+        itinerary.append(airport)  
+      
+    dfs("JFK")  
+      
+    # Reverse the itinerary to get the correct order  
+    return itinerary[::-1]
+```
+
+#### Min Cost to Connect All Points
+You are given an array `points` representing integer coordinates of some points on a 2D-plane, where `points[i] = [xi, yi]`.
+
+The cost of connecting two points `[xi, yi]` and `[xj, yj]` is the **manhattan distance** between them: `|xi - xj| + |yi - yj|`, where `|val|` denotes the absolute value of `val`.
+
+Return the minimum cost to make all points connected. All points are connected if there is **exactly one** simple path between any two points.
+
+##### Intuition
+- The problem is essentially about finding the Minimum Spanning Tree (MST) of a graph where the nodes are points in a 2D plane and the edges are the Manhattan distances between these points.
+- We would be using the Prim's algorithm for finding the MST.
+
+Code
+```python
+def min_cost_connect_points(points):
+    n = len(points)
+
+    # Priority queue to select the edge with minimum cost
+    min_heap = [(0, 0)] # (cost, point_index)
+    visited = set()
+    total_cost, edges_used = 0, 0
+
+    while edges_used < n:
+        # Pop the edge with the smallest cost from the heap  
+        cost, i = heapq.heappop(min_heap)  
+          
+        # If the point has already been visited, skip it  
+        if i in visited:  
+            continue  
+          
+        # Mark the point as visited  
+        visited.add(i)  
+          
+        # Add the cost of this edge to the total cost  
+        total_cost = total_cost + cost  
+          
+        # Iterate over all points to update the heap with edges from the newly visited point  
+        for j in range(n):  
+            if j not in visited:  
+                # Calculate the Manhattan distance between points i and j  
+                manhattan_distance = abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1])  
+                  
+                # Push the new edge to the heap  
+                heapq.heappush(min_heap, (manhattan_distance, j))
+
+    return total_cost
 ```
 
 ### Hamiltonian Path - Travelling Salesman Problem
