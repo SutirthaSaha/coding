@@ -539,6 +539,28 @@ def climbing_stairs(n):
 ```
 This is again the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
 
+#### Minimum Cost Climbing Stairs
+You are given an integer array `cost` where `cost[i]` is the cost of `ith` step on a staircase. Once you pay the cost, you can either climb one or two steps.
+You can either start from the step with index `0`, or the step with index `1`.
+Return the minimum cost to reach the top of the floor.
+
+##### Intuition
+- Almost similar as the previous problem, just that here we calculate the minimum cost to climb the stairs instead of the possible ways.
+
+Code
+```python
+def min_cost_climbing_stairs(cost):
+    n = len(cost)
+
+    def solve(index):
+        if index >= n:
+            return 0
+        return cost[index] + min(solve(index+1), solve(index+2))
+    
+    return min(solve(0), solve(1))
+```
+This is again the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
+
 #### House Robber
 You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed. All houses at this place are arranged in a circle. That means the first house is the neighbor of the last one. Meanwhile, adjacent houses have a security system connected, and it will automatically contact the police if two adjacent houses were broken into on the same night. Given an integer array `nums` representing the amount of money of each house, return the maximum amount of money you can rob tonight without alerting the police.  
 
@@ -563,7 +585,7 @@ def house_robber(houses):
 
 This is again the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
 
-The circular houses robbery would just be a modification where either the first house or the last house can be robbed. So we can extend the previous house robber problem into:
+The circular houses robbery (**House Robber II**) would just be a modification where either the first house or the last house can be robbed. So we can extend the previous house robber problem into:
 - Pass all the houses apart from the first one
 - Pass all the houses apart form the last one
 - The maximum between these 2 would be giving the optimal solution of the maximum amount that can be robbed.
@@ -839,7 +861,6 @@ def print_scs(mem, string1, string2):
     return "".join(result)
 ```
 
-
 #### Longest repeating subsequence
 Given a string, print the longest repeating subsequence such that the two subsequence don’t have same string character at same position, i.e., any i’th character in the two subsequences shouldn’t have the same index in the original string.
 
@@ -878,6 +899,135 @@ What if it is not specified that `s` would be a subsequence and either can be a 
 return lcs == min(len(s), len(t))
 ```
 
+#### Interleaving String
+Given strings `s1`, `s2`, and `s3`, find whether `s3` is formed by an interleaving of `s1` and `s2`.
+An interleaving of two strings `s` and `t` is a configuration where `s` and `t` are divided into `n` and `m` substrings respectively, such that:
+- `s = s1 + s2 + ... + sn`
+- `t = t1 + t2 + ... + tm`
+- `|n - m| <= 1`
+- The **interleaving** is `s1 + t1 + s2 + t2 + s3 + t3 + ...` or `t1 + s1 + t2 + s2 + t3 + s3 + ...`
+  
+**Note**: a + b is the concatenation of strings a and b.
+
+Example:
+```
+Input: s1 = "aabcc", s2 = "dbbca", s3 = "aadbbcbcac"
+Output: true
+Explanation: One way to obtain s3 is:
+Split s1 into s1 = "aa" + "bc" + "c", and s2 into s2 = "dbbc" + "a".
+Interleaving the two splits, we get "aa" + "dbbc" + "bc" + "a" + "c" = "aadbbcbcac".
+Since s3 can be obtained by interleaving s1 and s2, we return true.
+```
+
+##### Intuition
+For this problem, we need to determine if `s3` can be formed by interleaving `s1` and `s2`. The interleaving condition implies that characters from `s1` and `s2` appear in `s3` in the same order they appear in their respective strings. Here are the key points for the intuition:
+
+- **Choices**: At each step, we have two choices. We can either take the current character from `s1` or from `s2` and check if it matches the current character in `s3`.
+- **Recursive Exploration**: We recursively explore both choices:
+  - If we take a character from `s1`, we move to the next character in `s1` and the next character in `s3`.
+  - If we take a character from `s2`, we move to the next character in `s2` and the next character in `s3`.
+- **Base Conditions**: The base conditions for our recursion are:
+  - If we have exhausted all characters in `s3`, we return True if we have also exhausted both `s1` and `s2`.
+  - If we have exhausted either `s1` or `s2` but not `s3`, we return False.
+
+Code
+```python
+def is_interleave(s1, s2, s3):
+    if len(s1) + len(s2) != len(s3):
+        return False
+    
+    def solve(i, j, k):
+        # Base condition: If we have processed all characters in s3  
+        if k == len(s3):  
+            return i == len(s1) and j == len(s2)
+        
+        # Check if we can take the next character from s1  
+        if i < len(s1) and s1[i] == s3[k] and interleave(i+1, j, k+1):  
+            return True  
+          
+        # Check if we can take the next character from s2  
+        if j < len(s2) and s2[j] == s3[k] and interleave(i, j+1, k+1):   
+            return True
+        
+        return False
+    
+    return solve(0, 0, 0)
+```
+
+#### Distinct Subsequences
+Given two strings `s` and `t`, return the number of distinct subsequences of `s` which equals `t`.
+
+##### Intuition
+For the recursive solution:
+- **Choices**: To consider the two characters in both of the strings. Now the behavior would vary on the basis of their comparison result:
+  - **Equal**: We have two choices:
+    - Move to the next character for for both `s` and `t`.
+    - Move to the next character for for `s` in order to account for another possible subsequence.
+  - **Not equal**: Move to the next character for `s`, to check if a subsequence is possible.
+- **Base Condition**: The end of `t`.
+
+Code
+```python
+def num_distinct(s, t):
+    m, n = len(s), len(t)
+    def solve(i, j):
+        if j == n:
+            return 1
+        if i == m:
+            return 0
+        
+        if s[i] == t[j]:
+            return solve(i+1, j+1) + solve(i+1, j)
+        else:
+            return solve(i+1, j)
+    
+    return solve(0, 0)
+```
+
+#### Edit Distance
+Given two strings word1 and word2, return the minimum number of operations required to convert word1 to word2.
+You have the following three operations permitted on a word:
+- Insert a character
+- Delete a character
+- Replace a character
+```
+Input: word1 = "horse", word2 = "ros"
+Output: 3
+Explanation: 
+horse -> rorse (replace 'h' with 'r')
+rorse -> rose (remove 'r')
+rose -> ros (remove 'e')
+```
+
+##### Intuition
+For the recursive solution:
+- **Choices**: To consider the two characters in both of the words. Now the behavior would vary on the basis of their comparison result:
+  - **Equal**: Move to the next character for for both `word1` and `word2`.
+  - **Not equal**: We have 3 choices here but all would add an operation. The 3 choices are:
+    - **Addition**: Move to the next character for `word2`, assuming that the character was added to `word1`.
+    - **Deletion**: Move to the next character for `word1`, assuming that the character was deleted from `word1`.
+    - **Replace**: Move to the next character for both `word1` and `word2`.
+- **Base Condition**: The end of `word1` or `word2`, the number of operations would be the remaining characters of the other word (need to be deleted).
+
+Code
+```python
+def min_distance(word1, word2):
+    m, n = len(word1), len(word2)
+    def solve(index1, index2):
+        # base condition takes care of deletions
+        if index1 == m:
+            return n - index2
+        if index2 == n:
+            return m - index1
+        if word1[index1] == word2[index2]:
+            # No operation needed
+            return solve(index1+1, index2+1)
+        else:
+            # Add one operation - insertion, deletion, replacement
+            return 1 + min(solve(index1, index2+1), solve(index1+1, index2), solve(index1+1, index2+1))
+    return solve(0, 0)
+```
+
 ### Longest Increasing Subsequence
 The Longest Increasing Subsequence problem is a classic dynamic programming problem that asks for the length of the longest subsequence in a given array such that all elements of the subsequence are sorted in increasing order.
 
@@ -889,7 +1039,7 @@ We would have to track the longest subsequence ending at each postion by compari
 
 ##### Recursive Solution
 - **Choices**: For each element we have 2 choices:
-  - **Include** the element in the subsequenceif:
+  - **Include** the element in the subsequence if:
     - current subsequence is empty
     - value of the element is greater than the previous element and forms an increasing sequence.
   - **Exclude** and move to the next element
@@ -1020,7 +1170,6 @@ Always solve using **recursion**.
 - Within these possible answers we would find out the optimal solution as per the question.
 
 #### Format
-
 ##### Steps
 - Find `start` and `end`
 - Find Base Condition
@@ -1034,10 +1183,10 @@ def solve(arr, start, end):
     if start > end:
         return
     
-    # intitialise result
+    # Intitialise result
     result = ""
 
-    # consider for all the possible choices for k
+    # Consider for all the possible choices for k
     for k in range(start, end+1):
         temp_result = solve(arr, start, start+k) + solve(arr, start+k+1, end)
         result = optimise(result, temp_result) # optimise can be min, max
@@ -1055,7 +1204,6 @@ def solve(arr, start, end):
 - Egg Dropping Problem
 
 #### Problems
-
 #### Matrix Chain Mulitplication
 Given a sequence of matrices, find the most efficient way to multiply these matrices together. The problem is not actually to  perform the multiplications, but merely to decide in which order to perform the multiplications.
 
@@ -1182,10 +1330,12 @@ def palindrome_partition(string):
 
     def solve(start, end, curr):
         if start > end:
-            return result.append(cur[:])
+            return result.append(curr[:])
         for k in range(start, end+1):
             if is_palindrome(start, k):
-                solve(k+1, end, curr.append(string[start: k+1]))
+                curr.append(string[start: k+1])
+                solve(k+1, end, curr)
+                curr.pop()
     
     solve(start, end, [])
     return result
@@ -1197,6 +1347,53 @@ This is the recursive code, ensure to implement memoization with dictionary to i
 #### Scrambled String
 
 #### Egg Dropping
+
+#### Burst Balloons
+You are given `n` balloons, indexed from `0` to `n - 1`. Each balloon is painted with a number on it represented by an array `nums`. You are asked to burst all the balloons.
+If you burst the `ith` balloon, you will get `nums[i - 1] * nums[i] * nums[i + 1]` coins. If `i - 1` or `i + 1` goes out of bounds of the array, then treat it as if there is a balloon with a `1` painted on it.
+Return the **maximum coins you can collect by bursting the balloons** wisely.
+
+Example:
+```
+Input: nums = [3,1,5,8]
+Output: 167
+Explanation:
+nums = [3,1,5,8] --> [3,5,8] --> [3,8] --> [8] --> []
+coins =  3*1*5    +   3*5*8   +  1*3*8  +  1*8*1 = 167
+```
+
+##### Intuition
+###### Recursive Solution
+- **Add Boundary Balloons**: Add 1 at both ends of the nums array to handle edge cases.
+- **Choices**: k can have values from start+1 to end-1. Burst balloon k last, then divide into two groups and break the array into (start, k) and (k, end).
+- **Base Condition**: end - start <= 1 because if start == end - 1, it means no balloons are left to burst between them.
+
+Code
+```python
+def maxCoins(nums):
+    # Add 1 at the beginning and end of the nums array  
+    nums = [1] + nums + [1]
+    n = len(nums)
+
+    def solve(left, right):
+        if left + 1 == right:
+            return 0
+        max_coins = 0
+
+        # Try bursting each balloon in the current subarray last
+        for k in range(left+1, right):
+            # coins by bursting the kth balloon last  
+            coins = nums[left] * nums[k] * nums[right]
+
+            # add coins from subproblems
+            coins = coins + solve(left, k) + solve(k, right)
+            
+            # update max coins
+            max_coins = max(max_coins, coins)
+        return max_coins
+    
+    return solve(0, n-1)
+```
 
 ### DP on Trees
 DP can also be applied on trees to solve some specific problems.
