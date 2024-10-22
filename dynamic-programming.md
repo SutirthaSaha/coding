@@ -291,12 +291,85 @@ def subsets_with_given_diff(arr, diff):
     target = (total + diff) / 2 # would always be divisible by 2
     return count_subset_sum(arr, target) # already solved earlier
 ```
-##### Target Sum
+### Target Sum
 Given an array and a target value. Count the number of ways to reach the target but modifying the sign of each of the array element.
 
 This is modification of the `Subset Sum` problem, just that here we have 2 choices for selecting an element:
 - Positive(+ve) value of the element
 - Negative(-ve) value of the element
+
+### Word Break
+Given a string s and a dictionary of strings wordDict, return true if s can be segmented into a space-separated sequence of one or more dictionary words.
+
+Note that the same word in the dictionary may be reused multiple times in the segmentation.
+
+Example
+```
+Input: s = "leetcode", wordDict = ["leet","code"]
+Output: true
+Explanation: Return true because "leetcode" can be segmented as "leet code".
+```
+
+#### Intuition
+To solve the Word Break problem we need to determine if we can break the string s into valid dictionary words. The idea is to recursively check each possible prefix of the string and see if it can be segmented according to the dictionary. If a prefix is found in the dictionary, we recursively check the remaining part of the string.
+
+##### Recursive Solution
+- Choices: 
+  - For each possible prefix of the string s (from the beginning up to each position `i`), check if the prefix is in the dictionary.
+  - If the prefix is in the dictionary, recursively check the remainder of the string starting from position `i`.
+  - If any of the recursive calls return `true`, then the whole string s can be segmented; otherwise, it cannot be segmented.
+- Base Condition: If the starting index reaches the length of the string s, it means we have successfully segmented the entire string, so we return `true`.
+
+Code
+```python
+def wordBreak(s, word_dict):
+    n = len(s)
+    word_dict = set(word_dict)
+    
+    def solve(start):
+        # Base case: if start index reaches the length of the string, return True as segmentation is successful for the string
+        if start == n:
+            return True
+        
+        # Try to segment the string by checking every possible end index
+        for end in range(start+1, n+1):
+            prefix = s[start: end]
+            # If the prefix is in the dictionary and the remaining string can be segmented
+            if prefix in word_dict and solve(end):
+                return True
+        return False
+    
+    return solve(0)
+```
+##### Memoization
+Memoization helps avoid redundant computations by storing the results of subproblems - whether a substring starting at a particular index can be segmented.
+
+Code
+```python
+def wordBreak(s, word_dict):
+    n = len(s)
+    word_dict = set(word_dict)
+    mem = dict()
+
+    def solve(start):
+        # Base case: if start index reaches the length of the string, return True as segmentation is successful for the string
+        if start == n:
+            return True
+        
+        if start not in mem:
+            mem[start] = False
+            # Try to segment the string by checking every possible end index
+            for end in range(start+1, n+1):
+                prefix = s[start: end]
+                # If the prefix is in the dictionary and the remaining string can be segmented
+                if prefix in word_dict and solve(end):
+                    mem[start] = True
+                    break # If we can segment the string, no need to check further
+        
+        return mem[start]
+
+    return solve(0)
+```
 
 ### Unbounded Knapsack
 Knapsack is a bag to store items and you are given a list of items with `weight` and `value`. The bag would have a `capacity` and we can either select an item or ignore it. The only change from `0-1 Knapsack` would be that the items can taken any number of *.
@@ -630,6 +703,59 @@ def maximum_alternative_subsequence_sum(arr):
             mem[(index, is_positive)] max(solve(index+1, is_positive), val + solve(index+1, not is_positive))
         return mem[(index, is_positive)]
     return solve(0, True)
+```
+
+#### Decode Ways
+You have intercepted a secret message encoded as a string of numbers. The message is decoded via the following mapping:  
+- "1" -> 'A'  
+- "2" -> 'B'  
+- ...  
+- "25" -> 'Y'  
+- "26" -> 'Z'
+
+However, while decoding the message, you realize that there are many different ways you can decode the message because some codes are contained in other codes ("2" and "5" vs "25").
+
+For example, "11106" can be decoded into:
+- "AAJF" with the grouping (1, 1, 10, 6)  
+- "KJF" with the grouping (11, 10, 6)
+- The grouping (1, 11, 06) is invalid because "06" is not a valid code (only "6" is valid).  
+
+**Note:** there may be strings that are impossible to decode.
+
+Given a string `s` containing only digits, return the number of ways to decode it. If the entire string cannot be decoded in any valid way, return 0.  
+  
+Example:
+```
+Input: s = "12"
+Output: 2
+Explanation: "12" could be decoded as "AB" (1 2) or "L" (12).
+```
+
+##### Intuition
+- **Choices**: For each digit or pair of digits, decide whether it can form a valid letter or not.
+- **Base Condition**: If you reach the end of the string, there is one valid decoding (the empty string).
+
+Code
+```python
+def num_decodings(s):
+    n = len(s)
+    def solve(index):
+        if index == n:
+            return 1
+        # invalid case
+        if s[index] == '0':
+            return 0
+        
+        # Single digit decoding 
+        ways = solve(index + 1)
+
+        # Two digit decoding
+        if index < n-1 and (s[index] == '1' or (s[index] == '2' and s[index+1] in '0123456')):
+            ways = ways + solve(index+2)
+        
+        return ways
+    
+    return solve(0)
 ```
 
 ### Longest Common Subsequence
@@ -1200,6 +1326,7 @@ def solve(arr, start, end):
 - Evaluate Expression to True/Boolean Parenthesis
 - Min/max value of an Expression
 - Palindrome Partitioning
+- Palindromic Substrings
 - Scrambled String
 - Egg Dropping Problem
 
@@ -1341,6 +1468,23 @@ def palindrome_partition(string):
     return result
 ```
 This is the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
+
+#### Palindromic Substrings
+Given a string s, return the number of palindromic substrings in it.
+A string is a palindrome when it reads the same backward as forward.
+A substring is a contiguous sequence of characters within the string.
+
+Example
+```
+Input: s = "abc"
+Output: 3
+Explanation: Three palindromic strings: "a", "b", "c".
+```
+
+```
+TODO
+```
+
 
 #### Evaluate Expression To True
 
@@ -1570,3 +1714,53 @@ return result
 
 #### Longest Increasing Path in a Matrix
 Given an m x n matrix of integers, find the length of the longest increasing path in the matrix. You can move in four directions: up, down, left, and right.
+
+##### Intuition
+###### Recursive Solution
+- Choices: From a particular cell we can move to either of these directions (left, right, up, down), if the element in this direction is greater.
+
+Code
+```python
+def longestIncreasingPath(matrix):
+    m, n = len(matrix), len(matrix[0])
+    directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    
+    def dfs(row, col):
+        current_lip = 1
+        for direction in directions:
+            n_row, n_col = row + direction[0], col + direction[1]
+            if 0<=n_row<m and 0<=col<n and matrix[n_row][n_col] > matrix[row][col]:
+                current_lip = max(current_lip, 1 + dfs(n_row, n_col))
+        return current_lip
+    lip = 1
+    for row in range(m):
+        for col in range(n):
+            lip = max(lip, dfs(row, col))
+    return lip        
+```
+
+###### With Memoization
+To enhance the recursive solution with memoization, we will store the results of previously computed cells to avoid redundant calculations. This will optimize the performance and reduce the computational complexity from exponential to polynomial time.
+
+```python
+def longestIncreasingPath(matrix):
+    m, n = len(matrix), len(matrix[0])
+    directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    mem = dict()
+
+    def dfs(row, col):
+        if (row, col) not in mem:
+            current_lip = 1
+            for direction in directions:
+                n_row, n_col = row + direction[0], col + direction[1]
+                if 0<=n_row<m and 0<=n_col<n and matrix[n_row][n_col] > matrix[row][col]:
+                    current_lip = max(current_lip, 1 + dfs(n_row, n_col))
+            mem[(row, col)] = current_lip
+        return mem[(row, col)]
+    
+    lip = 1
+    for row in range(m):
+        for col in range(n):
+            lip = max(lip, dfs(row, col))
+    return lip
+```
