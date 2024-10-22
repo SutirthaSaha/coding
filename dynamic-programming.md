@@ -1469,23 +1469,6 @@ def palindrome_partition(string):
 ```
 This is the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
 
-#### Palindromic Substrings
-Given a string s, return the number of palindromic substrings in it.
-A string is a palindrome when it reads the same backward as forward.
-A substring is a contiguous sequence of characters within the string.
-
-Example
-```
-Input: s = "abc"
-Output: 3
-Explanation: Three palindromic strings: "a", "b", "c".
-```
-
-```
-TODO
-```
-
-
 #### Evaluate Expression To True
 
 #### Scrambled String
@@ -1763,4 +1746,43 @@ def longestIncreasingPath(matrix):
         for col in range(n):
             lip = max(lip, dfs(row, col))
     return lip
+```
+
+### Miscellaneous
+#### Palindromic Substrings*
+Given a string s, return the number of palindromic substrings in it.
+A string is a palindrome when it reads the same backward as forward.
+A substring is a contiguous sequence of characters within the string.
+
+Example
+```
+Input: s = "abc"
+Output: 3
+Explanation: Three palindromic strings: "a", "b", "c".
+```
+
+##### Intuition
+For each character and each pair of consecutive characters in the string, expand outward while checking for palindromic substrings.
+
+###### Expand Around Center Approach
+This approach involves considering each character (for odd-length palindromes) and each pair of consecutive characters (for even-length palindromes) as potential centers of palindromes. From each center, we expand outward as long as the substring remains a palindrome.
+
+```python
+def countSubstrings(s):  
+    n = len(s)  
+    count = 0  # This will store the number of palindromic substrings
+      
+    def expandAroundCenter(left, right):  
+        nonlocal count
+        # Expand as long as the substring is a palindrome
+        while left >= 0 and right < n and s[left] == s[right]:  
+            count += 1  # Increment count for each palindromic substring found  
+            left -= 1  # Move left pointer one step to the left  
+            right += 1  # Move right pointer one step to the right
+      
+    for i in range(n):  
+        expandAroundCenter(i, i)      # Odd length palindromes centered at i
+        expandAroundCenter(i, i + 1)  # Even length palindromes centered between i and i+1
+      
+    return count
 ```
