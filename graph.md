@@ -603,6 +603,79 @@ def find_order(numCourses, prerequisites):
     return order
 ```
 
+#### Alien Dictionary
+You are given a list of words from the dictionary, where the words are sorted lexicographically by the rules of this new language. Derive the order of letters in this alien language.
+
+Example
+```
+Input: ["wrt", "wrf", "er", "ett", "rftt"]
+Output: "wertf"
+Explanation: The correct order of characters is:
+'w' comes before 'e'
+'r' comes before 't'
+'t' comes before 'f'
+```
+
+##### Intuition
+To solve this problem, we can use a topological sort since we are essentially trying to determine the order of characters based on a partial ordering given by the dictionary.
+
+1. **Build the Graph**: Construct a directed graph where each node is a character, and there is a directed edge from character u to v if u comes before v in the dictionary.
+2. **Topological Sort**: Perform a topological sort on the graph to find the order of characters.
+
+Code
+```python
+def alien_order(words):
+    graph = defaultdict(list)
+
+    # Build the graph by comparing adjacent words
+    for i in range(len(words)-1):
+        first, second = words[i], words[i+1]
+        min_length = min(len(first), len(second))
+        non-matching_found = False
+
+        # Find the first non-matching character
+        for j in range(min_length):
+            if first[j] != second[j]:
+                graph[first[j]].append(second[j])
+                non-matching_found = True
+                break
+
+        # Check for the invalid case where second word is a prefix of first word  
+        if not non_matching_found and len(second) < len(first):  
+            return ""
+    
+    visited = set()
+    order = []
+    recursion_stack = set()
+
+    def dfs(char):
+        visited.add(char)
+        recursion_stack.add(char)
+
+        for next_char in graph[char]:
+            # If the next character is in the recursion stack - a cycle is detected 
+            if next_char in recursion_stack:
+                return False
+            # If the character is not visiteed, the topological sort on it returns False if a cycle is detected
+            if next_char not in visited and not dfs(next_char):
+                return False
+        
+        recursion_stack.remove(char)
+        # The character is added to the order after all the adjacent characters are traversed
+        order.append(char)
+        return True
+
+    for word in words:
+        for char in words:
+            # If the character is not visiteed, the topological sort on it returns False if a cycle is detected
+            if char not in visited and not dfs(char):
+                return ""
+    
+    # Reverse the order to get the correct topological order
+    order.reverse()
+    return "".join(order)
+```
+
 ### Flood Fill Algorithm
 The Flood Fill algorithm is used to fill a contiguous region of pixels with a particular color, starting from a given seed pixel.
 
@@ -791,6 +864,67 @@ def surround_regions(grid):
             # Cells are visited or marked they won't be converted as they have boundary with edge
             elif grid[row][col] == "T":
                 grid[row][col] = "O"
+```
+
+#### Walls and Gates
+You are given a 2D grid representing rooms in a building. The grid contains the following values:
+- -1 for a wall or an obstacle.
+- 0 for a gate.
+- `INF` (infinity) for an empty room.
+
+Fill each empty room with the distance to its nearest gate. If it is impossible to reach a gate, leave the room as `INF`.
+
+Example:
+```
+Input:  
+rooms = [  
+  [INF, -1, 0, INF],  
+  [INF, INF, INF, -1],  
+  [INF, -1, INF, -1],  
+  [0, -1, INF, INF]  
+]  
+  
+Output:  
+rooms = [  
+  [3, -1, 0, 1],  
+  [2, 2, 1, -1],  
+  [1, -1, 2, -1],  
+  [0, -1, 3, 4]  
+]
+```
+
+##### Intuition
+To solve this problem, we can perform a multi-source Breadth-First Search (BFS) starting from all gates simultaneously. 
+BFS is ideal for this problem because it explores all nodes at the present depth level before moving on to nodes at the next depth level, ensuring that we find the shortest path to a gate.
+
+Code
+```python
+def walls_and_gates(rooms):
+    if not rooms or not rooms[0]:
+        return
+    
+    m, n = len(rooms), len(rooms[0])
+    INF = 2**31 - 1 # Define the value of infinity as per the problem statement
+    directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    queue = deque()
+
+    # Initialize queue with all gates
+    for row in range(m):
+        for col in range(n):
+            if rooms[row][col] == 0:
+                queue.append((row, col))
+    
+    # Perform BFS for each gate
+    while queue:
+        row, col = queue.popleft() # Use popleft() for BFS
+
+        for direction in directions:
+            n_row, n_col = row + direction[0], col + direction[1]
+            # If the position is in-bounds and empty room
+            if 0<=n_row<m and 0<=n_col<n and rooms[n_row][n_col] == INF:
+                # Update the distance to the nearest gate
+                rooms[n_row][n_col] = rooms[row][col] + 1
+                queue.append((n_row, n_col))
 ```
 
 ### Shortest Path Algorithms
