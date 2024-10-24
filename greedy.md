@@ -170,3 +170,203 @@ def maximum_product_subarray(nums):
 
         result = max(result, max_product)
 ```
+
+#### Hand of Straights
+Alice has some number of cards and she wants to rearrange the cards into groups so that each group is of size groupSize, and consists of groupSize consecutive cards.
+Given an integer array `hand` where `hand[i]` is the value written on the `ith` card and an integer `groupSize`, return `true` if she can rearrange the cards, or `false` otherwise.
+
+Example:
+```
+Input: hand = [1,2,3,6,2,3,4,7,8], groupSize = 3
+Output: true
+Explanation: Alice's hand can be rearranged as [1,2,3],[2,3,4],[6,7,8]
+```
+
+##### Intuition
+The problem is essentially about checking if the cards can be divided into groups of consecutive numbers of a specified size. 
+- To achieve this, we can use a greedy approach combined with:
+  - a counting mechanism to track the frequency of each card
+  - a min-heap to ensure we process the smallest card values first.
+- Every time a card count reaches 0, it should be the top of the min heap - otherwise grouping wouldn't be possible.
+
+Code
+```python
+def is_n_straight_hand(hand, group_size):
+    # If the total number of cards is not divisible by groupSize, we cannot form the required groups
+    if len(hand) % group_size:
+        return False
+    count = defaultdict(int)
+    for card in hand:
+        count[card] = count[card] + 1
+    min_heap = list(count.keys())
+    heapq.heapify(min_heap)
+
+    # Process the cards starting from the smallest value
+    while min_heap:
+        # Get the smallest card value
+        first = min_heap[0]
+
+        # Try to form a group starting from the smallest card
+        for card in range(first, first+group_size):
+            if card not in count:
+                return False
+            count[card] = count[card] - 1
+            # If the count of the `card` becomes zero, remove it from the heap and count dictionary
+            if count[card] == 0:
+                if card != min_heap[0]:
+                    return False
+                count.pop(card)
+                heapq.heappop(min_heap)
+    
+    return True
+```
+
+
+#### Merge Triplet to Form Target Triplet
+A triplet is an array of three integers. You are given a 2D integer array triplets, where `triplets[i] = [ai, bi, ci]` describes the `ith` triplet. You are also given an integer array `target = [x, y, z]` that describes the triplet you want to obtain.
+To obtain target, you may apply the following operation on triplets any number of times (possibly zero):
+- Choose two indices (0-indexed) `i` and `j` (`i` != `j`) and update `triplets[j]` to become `[max(ai, aj), max(bi, bj), max(ci, cj)]`.
+- For example, if `triplets[i] = [2, 5, 3]` and `triplets[j] = [1, 7, 5]`, `triplets[j]` will be updated to `[max(2, 1), max(5, 7), max(3, 5)] = [2, 7, 5]`.
+Return `true` if it is possible to obtain the target triplet `[x, y, z]` as an element of triplets, or `false` otherwise.
+
+Example:
+```
+Input: triplets = [[2,5,3],[1,8,4],[1,7,5]], target = [2,7,5]
+Output: true
+Explanation: Perform the following operations:
+- Choose the first and last triplets [[2,5,3],[1,8,4],[1,7,5]]. Update the last triplet to be [max(2,1), max(5,7), max(3,5)] = [2,7,5]. triplets = [[2,5,3],[1,8,4],[2,7,5]]
+The target triplet [2,7,5] is now an element of triplets.
+```
+
+##### Intuition
+The core idea is to determine if we can combine (merge) elements from different triplets to form the target triplet. For each element in the target triplet (x, y, z), we need at least one triplet whose corresponding element matches the target value or is less than or equal to it.
+
+Key Points
+- *Element-wise Check*: For each triplet, we check if any element exceeds the corresponding element in the target triplet. If any element is greater, that triplet cannot be used to form the target triplet.
+- *Tracking Matches*: We use a set to keep track of which elements of the target triplet we have been able to match exactly (x, y, z). If, by the end of our iteration, we have matched all three elements, then we can form the target triplet.
+
+Code
+```python
+def merge_triplets(triplets, target):  
+    merge = set()  
+    for triplet in triplets:  
+        # Skip triplets with any element larger than the target's corresponding element  
+        if triplet[0] > target[0] or triplet[1] > target[1] or triplet[2] > target[2]:  
+            continue  
+          
+        # Check if any element in the triplet matches the corresponding target element  
+        for index, value in enumerate(triplet):  
+            if value == target[index]:  
+                merge.add(index)  
+      
+    # Check if we have matched all three elements of the target triplet  
+    return len(merge) == 3
+```
+
+#### Partition Labels
+You are given a string `s`. We want to partition the string into as many parts as possible so that each letter appears in at most one part.
+Note that the partition is done so that after concatenating all the parts in order, the resultant string should be `s`.
+Return a list of integers representing the size of these parts.
+
+Example:
+```
+Input: s = "ababcbacadefegdehijhklij"
+Output: [9,7,8]
+Explanation:
+The partition is "ababcbaca", "defegde", "hijhklij".
+This is a partition so that each letter appears in at most one part.
+A partition like "ababcbacadefegde", "hijhklij" is incorrect, because it splits s into less parts.
+```
+
+##### Intuition
+To solve this problem, we need to keep track of the last occurrence of each character in the string. This will allow us to determine the boundaries of each partition. Here’s the step-by-step intuition:
+- Track Last Occurrence: First, traverse the string to record the last occurrence of each character. This helps us know the furthest point each character needs to be included in a partition.
+- Greedy Partitioning: Use two pointers to maintain the start and end of the current partition. As we traverse the string, we expand the end pointer to the maximum last occurrence of any character we encounter within the current partition. Once we reach the end of the current partition, we finalize it and start a new partition.
+- Update Pointers: After finalizing a partition, update the start pointer to the next character and repeat the process until the entire string is partitioned.
+
+```python
+def partition_labels(s):
+    # Record the last occurrence of each character
+    last_occurence = {char: index for index, char in enumerate(s)}
+    # Initialize pointers for partitioning  
+    partitions = []  
+    start = 0  
+    end = 0 
+
+    for index, char in enumerate(s):
+        # Update the end pointer to the furthest last occurrence of the current character
+        end = max(end, last_occurence[char])
+
+        # If the current index matches the end pointer, finalize the partition
+        if index == end:
+            partitions.append(end-start+1)
+            start = end + 1
+    
+    return partitions
+```
+
+#### Valid Parenthesis String
+Given a string s containing only three types of characters: `'('`, `')'` and `'*'`, return `true` if `s` is valid.
+The following rules define a valid string:
+- Any left parenthesis '(' must have a corresponding right parenthesis ')'.
+- Any right parenthesis ')' must have a corresponding left parenthesis '('.
+- Left parenthesis '(' must go before the corresponding right parenthesis ')'.
+- '*' could be treated as a single right parenthesis ')' or a single left parenthesis '(' or an empty string "".
+
+Example 1:
+```
+Input: s = "()"
+Output: true
+```
+Example 2:
+```
+Input: s = "(*)"
+Output: true
+```
+Example 3:
+```
+Input: s = "(*))"
+Output: true
+```
+
+##### Intuition
+We can use a greedy algorithm with two variables to track the possible range of open parentheses counts:
+- lo (low): The minimum possible number of open parentheses.
+- hi (high): The maximum possible number of open parentheses.
+
+As we traverse the string:
+- If we encounter '(', we increment both lo and hi because it increases the count of open parentheses.
+- If we encounter ')', we decrement both lo and hi because it decreases the count of open parentheses.
+- If we encounter '*', we decrement lo (treating '*' as ')'), and increment hi (treating '*' as '(').
+
+Key Points:
+- Balance Tracking: lo should never be negative, because it represents the minimum possible open parentheses, and it can't drop below zero.
+- Final Check: At the end of the traversal, lo should be zero, indicating that all open parentheses have been properly closed.
+
+Code
+```python
+def check_valid_string(s):  
+    lo = 0  # minimum open parentheses  
+    hi = 0  # maximum open parentheses  
+      
+    for char in s:  
+        if char == '(':  
+            lo += 1  
+            hi += 1  
+        elif char == ')':  
+            lo -= 1  
+            hi -= 1  
+        else:  # char == '*'  
+            lo -= 1  # treat '*' as ')'  
+            hi += 1  # treat '*' as '('  
+          
+        # If lo becomes negative, reset it to zero  
+        lo = max(lo, 0)  
+          
+        # If hi is negative, it means there are too many ')' than '('  
+        if hi < 0:  
+            return False  
+      
+    # If lo is zero, it means all '(' have been matched with ')'  
+    return lo == 0
+```
