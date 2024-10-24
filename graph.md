@@ -382,6 +382,126 @@ def clone(node):
     return dfs(node)
 ```
 
+#### Word Ladder
+Given two words (beginWord and endWord), and a dictionary's word list, find the length of the shortest transformation sequence from beginWord to endWord, such that:
+- Only one letter can be changed at a time.
+- Each transformed word must exist in the word list.
+
+Note:
+- Return 0 if there is no such transformation sequence.
+- All words have the same length.
+- All words contain only lowercase alphabetic characters.
+- You may assume no duplicates in the word list.
+- You may assume beginWord and endWord are non-empty and are not the same.
+
+Example
+```
+Input:  
+beginWord = "hit",  
+endWord = "cog",  
+wordList = ["hot", "dot", "dog", "lot", "log", "cog"]
+Output: 5
+Explanation: As one shortest transformation is "hit" -> "hot" -> "dot" -> "dog" -> "cog", return its length 5.
+```
+
+##### Intuition
+###### Naive Approach
+- Start with the `beginWord` and perform BFS by generating all possible one-letter transformations for each word.
+- If a transformation matches the endWord, return the current transformation length + 1. If the transformation is in the word list, add it to the queue and remove it from the set to prevent revisits.
+
+Code
+```
+def wordLadderLength(beginWord, endWord, wordList):  
+    # Convert the wordList to a set for O(1) lookups  
+    wordSet = set(wordList)  
+      
+    # If the endWord is not in the word list, there's no valid transformation  
+    if endWord not in wordSet:  
+        return 0  
+      
+    # Queue for BFS: stores tuples of (current_word, current_length)  
+    queue = deque([(beginWord, 1)])  
+      
+    # BFS traversal  
+    while queue:  
+        current_word, length = queue.popleft()  
+          
+        # If we reach the endWord, return the current length  
+        if current_word == endWord:  
+            return length  
+          
+        # Try changing each letter in the current word  
+        for i in range(len(current_word)):  
+            for c in 'abcdefghijklmnopqrstuvwxyz':  
+                # Create a new word by changing the ith character to c  
+                new_word = current_word[:i] + c + current_word[i+1:]  
+                  
+                # If the new word is in the wordSet, it is a valid transformation  
+                if new_word in wordSet:  
+                    # Add the new word to the queue with incremented length  
+                    queue.append((new_word, length + 1))  
+                    # Remove the new word from the wordSet to prevent revisiting  
+                    wordSet.remove(new_word)  
+      
+    # If we exhaust the queue without finding the endWord, return 0  
+    return 0
+```
+Now for each word we are performing `26 * len(word)` operations and this can be improved by using the following approach.
+
+###### Optimized Solution
+Pattern Matching:
+- Instead of comparing each word with every other word, use a transformation pattern to group words.
+- For example, for the word "hit", generate patterns like "it", "ht", and "hi*".
+- This allows quick lookup of potential transformations.
+
+To store this we edges from pattern to all the possible words it can link to, and we traverse each breadth-wise to ensure we always get the minimum number of steps to convert.
+
+Code
+```python
+def ladderLength(begin_word, end_word, word_list):
+    # If the endWord is not in the wordList, return 0 as no transformation is possible
+    if end_word not in word_list:
+        return 0
+
+    # Length of each word (all words have the same length)  
+    word_len = len(word_list[0]) 
+    graph = defaultdict(list)
+
+    # Populate the graph with patterns generated from each word
+    for word in word_list:
+        word_len = len(word)
+        for i in range(word_len):
+            # Create a pattern by replacing one character with '*'
+            pattern = word[:i] + '*' + word[i+1:]
+            graph[pattern].append(word)
+    
+    queue, visited = deque(), set()
+    queue.append((begin_word, 1))
+    visited.add(begin_word)
+
+    while queue:
+        curr, steps = queue.popleft()
+
+        # If the current word is the endWord, return the number of steps
+        if curr == end_word:
+            return steps
+
+        # Generate all possible patterns for the current word
+        for i in range(word_len):
+            pattern = curr[:i] + '*' + curr[i+1:]
+
+            # Check all words that match this pattern 
+            for next_word in graph[pattern]:
+                if next_word not in visited:
+                    visited.add(next_word)
+                    queue.append((next_word, steps+1))
+            
+            # Clear the adjacency list for this pattern to prevent redundant processing
+            graph[pattern] = []
+    
+    return 0
+```
+
 ## Graph Algorithms
 Now coming to the various algorithms of graph:
 
@@ -430,6 +550,57 @@ def cycle_detection(graph):
             if dfs(node):  
                 return True 
     return False
+```
+
+#### Problems
+##### Graph Valid Tree
+Given `n` nodes labeled from `0` to `n - 1` and a list of undirected edges (each edge is a pair of nodes), write a function to check whether these edges make up a valid tree.
+
+Example
+```
+Input:
+n = 5
+edges = [[0, 1], [0, 2], [0, 3], [1, 4]]
+
+Output:
+true
+```
+
+###### Intuition
+If a cycle is detected it is not a valid tree - so an extension of the cycle detection problem.
+- However this is an undirected graph and thus we must ensure that we don't consider the parent as a candidate for the cycle - **trivial cycle**.
+- Check if the graph is a valid tree:  
+  - The entire graph should be connected (all nodes visited from node 0)
+  - There should be no cycles (DFS should return True)
+
+Code
+```python
+def validTree(n, edges):
+    graph = {i: [] for i in range(n)}
+    for edge in edges:
+        u, v = edge
+        graph[u].append(v)
+        graph[v].append(u)
+    
+    visited = set()
+
+    def dfs(node, prev):
+        # If the node is already visited, it means there's a cycle
+        if node in visited:
+            return False
+        
+        visited.add(node)
+
+        for neighbor in graph[node]:
+            # If the neighbor is not the previous node (to avoid trivial cycle) and  
+            # a cycle is detected in the DFS traversal, return False 
+            if neighbor != prev and not dfs(neighbor, node):
+                return False
+        
+        # If no cycle is detected, return True
+        return True
+    
+    return dfs(0, -1) and len(visited) == n
 ```
 
 ### Topological Sort
@@ -1099,7 +1270,7 @@ def bellman_ford(start, graph):
                 return -1
 
     return dist  
- ```
+```
 2. When the edges are provided as an input
 ```python
 def bellman_ford_edges(start, edges, num_vertices):  
@@ -1228,8 +1399,7 @@ def floyd_warshall(graph):
             # graph contains a negative weight cycle
             return -1
     return dist
-``` 
-
+```
 
 ### Disjoint Union Set - DSU
 Two sets are called disjoint if they don’t share any element; their intersection is an empty set. Also known as Union-Find as it supports the following operations:
