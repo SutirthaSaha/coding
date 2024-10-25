@@ -219,6 +219,86 @@ def trap(height):
     return trapped_water
 ```
 
+#### The Celebrity Problem
+In a party of n people, a celebrity is defined as someone who is known by everyone but knows no one. You are given a matrix M of size n x n where M[i][j] is 1 if person i knows person j, otherwise it is 0. Implement a function findCelebrity that determines if there is a celebrity in the party. If there is a celebrity, return their index (0-based index). If there is no celebrity, return -1.
+
+Example:
+```
+Input:  
+M = [[0, 1, 0],  
+     [0, 0, 0],  
+     [0, 1, 0]]  
+Output: 1  
+```
+Explanation:  
+Person 1 is known by everyone but does not know anyone.
+
+##### Naive Approach
+We maintain 2 arrays - `person_know` and `others_know` array and keep populating as we traverse the entire matrix.
+After traversing we now traverse these 2 arrays index by index and the index where `person_know` has `0` and `others_know` has `n-1` - the person at that index is a celebrity.
+**There can never be 2 celebrities.**
+
+Code
+```python
+def celebrity(matrix):
+    n = len(matrix)
+    person_know = [0] * n
+    others_know = [0] * n
+
+    for row in range(n):
+        for col in range(n):
+            if matrix[row][col] == 1:
+                person_know[row] = person_know[row] + 1
+                others_know[col] = others_know[col] + 1
+    
+    for i in range(n):
+        if person_know[i] == 0 and others_know[i] == n-1:
+            return i
+    
+    return -1
+```
+
+This approach however has a complexity of `O(n*n)`, we can utilise the 2-pointer approach to solve this in `O(n)`.
+
+##### Two-pointer Approach
+Given the properties, we can use a two-pointer approach to efficiently narrow down the potential celebrity:
+- Initialization: Start with two pointers, left and right, representing the range of people we are considering as potential celebrities.
+- Elimination Process:
+  - Compare the people at the left and right pointers.
+  - If left knows right, then left cannot be the celebrity, so we eliminate left and move the left pointer one step to the right.
+  - If left does not know right, then right cannot be the celebrity, so we eliminate right and move the right pointer one step to the left.
+- Convergence:
+  - Continue this process until the left and right pointers converge to a single person.
+  - At this point, the remaining person is our potential celebrity candidate.
+
+Code
+```python
+def celebrity(matrix):
+    n = len(matrix)
+    left, right = 0, n-1
+
+    while left < right:
+        if matrix[left][right] == 1:
+            # left knows right, so left cannot be a celebrity
+            left = left + 1
+        else:
+            # left does not know right, so right cannot be a celebrity
+            right = right - 1
+    
+    candidate = left
+
+    for i in range(n):
+        if i != candidate:
+            # Candidate should not know anyone else
+            if matrix[candidate][i] == 1:
+                return -1
+            # Candidate should be known by everyone else
+            if matrix[i][candidate] == 0:
+                return -1
+    
+    return candidate
+```
+
 ### Slow-Fast Pointer
 Also known as the tortoise and hare technique, one pointer (the slow pointer) moves at a slower pace, while the other (the fast pointer) moves at a faster pace.
 This is useful in solving several linked list problems.
@@ -248,6 +328,7 @@ def has_cycle(head)
 ```
 
 Similar problem.
+
 #### Middle of the Linked List
 Given a non-empty, singly linked list with head node head, return a middle node of the linked list. If there are two middle nodes, return the second middle node.
 

@@ -106,19 +106,58 @@ def sort(stack):
 ```
 
 #### Delete middle element of stack
--  Hypothesis:
--  Induction:
--  Base Condition:
-```
-TODO
+To delete the middle element of a stack, we need to approach this problem using a recursive strategy. The idea is to use a helper function to handle the recursion and the base case. Here’s the thought process:
+
+- Hypothesis: A helper function will handle the deletion of the middle element by recursively popping elements until the middle is reached.
+- Induction: Once the middle element is reached, it is removed and the previously popped elements are pushed back onto the stack.
+- Base Condition: When the stack is empty or only has one element left, return as it’s either already handled or at the middle.
+
+Code
+```python
+def delete_middle(stack):  
+    def delete_middle_helper(stack, current, size):  
+        # Base Condition  
+        if current == size // 2:  
+            stack.pop()  
+            return  
+        # Reduce Input  
+        top = stack.pop()  
+        # Hypothesis  
+        delete_middle_helper(stack, current + 1, size)  
+        # Induction  
+        stack.append(top)  
+  
+    size = len(stack)  
+    if size == 0:  
+        return  
+    delete_middle_helper(stack, 0, size)
 ```
 
 #### Reverse stack
--  Hypothesis:
--  Induction:
--  Base Condition:
-```
-TODO
+To reverse a stack using recursion, the approach is similar to solving it by recursion. We will use an auxiliary function to handle the recursive calls.
+
+- Hypothesis: Recursively pop all elements from the stack until it is empty.
+- Induction: After the stack is empty, push the elements back in reversed order.
+- Base Condition: When the stack is empty, return.
+
+Code
+```python
+def reverse_stack(stack):  
+    def insert_at_bottom(stack, item):  
+        if not stack:  
+            stack.append(item)  
+        else:  
+            top = stack.pop()  
+            insert_at_bottom(stack, item)  
+            stack.append(top)  
+  
+    if stack:  
+        # Reduce Input  
+        top = stack.pop()  
+        # Hypothesis  
+        reverse_stack(stack)  
+        # Induction  
+        insert_at_bottom(stack, top)
 ``` 
 
 #### [Kth Symbol in Grammar](https://leetcode.com/problems/k-th-symbol-in-grammar)

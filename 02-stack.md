@@ -311,8 +311,67 @@ class MinStack:
 ```
 
 #### Without Auxiliary Stack (O(1) space)
-```
-TODO
+##### Intuition
+For the implementation without using an auxiliary stack, we can use a clever trick to store the minimum value directly within the main stack.
+
+The key intuition is to store a `transformed` value in the stack when a new minimum value is encountered. This transformed value encodes both the new minimum and the previous minimum. By doing this, we can retrieve the previous minimum value when the new minimum is popped off the stack.
+
+- **Push Operation**:
+  - If the stack is empty, the first pushed value is also the minimum value.
+  - When pushing a new value, we compare it with the current minimum value (`min_val`):
+    - If the new value is greater than or equal to the current minimum, we push it directly onto the stack.
+    - If the new value is less than the current minimum, we need to update the minimum. To do this, we push a "marker" value onto the stack. This marker value is calculated as 2 * val - `min_val`. This transformation helps us encode both the new minimum and the old minimum.
+  - We then update `min_val` to the new value.
+
+- **Pop Operation**:
+  - When popping a value, we check if the popped value is less than the current `min_val`. This indicates that the popped value is a marker for the minimum.
+  - To retrieve the previous minimum, we use the formula previous_min = 2 * current_min - marker_value. This formula reverses the transformation we applied during the push operation.
+  - We then update `min_val` to this previous minimum.
+
+- **Top Operation**:
+  - When retrieving the top value, if the top value is less than the current `min_val`, it means it is a marker for the minimum. Thus, we return `min_val` instead of the top value.
+  - Otherwise, we return the top value directly.
+
+Code
+```python
+class MinStack:  
+    def __init__(self):  
+        self.stack = []  
+        self.min_val = None  
+  
+    def push(self, val):  
+        if not self.stack:  
+            self.stack.append(val)  
+            self.min_val = val  
+        else:  
+            if val < self.min_val:  
+                # Push a "marker" value that encodes both the new minimum and the old minimum  
+                self.stack.append(2 * val - self.min_val)  
+                self.min_val = val  
+            else:  
+                self.stack.append(val)  
+  
+    def pop(self):  
+        if not self.stack:  
+            return  
+          
+        top = self.stack.pop()  
+        if top < self.min_val:  
+            # This means the current top is a marker for the minimum value  
+            self.min_val = 2 * self.min_val - top  
+  
+    def top(self):  
+        if not self.stack:  
+            return None  
+          
+        top = self.stack[-1]  
+        if top < self.min_val:  
+            return self.min_val  
+        else:  
+            return top  
+  
+    def getMin(self):  
+        return self.min_val  
 ```
 
 ### Daily Temperatures
@@ -439,33 +498,59 @@ stack.top();   // Returns 1
 stack.empty(); // Returns false
 ```
 
-```
-TODO
-```
+#### Intuition
+To implement a stack using a heap (priority queue), we need to simulate the stack's Last-In-First-Out (LIFO) behavior using the heap's properties. We can use a tuple (priority, element) where priority is a timestamp or counter to ensure the stack order.
+We would be using a max-heap and the counter would ensure that the one that is added last is at the top of the heap.
 
-### The Celebrity Problem
-In a party of n people, a celebrity is defined as someone who is known by everyone but knows no one. You are given a matrix M of size n x n where M[i][j] is 1 if person i knows person j, otherwise it is 0. Implement a function findCelebrity that determines if there is a celebrity in the party. If there is a celebrity, return their index (0-based index). If there is no celebrity, return -1.
-
-Example:
-```
-Input:  
-M = [[0, 1, 0],  
-     [0, 0, 0],  
-     [0, 1, 0]]  
-Output: 1  
-```
-Explanation:  
-Person 1 is known by everyone but does not know anyone.
-
-```
-TODO
+Code
+```python
+class Stack:
+    def __init__(self):
+        self.heap = []
+        self.counter = 0
+    def push(self, val):
+        self.counter = self.counter + 1
+        heapq.heappush(self.heap, (-self.counter, val))
+    
+    def pop(self):
+        if self.heap:
+            return heapq.heappop(self.heap)[1]
+        return None
+    
+    def top(self):
+        if self.heap:
+            return self.heap[0][1]
+        return None
 ```
 
 ### Longest Valid Parenthesis
 Given a string containing just the characters '(' and ')', find the length of the longest valid (well-formed) parentheses substring.
 
-```
-TODO
+#### Intuition
+- Use a stack to keep track of the indices of the characters.
+- Push the index of the last unmatched ')' onto the stack. Initialize the stack with -1 to handle the edge case for the first valid substring.
+- As you iterate through the string, push the index of '(' onto the stack.
+- When you encounter ')', pop the stack:
+  - If the stack is empty after popping, push the current index onto the stack as the new base for future valid substrings.
+  - If the stack is not empty, calculate the length of the current valid substring using the difference between the current index and the index now at the top of the stack.
+
+Code
+```python
+def longestValidParentheses(s):  
+    stack = [-1]  # Initialize stack with -1 to handle edge cases  
+    max_length = 0  
+  
+    for i in range(len(s)):  
+        if s[i] == '(':  
+            stack.append(i)  # Push the index of '(' onto the stack  
+        else:  
+            stack.pop()  # Pop the stack for ')'  
+            if not stack:  
+                stack.append(i)  # Push the current index as the new base  
+            else:  
+                max_length = max(max_length, i - stack[-1])  # Calculate the length of the current valid substring  
+  
+    return max_length
 ```
 
 ### Iterative Tower of Hanoi
