@@ -64,7 +64,7 @@ That is where heap is to be used which is `O(n * log k)`.
 
 ## Problems
 ### Kth Largest Element*
-We would be using the `heapq` module of python collections. As discussed we would be requiring a min heap in this case.
+We would be using the `heapq` module of python collections. As discussed we would be requiring a `min heap` in this case.
 The top of the heap is in the `0th` index unlike stack.
 ```python
 import heapq
@@ -111,12 +111,33 @@ Given an array of numbers, we need to find k most frequent elements.
 Given an array of numbers, sort them by their frequency.
 The implementation would be the same as the previous problem, just there would be no popping of elements when the size crosses `k`.
 
-### K Closest Point to Origin*
+### [K Closest Point to Origin](https://leetcode.com/problems/k-closest-points-to-origin)*
 Given an array of coordinates and we need to return `k` coordinates which are closest to the origin.
+
+#### Intuition
 - When we see `k closest` or `k smallest` we must think of max-heap as when popping, we would want to remove the bigger values.
 - In this problem, for each co-ordinate we calculate the distance from the origin and maintain in heap as - `(distance, co-ordinate)`. 
 - We keep popping the larger distance coordinates when the size of heap exceeds `k`.
-- The end heap would be containing the `k co-ordinates` which are closest to the origin.
+- The end heap would be containing the `k` co-ordinates which are closest to the origin.
+
+Code
+```python
+def k_closest(points, k):
+    heap = []
+    for point in points:
+        x, y = point
+        distance = math.sqrt(x**2 + y**2)
+        heapq.heappush(heap, (-distance, (x, y)))
+
+        if len(heap) > k:
+            heapq.heappop(heap)
+    
+    result = []
+    for distance, point in heap:
+        result.append(point)
+
+    return result
+```
 
 ### Connect Ropes to Minimise the Cost
 Given an array containing the lengths of ropes, we need to find out the minimum cost of joining the ropes. The cost of joining two ropes is equal to the sum length of first rope and second rope being joined.
@@ -141,7 +162,7 @@ Given an array return the sum of elements between the `k1 th` and `k2 th` smalle
 - This would be a similar problem to `kth smallest` number problem, do the same for the 2 values of k1 and k2.
 - Now we can traverse the input array and find the elements between these values and calculate their sum.
 
-### Kth Largest Element in a Stream**
+### [Kth Largest Element in a Stream](https://leetcode.com/problems/kth-largest-element-in-a-stream)**
 You are part of a university admissions office and need to keep track of the `kth` highest test score from applicants in real-time. This helps to determine cut-off marks for interviews and admissions dynamically as new applicants submit their scores.
 
 You are tasked to implement a class which, for a given integer `k`, maintains a stream of test scores and continuously returns the `kth` highest test score **after** a new score has been submitted. More specifically, we are looking for the kth highest score in the sorted list of all scores.
@@ -149,7 +170,6 @@ You are tasked to implement a class which, for a given integer `k`, maintains a 
 Implement the KthLargest class:
 - `KthLargest(int k, int[] nums)` Initializes the object with the integer k and the stream of test scores nums.
 - `int add(int val)` Adds a new test score val to the stream and returns the element representing the kth largest element in the pool of test scores so far.
- 
 
 Example 1:
 ```
@@ -191,7 +211,7 @@ class KthLargest:
         return self.heap[0]
 ```
 
-### Last Stone Weight*
+### [Last Stone Weight](https://leetcode.com/problems/last-stone-weight)*
 You are given an array of integers stones where stones[i] is the weight of the ith stone.
 We are playing a game with the stones. On each turn, we choose the heaviest two stones and smash them together. Suppose the heaviest two stones have weights x and y with x <= y. The result of this smash is:
 - If x == y, both stones are destroyed, and
@@ -228,7 +248,7 @@ def lastStoneWeight(stones):
     return -stones[0]
 ```
 
-### Task Scheduler*
+### [Task Scheduler](https://leetcode.com/problems/task-scheduler)*
 You are given an array of CPU tasks, each labeled with a letter from A to Z, and a number n. Each CPU interval can be idle or allow the completion of one task. Tasks can be completed in any order, but there's a constraint: there has to be a gap of at least n intervals between two tasks with the same label.
 
 Return the minimum number of CPU intervals required to complete all tasks.
@@ -270,7 +290,7 @@ def leastInterval(tasks, n):
         if max_heap:
             task_frequency = -heapq.heappop(max_heap)
 
-            # update it as the task is executed
+            # Update it as the task is executed
             task_frequency = task_frequency - 1
             if task_frequency != 0:
                 queue.append((task_frequency, time + n))
@@ -282,7 +302,7 @@ def leastInterval(tasks, n):
     return time
 ```
 
-### Design Twitter*
+### [Design Twitter](https://leetcode.com/problems/design-twitter)*
 Design a simplified version of Twitter where users can post tweets, follow/unfollow another user, and is able to see the 10 most recent tweets in the user's news feed.
 
 Implement the Twitter class:
@@ -375,7 +395,7 @@ class Twitter:
             self.followers[followerId].remove(followeeId)
 ```
 
-### Find Median from Data Stream*
+### [Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream)*
 The median is the middle value in an ordered integer list. If the size of the list is even, there is no middle value, and the median is the mean of the two middle values.
 
 For example, for `arr = [2,3,4]`, the median is 3.

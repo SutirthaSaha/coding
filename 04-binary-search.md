@@ -1,5 +1,5 @@
 # Binary Search
-Whenever in the input you see a sorted array or nearly sorted array. Think of **binary search**.
+Whenever in the input you see a *sorted array or nearly sorted array*. Think of **binary search**.
 
 ## Implementation
 Here is a basic implementation of binary search.
@@ -22,7 +22,7 @@ def binary_search(nums, val):
 This is an example of divide and conquer as we divide the input into half into one we need and one we don't. On dividing the search space into half everytime, we get a complexity of `O(n)`.
 
 ## Identification
-- The array is sorted
+- The array is sorted or nearly sorted
 
 ## Problem
 ### Descending sorted array
@@ -48,12 +48,15 @@ def binary_search_desc(nums, val):
 
 ### Order not known Search
 Given an array which is sorted but the manner of sorting is not provided.
-Solution:
+
+#### Intuition
 - The modification would be that we need to identify the order of sorting first. Take the first and the last element of the array, if the first element is lesser than the last element - **sorted in ascending order** otherwise in descending order.
 - After identification call the relevant binary search as we discussed earlier.
 
 ### First and last occurence of an element
 Given an input array find the first and the last occurence of an element in the array.
+
+#### Intuition
 The modification would be that we won't return after finding the element in the array.
 We would store it as a possible solution and then:
 - for the first occurence - continue search in the left search space
@@ -68,7 +71,7 @@ def first_occurence(nums, val):
         mid = start + (end - start) // 2
         if nums[mid] == val:
             result = mid # this is where we select as a possible solution
-            end = end - 1 # then move to the left subarray 
+            end = mid - 1 # then move to the left subarray 
         elif nums[mid] > val:
             end = mid - 1
         else:
@@ -85,20 +88,28 @@ if nums[mid] == val:
 
 ### Count of elements in the sorted array
 Given a sorted array of elements, find the number of occurences of the element.
+
+Example:
+```
+arr = [4, 5, 6, 7, 0, 1, 2]  
+# The minimum element is 0, and its index is 4  
+# The array has been rotated 4 times  
+```
+
+#### Intuition
 We can use the above concept in finding out the count:
 - Find the **first occurence** of the element
 - Find the **last occurence** of the element
-- Count of elements = (last - first) + 1
+- Count of elements = `(last - first) + 1`
 
-### How Many Times a Sorted Array Has Been Rotated/ Find Minimum in Rotated Sorted Array*
+### How Many Times a Sorted Array Has Been Rotated/ [Find Minimum in Rotated Sorted Array](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array)*
 Given a sorted array which is rotated an unknown number of times, find the number of times the array has been rotated.  
-  
-The intuition behind solving this problem lies in finding the minimum element of this sorted array. The index of this minimum element would be the number of times the array has been rotated.  
-  
+
+#### Intuition
+The intuition behind solving this problem lies in **finding the minimum element of this sorted array**. The index of this minimum element would be the number of times the array has been rotated.
 While this can be found using linear search (`O(n)` complexity), we want to solve it in `O(log n)` using a method analogous to binary search.  
   
-#### Two Factors of Binary Search:  
-  
+#### Two Factors of Binary Search:
 1. **Condition of Matching**  
   - The minimum element is the one which is smaller than both its adjacent elements.  
     - Left neighbor lies in: `(index + n - 1) % n`  
@@ -135,7 +146,7 @@ def find_rotation_count(arr):
         start = mid + 1  # unsorted part on the right
 ```
 
-### Find an element in a sorted rotated array*
+### [Search in a Sorted Rotated Array](https://leetcode.com/problems/search-in-rotated-sorted-array)*
 Given a sorted array which is rotated an unknown number of times, find whether an element exists or not.
 
 **Focus on what you already know, and try to build on top of it**
@@ -146,7 +157,58 @@ Given a sorted array which is rotated an unknown number of times, find whether a
 - We can divide the array into 2 sorted search spaces: (0 to min_index - 1) and (min_index to last)
 - Perform binary search in both these subarrays and return if exists in either of these.
 
-### Searching in a nearly sorted array
+Code
+```python
+def search(self, nums: List[int], target: int) -> int:
+    n = len(nums)
+
+    def find_min_index():
+        # This function finds the index of the minimum element in the rotated sorted array
+        start, end = 0, n-1
+
+        while start <= end:
+            if nums[start] <= nums[end]: # If the subarray is already sorted
+                return start
+            mid = start + (end - start) // 2
+            prev_index = (mid + n - 1) % n
+            next_index = (mid + 1) % n
+
+            # Check if mid element is the minimum
+            if nums[mid]<=nums[prev_index] and nums[mid]<=nums[next_index]:
+                return mid
+            
+            # Decide whether to move to the left half or the right half
+            if nums[mid] <= nums[end]:
+                # Move to the left unsorted half
+                end = mid - 1
+            else:
+                # Move to the right unsorted half
+                start = mid + 1
+    
+    # Find the rotation point
+    min_index = find_min_index()
+
+    def binary_search(start, end):
+        # This function performs binary search on the subarray from start to end
+        while start <= end:
+            mid = start + (end - start) // 2
+            if nums[mid] == target:
+                return mid
+            elif nums[mid] < target:
+                start = mid + 1
+            else:
+                end = mid - 1
+        return -1
+    
+    # Perform binary search on the two sorted subarrays
+    first_half = binary_search(0, min_index-1)
+    if first_half != -1:
+        return first_half
+    second_half = binary_search(min_index, n-1)
+    return second_half
+```
+
+### Searching in a Nearly Sorted Array
 Given an input array which is nearly sorted and the index of the element can be either (i-1, i or i + 1) if i is the index if was sorted completely.
 
 On comparing with the binary search we already know, we need to find things:
@@ -187,7 +249,7 @@ def binary_search_nearly_sorted(arr, x):
     return -1
 ```
 
-### Finding floor of an element in a sorted array
+### Finding Floor of an Element in a Sorted Array
 Given an sorted inout array, find the floor on an element in the array.
 If the element already exists in the array, it would be the floor itself.
 
@@ -226,7 +288,7 @@ If the element already exists in the array, it would be the ceil itself.
 #### Intuition:
 - The problem is exactly the same as the previous, only here the logic would be reverse.
 - If the number exists - return the number itself
-- If the mid value is greater than the number - it is a possible result and continue with the left subarray - to find another element greater as well as closer to the provided value.
+- If the `mid value is greater than the number` - it is a `possible result` and continue with the left subarray - to find another element greater as well as closer to the provided value.
 - Otherwise continue with the right subarray.
 
 ### Next letter problem
@@ -263,12 +325,12 @@ def find_position_in_infinite_array(arr, target):
         elif arr[mid] < target:  
             low = mid + 1  
         else:  
-            high = mid - 1  
-      
+            high = mid - 1
+    
     return -1
 ```
 
-### Index of first 1 in a binary sorted infinite array
+### Index of First 1 in a Binary Sorted Infinite Array
 Given an infinite sorted array (or a sorted array-like structure that doesn't have a defined end), write an algorithm to find the position (index) of a given target element. If the target element is not present in the array, return -1. Since the array is infinite, you can't use the length of the array to traverse it or perform operations.
 
 #### Intuition
@@ -298,7 +360,7 @@ def find_first_one_in_infinite_binary_array(arr):
     return result
 ```
 
-### Minimum difference element in a sorted array
+### Minimum Difference Element in a Sorted Array
 Given a sorted array of integers and a target value, find the element in the array that has the minimum absolute difference with the target value. If there are multiple elements with the same minimum difference, return any one of them.
 
 #### Intuition
@@ -400,7 +462,7 @@ class TimeMap:
         return values[result][1]
 ```
 
-### Median of Two Sorted Arrays*
+### [Median of Two Sorted Arrays](https://leetcode.com/problems/median-of-two-sorted-arrays)*
 Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays.
 The overall run time complexity should be O(log (m+n)).
 
@@ -602,7 +664,7 @@ Given a bitonic array, find whether a particular element exists in the array.
 - Observation: Till the maximum element index, the array is increasing. Post that it is decreasing.
 - So we can divide the array into 2 halves - ascending and descending sorted array and perform binary search on both of them for finding the element. This is something we have already seen earlier.
 
-### Search in a row-wise and column-wise sorted matrix/ Search in a 2D Matrix*
+### Search in a row-wise and column-wise sorted matrix/ [Search in a 2D Matrix](https://leetcode.com/problems/search-a-2d-matrix)*
 Given a row-wise and column-wise sorted matrix, find an element in it.
 
 #### Intuition
@@ -614,6 +676,39 @@ Given a row-wise and column-wise sorted matrix, find an element in it.
 - **How to move/decide search space**: This can be done using the first element of the row in question. If the element is lesser than the first element - `end = mid - 1`.
 
 The rest of the problem remains the same. Time complexity: `O(log m + log n)`.
+
+Code
+```python
+def searchMatrix(matrix, target):
+    m, n = len(matrix), len(matrix[0])
+    start, end = 0, m-1
+    target_row = -1
+
+    while start <= end:
+        mid = start + (end - start) // 2
+        if matrix[mid][0] <= target <= matrix[mid][n-1]:
+            target_row = mid
+            break
+        elif matrix[mid][0] > target:
+            end = mid - 1
+        else:
+            start = mid + 1
+    
+    if target_row == -1:
+        return False
+    
+    start, end = 0, n-1
+    while start <= end:
+        mid = start + (end - start) // 2
+        if matrix[target_row][mid] == target:
+            return True
+        elif matrix[target_row][mid] > target:
+            end = mid - 1
+        else:
+            start = mid + 1
+    
+    return False
+```
 
 #### Another approach
 - start with top right element - `(i, j)`.
@@ -684,7 +779,7 @@ def allocate_books(books, m):
     return result
 ```
 
-### Koko Eating Bananas*
+### [Koko Eating Bananas](https://leetcode.com/problems/koko-eating-bananas)*
 Koko loves to eat bananas. There are `N` piles of bananas, and the `i-th` pile has `piles[i]` bananas. Koko guards the bananas and wants to eat them all in `H` hours. She can decide her eating speed `K`, which is the number of bananas she eats per hour. Each hour, she chooses a pile of bananas and eats `K` bananas from that pile. If the pile has fewer than `K` bananas, she eats all the bananas in that pile and will not eat any more bananas during that hour. Koko likes to eat slowly but still wants to finish eating all the bananas within the given H hours.
 
 The task is to find the minimum integer `K` such that Koko can eat all the bananas within `H` hours.
