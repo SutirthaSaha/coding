@@ -25,7 +25,7 @@ graph TD
     A<-->C  
     B<-->D
 ```
-**As mermaid doesn't support undirected graphs it would be represented as bidirectional edges.**
+**Note: As mermaid doesn't support undirected graphs it would be represented as bidirectional edges.**
 
 - **Weighted Graph**: A weighted graph is a graph in which each edge has an associated numerical value, called weight. This can represent cost, distance, or any other metric.
 ```mermaid
@@ -158,6 +158,7 @@ def bfs(n, edges):
     graph = {i: [] for i in range(n)}
     for edge in edges:
         src, dest = edge
+        # for undirected graph add both
         graph[src].append(dest)
         graph[dest].append(src)
     
@@ -217,7 +218,7 @@ def traverse(n, edges):
         graph[src].append(dest)
         graph[dest].append(src)
     
-    # initialize visited set
+    # Initialize visited set
     visited = set()
     
     result = []
@@ -225,7 +226,9 @@ def traverse(n, edges):
     def dfs(node):
         visited.add(node)
         result.add(node)
+
         for adj_node in graph[node]:
+            # Add only if the neighboring adjacent node is not visited
             if adj_node not in visited:
                 solve(node)
     
@@ -234,12 +237,12 @@ def traverse(n, edges):
 ```
 
 #### Extension of DFS - Connected Components
-For connected components, this is how the dfs logic would change.
-Since we know that in one traversal all the nodes wouldn't be traversed, we would perform dfs for all the nodes if they are not visited yet.
+For connected components, this is how the DFS logic would change.
+Since we know that in one traversal all the nodes wouldn't be traversed, we would perform DFS for all the nodes if they are not visited yet.
 
 ```python
 def traverse(graph)
-    # initialize visited set
+    # Initialize visited set
     visited = set()
     result = []
 
@@ -247,22 +250,59 @@ def traverse(graph)
         visited.add(node)
         result.append(node)
 
-        # this ensures that all the nodes in this group are traversed
+        # This ensures that all the nodes in this group are traversed
         for adj_node in graph[node]:
             if adj_node not in visited:
                 dfs(adj_node)
 
     for node in graph:
-        # check if the node exists
+        # Check if the node exists
         if node not in visited:
             dfs(node)
 ```
 
 #### Problems
 ##### Number of Provinces
+There are `n` cities. Some of them are connected, while some are not. If city `a` is connected directly with city `b`, and city `b` is connected directly with city `c`, then city `a` is connected indirectly with city `c`.
+A province is a group of directly or indirectly connected cities and no other cities outside of the group.
+You are given an `n x n` matrix `isConnected` where `isConnected[i][j] = 1` if the `ith` city and the `jth` city are directly connected, and `isConnected[i][j] = 0` otherwise.
+Return the total number of provinces.
+
+Example
 ```
-TODO
+Input: isConnected = [[1,1,0],[1,1,0],[0,0,1]]
+Output: 2
 ```
+
+###### Intuition
+For this either DFS or Union-Find a good algorithm to tackle this. Here we would try out the DFS approach for the solution.
+- We traverse the graph for each vertex and if the vertex doesn't exist in the visited set, increase the count by 1.
+- Do this until all the vertices are traversed in the graph and then return the count.
+
+Code
+```python
+def find_circle_num(isConnected):
+    visited = set()
+    n = len(isConnected)
+
+    def dfs(node):
+        visited.add(node)
+        # Iterate through all adjacent nodes
+        for adj_node in range(n):
+            # Check if there is a direct connection and the node is not visited
+            if isConnected[node][adj_node] == 1 and adj_node not in visited:
+                dfs(adj_node)
+    
+    count = 0
+    for i in range(n):
+        if i not in visited:
+            count = count + 1
+            dfs(i)
+        
+    return count
+```
+**This problem has also been solved later with Disjoint Set Union approach**
+
 ##### Number of Islands
 Given an `m x n` 2D binary grid grid which represents a map of '1's (land) and '0's (water), return the number of islands.
 An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.
@@ -410,7 +450,7 @@ Explanation: As one shortest transformation is "hit" -> "hot" -> "dot" -> "dog" 
 - If a transformation matches the endWord, return the current transformation length + 1. If the transformation is in the word list, add it to the queue and remove it from the set to prevent revisits.
 
 Code
-```
+```python
 def wordLadderLength(beginWord, endWord, wordList):  
     # Convert the wordList to a set for O(1) lookups  
     wordSet = set(wordList)  
@@ -507,10 +547,12 @@ Now coming to the various algorithms of graph:
 
 ### Cycle Detection
 Given a directed graph, check whether the graph contains a cycle or not.
+
+#### Intuition
 This can be done using the DFS method.
 We need to modify the existing DFS implementation to check for a backedge - that can cause cycles. For this we maintain a separate `recursion_stack` set along with the existing `visited` set.
 
-#### Why do we need a separate `recursion_stack` set, wouldn't `visited` set be enough?
+##### Why do we need a separate `recursion_stack` set, wouldn't `visited` set be enough?
 No, it would be enough for an undirected graph, but for a directed graph it can give false-positives for cycles.
 ```mermaid
 graph LR  
@@ -537,8 +579,9 @@ def cycle_detection(graph):
             if adj_node in recursion_stack:
                 return True
             
-            if adj_node not in visited:
-                dfs(adj_node)
+            # If the adjacent node is not visited and there is a cycle detected return True
+            if adj_node not in visited and dfs(adj_node):
+                return True
         
         # no longer, a part of the recursion stack
         recursion_stack.remove(node)
@@ -553,7 +596,7 @@ def cycle_detection(graph):
 ```
 
 #### Problems
-##### Graph Valid Tree
+##### Graph Valid Tree* - Cycle Detection in Undirected Graph
 Given `n` nodes labeled from `0` to `n - 1` and a list of undirected edges (each edge is a pair of nodes), write a function to check whether these edges make up a valid tree.
 
 Example
@@ -623,6 +666,45 @@ graph TD
 A possible topological order for these tasks could be: A, B, C, D or A, C, B, D. Both orders respect the dependencies.
 
 #### 1. Kahn's Algorithm
+Kahn's Algorithm is an iterative approach to topological sorting that uses in-degree counting and a queue.
+- **In-degree Counting**: Kahn's Algorithm relies on counting the in-degrees (number of incoming edges) for each node in the graph. Nodes with an in-degree of 0 (i.e., nodes with no dependencies) are initially added to the queue.
+- **Iterative Process**: The algorithm processes nodes from the queue, adding them to the topological order list and decrementing the in-degrees of their neighbors. If a neighbor's in-degree becomes 0, it is added to the queue.
+- **Cycle Detection**: By the end of the process, if the number of nodes in the topological order list equals the number of nodes in the graph, a valid topological order is returned. Otherwise, the graph contains a cycle, making topological sorting impossible.
+
+Code
+```python
+def topological_sort(graph):
+    # Calculate in-degrees of all nodes
+    in_degree = defaultdict(int)
+
+    for node in graph:
+        in_degree[node] = 0
+    
+    for node in graph:
+        for adj_node in graph[node]:
+            in_degree[adj_node] = in_degree[adj_node] + 1
+
+    # Initialize the queue with nodes that have an in-degree of 0
+    queue = deque([node for node in graph if in_degree[node] == 0])
+    result = []
+
+    # Iterative Process
+    while queue:
+        current_node = queue.popleft()
+        result.append(current_node)
+
+        for adj_node in graph[current_node]:
+            in_degree[adj_node] = in_degree[adj_node] - 1
+            # Add to the queue if the neighbor indegree becomes 0
+            if in_degree[adj_node] == 0:
+                queue.append(adj_node)
+    
+    # Check for cycles
+    if len(result) == len(graph):
+        return result
+    return [] # Graph has cycle
+```
+
 #### 2. DFS based
 - **Post-Order Addition**: Once all adjacent nodes of a node are visited, the node itself is added to the result list.
 - **Result Reversal**: Because nodes are added to the result list only after all their dependencies are resolved, the nodes appear in reverse topological order in the result list. Therefore, reversing the list gives you the correct topological order.
@@ -1411,6 +1493,7 @@ The idea is to always attach the smaller tree under the root of the larger tree,
 
 #### Find
 The **Find** operation is used to determine which subset a particular element is in. This can be used to check if two elements are in the same subset.
+When finding the root parent of a node, the find function updates the parent of each node in the path to point directly to the root. This step ensures that the tree remains flat and subsequent find operations are faster.
 
 ##### Example:
 ```mermaid
@@ -1427,8 +1510,9 @@ graph BT
 ##### Code
 ```python
 def find(node):
+    # If the node is not its own parent, recursively find the root and compress the path
     if node != parent[node]:
-        parent[node] = find(parent[node]) #path compression
+        parent[node] = find(parent[node]) # Path compression
     return parent[node]
 ```
 
@@ -1458,7 +1542,8 @@ Let's say we want to merge the sets containing elements 1 and 4:
 def union(node1, node2):  
     root1 = find(node1)  
     root2 = find(node2)  
-      
+    
+    # If they have different root parents, union them
     if root1 != root2:  
         parent[root2] = root1  # Merge the sets
 ```
@@ -1474,7 +1559,9 @@ def union(node1, node2):
     parent1 = find(node1)  
     parent2 = find(node2)  
       
+    # If they have different root parents, union them
     if parent1 != parent2:
+        # Union by rank: attach the smaller tree under the larger tree
         if rank[parent1] >= rank[parent2]:
             parent[parent2] = parent1 # Merge the sets
             rank[parent1] = rank[parent1] + rank[parent2]
@@ -1492,6 +1579,7 @@ def count_components(n, edges):
     rank = [1] * n
 
     def find(node):
+        # If the node is not its own parent, recursively find the root and compress the path
         if node != parent[node]:
             parent[node] = find(parent[node])
         return parent[node]
@@ -1500,7 +1588,9 @@ def count_components(n, edges):
         parent1 = find(node1)
         parent2 = find(node2)
 
+        # If they have different root parents, union them
         if parent1 != parent2:
+            # Union by rank: attach the smaller tree under the larger tree
             if rank[parent1] >= rank[parent2]:
                 parent[node2] = parent1
                 rank[parent1] = rank[parent1] + rank[parent2]
@@ -1516,6 +1606,62 @@ def count_components(n, edges):
         components.add(find(node))
 
     return len(components) 
+```
+
+##### Number of Provinces*
+There are `n` cities. Some of them are connected, while some are not. If city `a` is connected directly with city `b`, and city `b` is connected directly with city `c`, then city `a` is connected indirectly with city `c`.
+A province is a group of directly or indirectly connected cities and no other cities outside of the group.
+You are given an `n x n` matrix `isConnected` where `isConnected[i][j] = 1` if the `ith` city and the `jth` city are directly connected, and `isConnected[i][j] = 0` otherwise.
+Return the total number of provinces.
+
+Example
+```
+Input: isConnected = [[1,1,0],[1,1,0],[0,0,1]]
+Output: 2
+```
+
+###### Intuition
+To solve this problem, we can use the `Union-Find (Disjoint Set Union)` data structure to efficiently manage and merge the connected cities into provinces. The idea is to initialize each city as its own parent and then union cities that are directly connected. Finally, we count the number of unique parents to determine the number of provinces.
+
+Code
+```python
+def find_circle_num(isConnected):
+    n = len(isConnected)
+    parent = {i: i for i in range(n)}
+    rank = {i: 1 for i in range(n)}
+
+    def find(node):
+        # If the node is not its own parent, recursively find the root and compress the path
+        if parent[node] != node:
+            parent[node] = find(parent[node]) # Path compression
+        return parent[node]
+    
+    def union(node1, node2):
+        parent1 = find(node1)
+        parent2 = find(node2)
+
+        # If they have different root parents, union them
+        if parent1 != parent2:
+            # Union by rank: attach the smaller tree under the larger tree
+            if rank[parent1] >= rank[parent2]:
+                parent[parent2] = parent1
+                rank[parent1] = rank[parent1] + rank[parent2]
+            else:
+                parent[parent1] = parent2
+                rank[parent2] = rank[parent2] + rank[parent1]
+    
+    # Iterate through the isConnected matrix to union directly connected cities
+    for row in range(n):
+        for col in range(n):
+            if isConnected[row][col] == 1:
+                union(row, col)
+    
+    # Use a set to find the number of unique provinces (unique root parents)
+    provinces = set()
+    for node in range(n):
+        provinces.add(find(node))
+    
+    return len(provinces)
 ```
 
 #### Redundant Connection

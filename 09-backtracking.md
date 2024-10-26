@@ -584,15 +584,62 @@ def nqueens(n):
 Write a program to solve a Sudoku puzzle by filling the empty cells.
 
 A sudoku solution must satisfy all of the following rules:
-
-Each of the digits 1-9 must occur exactly once in each row.
-Each of the digits 1-9 must occur exactly once in each column.
-Each of the digits 1-9 must occur exactly once in each of the 9 3x3 sub-boxes of the grid.
-The '.' character indicates empty cells.
+- Each of the digits 1-9 must occur exactly once in each row.
+- Each of the digits 1-9 must occur exactly once in each column.
+- Each of the digits 1-9 must occur exactly once in each of the 9 3x3 sub-boxes of the grid.
+- The '.' character indicates empty cells.
 
 #### Intuition
 Similar to N-Queens just the is_safe logic would be for Sudoku.
 
-```
-TODO
+Code
+```python
+def solve_soduko(board):
+    def is_safe(row, col, val):
+        # Check if the val is not in the current row
+        for i in range(9):
+            if board[row][i] == val:
+                return False
+        # Check if the val is not in the current column
+        for j in range(9):
+            if board[j][col] == val:
+                return False
+        # Check if the val is not in the current 3*3 sub-box
+        start_row, start_col = 3 * (row//3), 3 * (col//3)
+        for i in range(start_row, start_row+3):
+            for j in range(start_col, start_col+3):
+                if board[i][j] == val:
+                    return False
+        
+        return True
+    
+    empty_cells = []
+    for row in range(9):
+        for col in range(9):
+            if board[row][col] == '.':
+                empty_cells.append((row, col))
+    
+    n = len(empty_cells)
+    def solve(index):
+        # Base Condition: If all the empty cells are filled return True
+        if index == n:
+            return True
+        
+        row, col = empty_cells[index]
+        # Try all possible values from (1-9)
+        for val in '123456789':
+            # Check if placing val is safe
+            if is_safe(row, col, val):
+                # Update board with the val
+                board[row][col] = val
+                # Check if possible to fill the rest of the empty cells recursively
+                if solve(index+1):
+                    return True
+                # Revert the changes if not possible
+                board[row][col] = "."
+        
+        # Return False if no value can be placed in the current empty cell
+        return False
+    
+    solve(0)
 ```
