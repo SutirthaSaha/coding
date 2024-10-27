@@ -102,7 +102,7 @@ class LinkedList:
 ```
 
 ## Problems
-### Reverse a Linked List*
+### [Reverse a Linked List](https://leetcode.com/problems/reverse-linked-list)*
 Given the head of a singly linked list, reverse the list and return the new head.
 
 #### Intuition
@@ -126,7 +126,7 @@ def reverse_list(head):
     return prev # Prev will be the new head of the reversed list 
 ```
 
-### Detect a Cycle in a Linked List*
+### [Detect a Cycle in a Linked List](https://leetcode.com/problems/linked-list-cycle)*
 Given a linked list, determine if it has a cycle in it.
 
 #### Intuition
@@ -193,9 +193,9 @@ Simplifying this equation, we get: `L + x = nC`
 From the equation `L + x = nC`, we can deduce that if we move another pointer finder from the head of the list and slow from their meeting point, both will meet at the start of the cycle after L steps.
 This is because finder needs to travel `L` steps to reach the start of the cycle, while slow needs to travel `C - x` steps to complete the cycle and reach the start again. Since `C - x` is equivalent to the remaining distance `L` in the cycle, **they will meet at the start of the cycle**.
 
-Similar Problem: **Find the Duplicate Number***
+Similar Problem: **[Find the Duplicate Number](https://leetcode.com/problems/find-the-duplicate-number)***
 
-### Merge 2 Sorted Linked List*
+### [Merge 2 Sorted Linked Lists](https://leetcode.com/problems/merge-two-sorted-lists)*
 Merge two sorted linked lists and return it as a new sorted list.
 
 #### Intuition
@@ -226,7 +226,7 @@ def merge_listS(head1, head2):
     return dummy.next
 ```
 
-#### Similar Problem - Merge K Sorted Linked Lists*
+#### Similar Problem - [Merge K Sorted Linked Lists](https://leetcode.com/problems/merge-k-sorted-lists)*
 You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
 Merge all the linked-lists into one sorted linked-list and return it.
 
@@ -315,7 +315,7 @@ def is_palindrome(head):
     return True
 ```
 
-### Copy List with Random Pointer*
+### [Copy List with Random Pointer](https://leetcode.com/problems/copy-list-with-random-pointer)*
 A linked list is given such that each node contains an additional random pointer which could point to any node in the list or null. Return a deep copy of the list.
 
 #### Intuition
@@ -348,7 +348,7 @@ def copy_random_list(head):
     return old_to_new[head]
 ```
 
-### Remove Nth Node from the End of List*
+### [Remove Nth Node from the End of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list)*
 Given the head of a linked list, remove the n-th node from the end of the list and return its head.
 
 #### Intuition
@@ -362,11 +362,12 @@ We can use a modification of the `fast and slow pointer` technique that we have 
 Code
 ```python
 def remove_nth_from_end(head):
+    # Dummy is needed if the first node is wanting to get deleted
     dummy = Node(0, head)
     fast = dummy
     slow = dummy
 
-    # Move the fast pointer n + 1 steps ahead - n nodes in between
+    # Move the fast pointer n + 1 steps ahead - n nodes in between the head and the fast
     for _ in range(n+1):
         fast = fast.next
     
@@ -382,7 +383,7 @@ def remove_nth_from_end(head):
     return dummy.next
 ```
 
-### LRU Cache*
+### [LRU Cache](https://leetcode.com/problems/lru-cache)*
 The Least Recently Used (LRU) cache is a popular caching strategy that evicts the least recently accessed item when the cache reaches its capacity. The LRU cache should support the following operations:
 - get(key): Retrieve the value of the key if the key exists in the cache, otherwise return -1.
 - put(key, value): Update the value of the key if the key exists. Otherwise, add the key-value pair to the cache. 
@@ -458,9 +459,7 @@ class LRUCache:
 
 ### Reverse Node in k-Group*
 Given the head of a linked list, reverse the nodes of the list `k` at a time, and return the modified list.
-
 `k` is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of `k` then left-out nodes, in the end, should remain as it is.
-
 You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
 Example 1: k = 2
@@ -549,7 +548,7 @@ def reverse_k_group(head, k):
     return dummy.next
 ```
 
-### Reorder List*
+### [Reorder List](https://leetcode.com/problems/reorder-list)*
 You are given the head of a singly linked-list. The list can be represented as:
 `L0 -> L1 -> ... -> Ln-1 -> Ln`
 Reorder the list to be of the following form:
@@ -591,29 +590,40 @@ To reorder the linked list as described, we can break down the problem into seve
 
 ```python
 def reorder_list(head):
+    """  
+    Do not return anything, modify head in-place instead.  
+    """  
     if not head or not head.next:  
-        return 
-    # Find the middle of the linked list
-    slow, fast = head, head
-    while fast and fast.next:
-        slow = slow.next
-        fast = fast.next.next
+        return  
 
-    # Reverse the second half
-    prev, curr = None, slow
-    while curr:
-        next_node = curr.next
-        curr.next = prev
-        prev = curr
-        curr = next_node
+    # Step 1: Find the middle of the linked list  
+    slow, fast = head, head  
+    while fast and fast.next:  
+        fast = fast.next.next  
+        slow = slow.next  
+        
+    # Split the list into two halves  
+    middle = slow  
+    second_half = middle.next  
+    middle.next = None  # Split the list into two parts  
 
-    # Merge the two halves
-    first, second = head, prev
-    while second.next:
-        temp1, temp2 = first.next, second.next
-        first.next = second
-        second.next = temp1
-        first, second = temp1, temp2
+    # Step 2: Reverse the second half of the list  
+    prev = None  
+    node = second_half  
+    while node:  
+        nxt = node.next  
+        node.next = prev  
+        prev = node  
+        node = nxt  
+    second_half = prev  # Now prev is the head of the reversed second half  
+
+    # Step 3: Merge the two halves  
+    first_half, second_half = head, second_half  
+    while second_half:  
+        temp1, temp2 = first_half.next, second_half.next  
+        first_half.next = second_half  
+        second_half.next = temp1  
+        first_half, second_half = temp1, temp2 
 ```
 
 ### Add Two Numbers*

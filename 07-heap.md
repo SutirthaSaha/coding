@@ -237,15 +237,19 @@ We store the stones and the result of their smash in a `max-heap`, such that we 
 Code
 ```python
 def lastStoneWeight(stones):
-    # turn the values into negative for max-heap
+    # Turn the values into negative for max-heap
     stones = [-stone for stone in stones]
     heapq.heapify(stones)
 
     while len(stones) > 1:
         y, x = heapq.heappop(stones), heapq.heappop(stones)
-        heapq.heappush(stones, y - x) # we need not handle signs anymore as y is already a bigger negative number
+        # Check if both the stones are not equal
+        if x != y:
+            heapq.heappush(stones, y - x) # We need not handle signs anymore as y is already a bigger negative number
     
-    return -stones[0]
+    if stones:
+        return -stones[0]
+    return 0
 ```
 
 ### [Task Scheduler](https://leetcode.com/problems/task-scheduler)*
@@ -284,7 +288,9 @@ def leastInterval(tasks, n):
 
     time = 0
     while max_heap or queue:
-        time = time + 1
+        # Add to the heap if any of the tasks are available for execution at this time slot
+        if queue and queue[0][1] == time:
+            heapq.heappush(max_heap, -queue.popleft()[0])
 
         # Check if there is are tasks possible to executed in this time slot
         if max_heap:
@@ -293,11 +299,9 @@ def leastInterval(tasks, n):
             # Update it as the task is executed
             task_frequency = task_frequency - 1
             if task_frequency != 0:
-                queue.append((task_frequency, time + n))
+                queue.append((task_frequency, time + n + 1))
         
-        # Add to the heap if any of the tasks are available for execution
-        if queue and queue[0][1] == time:
-            heapq.heappush(max_heap, -queue.popleft()[0])
+        time = time + 1
         
     return time
 ```
@@ -306,12 +310,11 @@ def leastInterval(tasks, n):
 Design a simplified version of Twitter where users can post tweets, follow/unfollow another user, and is able to see the 10 most recent tweets in the user's news feed.
 
 Implement the Twitter class:
-- Twitter() Initializes your twitter object.
-- void postTweet(int userId, int tweetId) Composes a new tweet with ID tweetId by the user userId. Each call to this function will be made with a unique tweetId.
-- List<Integer> getNewsFeed(int userId) Retrieves the 10 most recent tweet IDs in the user's news feed. Each item in the news feed must be posted by users who the user followed or by the user themself. Tweets must be **ordered from most recent to least recent**.
-- void follow(int followerId, int followeeId) The user with ID followerId started following the user with ID followeeId.
-- void unfollow(int followerId, int followeeId) The user with ID followerId started unfollowing the user with ID followeeId.
- 
+- `Twitter()`: Initializes your twitter object.
+- `void postTweet(int userId, int tweetId)`: Composes a new tweet with ID tweetId by the user userId. Each call to this function will be made with a unique tweetId.
+- `List<Integer> getNewsFeed(int userId)`: Retrieves the 10 most recent tweet IDs in the user's news feed. Each item in the news feed must be posted by users who the user followed or by the user themself. Tweets must be **ordered from most recent to least recent**.
+- `void follow(int followerId, int followeeId)`: The user with ID followerId started following the user with ID followeeId.
+- `void unfollow(int followerId, int followeeId)`: The user with ID followerId started unfollowing the user with ID followeeId.
 
 Example 1:
 ```
@@ -346,7 +349,7 @@ class Twitter:
         Initialize your data structure here.  
         """  
         self.user_tweets = defaultdict(list)  
-        self.followers = defaultdict(set)
+        self.followees = defaultdict(set)
         self.timestamp = 0
     
     def postTweet(self, userId, tweetId):
@@ -370,13 +373,12 @@ class Twitter:
             heapq.heappush(max_heap, (-timestamp, tweetId))
         
         # Add followees' tweets to the heap
-        for followee in self.followers[userId]:
+        for followee in self.followees[userId]:
             for timestamp, tweetId in self.user_tweets[followee]:
                 heapq.heappush(max_heap, (-timestamp, tweetId))
         
-        for _ in range(10):
-            if max_heap:
-                news_feed.append(heapq.heappop(max_heap)[1])
+        while max_heap and len(result) < 10:
+            result.append(heapq.heappop(max_heap)[1])
         
         return news_feed
     
@@ -385,14 +387,14 @@ class Twitter:
         Follower follows a followee.  
         """  
         if followerId != followeeId:  
-            self.followers[followerId].add(followeeId)  
+            self.followees[followerId].add(followeeId)  
   
     def unfollow(self, followerId, followeeId):  
         """  
         Follower unfollows a followee.  
         """  
         if followeeId in self.followers[followerId]:  
-            self.followers[followerId].remove(followeeId)
+            self.followees[followerId].remove(followeeId)
 ```
 
 ### [Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream)*
@@ -450,7 +452,7 @@ class MedianFinder:
             val = -heapq.heappop(self.max_heap)
             heapq.heappush(self.min_heap, val)
         
-        # ensure that max-heaph as equal or 1 greater element
+        # ensure that max-heap as equal or 1 greater element
         if len(self.min_heap) > len(self.max_heap):
             val = heapq.heappop(self.min_heap)
             heapq.heappush(self.max_heap, -val)
