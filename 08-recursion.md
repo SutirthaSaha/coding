@@ -162,7 +162,6 @@ def reverse_stack(stack):
 
 #### [Kth Symbol in Grammar](https://leetcode.com/problems/k-th-symbol-in-grammar)
 On the first row, we write a 0. Now in every subsequent row, we look at the previous row and replace each occurrence of 0 with 01, and each occurrence of 1 with 10.
-
 Given row N and index K, return the K-th indexed symbol in row N. (The values of K are 1-indexed.) (1 indexed).
 
 ##### Intuition
@@ -188,25 +187,33 @@ def solve(n, k):
         # Hypothesis
         return helper(row+1, k, next) 
     return helper(1, k, "0")
-``` 
+```
+This one can lead to `Memory Limit Exceeded`.
+
 ##### Another approach
 -  Hypothesis: For smaller input for row `n-1` and any k value we would get the result.
 -  Induction: On observation we could state:
-   -  the first half of elements in row `n` is equal to the elements in row `n-1` - if k < mid - call with k
-   -  the second half of elements in row `n` is equal to the complement of elements in row `n-1` - if k >= mid call with k-mid and complement the answer 
+   -  the first half of elements in row `n` is equal to the elements in row `n-1` - if `k` < `mid` - call with `k`
+   -  the second half of elements in row `n` is equal to the complement of elements in row `n-1` - if `k` >= `mid` call with `k-mid` and complement the answer 
 -  Base Condition: When row == 1 and k == 1 return 0
 
 Code
 ```python
-def solve(n, k):
-    if n == 1 and k == 1:
-        return 0
-    length = 2 ** n
-    mid = length // 2
-    if k <= mid:
-        return solve(n-1, k)
-    else:
-        return not solve(n-1, k-mid)
+def solve(n, k):  
+    # Base case: The first row has only one element which is 0  
+    if n == 1 and k == 1:  
+        return 0  
+
+    # Calculate the length of the sequence at the nth row  
+    length = 2 ** (n - 1)  
+    mid = length // 2  
+
+    # If k is in the first half, it mirrors the previous row  
+    if k <= mid:  
+        return solve(n - 1, k)  
+    else:  
+        # If k is in the second half, it is the complement of the corresponding element in the previous row  
+        return 1 - solve(n - 1, k - mid)
 ``` 
 
 #### Tower of Hanoi
@@ -240,9 +247,8 @@ def solve(source, helper, destination, n):
 ```
 
 ### Recursive Tree - Input/Output Method
-#### Subsets*
+#### [Subsets](https://leetcode.com/problems/subsets)*
 Given an integer array nums of unique elements, return all possible subsets (the power set). The solution set must not contain duplicate subsets. Return the solution in any order.
-
 Example 1:
 ```
 Input: nums = [1,2,3]
@@ -305,7 +311,7 @@ def subsets(nums):
     solve(0, [])
     return result
 ```
-#### Subset II* - With Duplicates
+#### [Subsets II](https://leetcode.com/problems/subsets-ii)* - With Duplicates
 Given an integer array nums that may contain duplicates, return all possible subsets (the power set).
 The solution set must not contain duplicate subsets. Return the solution in any order.
 
@@ -356,7 +362,7 @@ As you observe in the leaf nodes there are duplicate subsets in the answer.
 
 ```mermaid
 graph TD  
-    A["[1, 1, 2], []"] -->|ignore 1| B["[2], []"]  
+    A["[1, 1, 2], []"] -->|ignore all 1s| B["[2], []"]  
     A -->|include 1| C["[1, 2], [1]"]  
       
     B -->|ignore 2| D["[], []"]  

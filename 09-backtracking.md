@@ -39,7 +39,7 @@ def solve(variable) -> void:
 ```
 
 ## Problems
-### Combination Sum*
+### [Combination Sum](https://leetcode.com/problems/combination-sum)*
 Given an array of distinct integers candidates and a target integer target, return a list of all unique combinations of candidates where the chosen numbers sum to target. You may return the combinations in any order.
 
 The same number may be chosen from candidates an **unlimited number of times**. Two combinations are unique if the 
@@ -88,7 +88,7 @@ def combinationSum(candidates, target):
     return result
 ```
 
-#### Combination Sum II
+#### [Combination Sum II](https://leetcode.com/problems/combination-sum-ii)
 Given a collection of candidate numbers (candidates) and a target number (target), find all unique combinations in candidates where the candidate numbers sum to target.
 Each number in candidates may only be used once in the combination.
 Note: The solution set must not contain duplicate combinations.
@@ -174,15 +174,8 @@ def permutation(str):
     solve(0)
     return result
 ```
-
-If there are duplicates in the string or array there would be a small check that the value to swapped is not the same as the current value.
-
-```python
-for swap_index in range(index, n):
-    if arr[swap_index] != arr[index]: # this would help avoid the redundant sub trees
-        arr[index], arr[swap_index] = arr[swap_index], arr[index]
-        solve(index+1)
-        arr[index], arr[swap_index] = arr[swap_index], arr[index] # reverted
+```
+TODO: How to do permutations for duplicates?
 ```
 
 ### Largest number in at most K swaps
@@ -202,7 +195,7 @@ Three swaps can make the input 1234567 to 7654321, swapping 1 with 7, 2 with 6 a
   - Condition: Swap only if the digit is greater than the current and maximum of the remaining digits
 - Base Condition: Either at the end of the number or we complete k swaps
 - **Points**
-  - The result is not only present in the base condition at we have to find the maximum   with **at most** k swaps.
+  - The result is not only present in the base condition at we have to find the maximum with **at most** k swaps.
   - **Horizontal drifting** - after exploring all choices with the current index we drift to the right index without reducing the `k` value.
 
 Code
@@ -318,7 +311,7 @@ solve(0, 0, [], set())
 return result
 ```
 
-### Word Search*
+### [Word Search](https://leetcode.com/problems/word-search)*
 Given an `m x n` grid of characters `board` and a string `word`, return `true` if word exists in the `grid`.
 
 The word can be constructed from letters of sequentially adjacent cells, where adjacent cells are horizontally or vertically neighboring. The same letter cell may not be used more than once.
@@ -339,19 +332,16 @@ def exist(board, word):
     def dfs(row, col, index):
         if board[row][col] != word[index]:
             return False
-
-        # the characters match move to the next index
-        index = index + 1
-        if index == length:
+        # Check if this is the last character of the word
+        if index == length-1:
             return True
         
         visited.add((row, col))
 
         for direction in directions:
             n_row, n_col = row + direction[0], col + direction[1]
-            if 0<=n_row<m and 0<=n_col<n and (n_row, n_col) not in visited:  
-                if dfs(n_row, n_col, index):
-                    return True
+            if 0<=n_row<m and 0<=n_col<n and (n_row, n_col) not in visited and dfs(n_row, n_col, index+1):
+                return True
         
         visited.remove((row, col))
         return False
@@ -364,7 +354,7 @@ def exist(board, word):
     return False
 ```
 
-### Palindrome Partitioning*
+### [Palindrome Partitioning](https://leetcode.com/problems/palindrome-partitioning)*
 Given a string S, find all possible palindromic partitions of the given string. A palindromic partition of a string is a decomposition of the string into substrings, where each substring is a palindrome.
 
 Example
@@ -393,28 +383,31 @@ All possible palindromic partitions are:
 Code
 ```python
 def all_palindrome_partitions(string):
-    n = len(string)
-    result = []
-
-    def is_palindrome(s):
-        start, end = 0, len(s) - 1
-        while start <= end:
-            if s[start] != s[end]:
+    n = len(s)
+    partitions = []
+    
+    def is_palindrome(left, right):
+        while left <= right:
+            if s[left] != s[right]:
                 return False
-        return True 
+            left = left + 1
+            right = right - 1
+        return True
+
 
     def solve(index, curr):
         if index == n:
-            result.append(curr[:])
+            partitions.append(curr[:])
             return
-        for end_index in range(index+1, n):
-            sub_str = string[index: end_index]
-            if is_palindrome(sub_str):
-                curr.append(sub_str)
-                solve(end_index, curr)
+
+        for partition_index in range(index, n):
+            if is_palindrome(index, partition_index):
+                curr.append(s[index: partition_index+1])
+                solve(partition_index+1, curr)
                 curr.pop()
+        
     solve(0, [])
-    return result
+    return partitions
 ```
 
 ### Word Break
@@ -463,7 +456,7 @@ def word_break(string, dictionary):
     return result
 ```
 
-### Letter Combination of Phone Number*
+### [Letter Combination of Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number)*
 Given a string containing digits from 2-9 inclusive, return all possible letter combinations that the number could represent. The answer can be returned in any order. A mapping of digits to letters (just like on the telephone buttons) is provided below. Note that 1 does not map to any letters.
 
 Digit to Letters Mapping

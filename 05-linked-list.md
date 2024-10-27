@@ -457,7 +457,7 @@ class LRUCache:
             del self.cache[lru.key]
 ```
 
-### Reverse Node in k-Group*
+### [Reverse Node in k-Group](https://leetcode.com/problems/reverse-nodes-in-k-group)*
 Given the head of a linked list, reverse the nodes of the list `k` at a time, and return the modified list.
 `k` is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of `k` then left-out nodes, in the end, should remain as it is.
 You may not alter the values in the list's nodes, only nodes themselves may be changed.
@@ -517,7 +517,7 @@ def reverse_k_group(head, k):
         return prev # Prev will be the new head of the reversed list
 
     dummy = ListNode(0, head)
-    curr, prev_tail = head, dummy
+    prev_tail = dummy # for getting the tail of the previous list
 
     while True:
         count = 0
@@ -531,7 +531,7 @@ def reverse_k_group(head, k):
         # After this curr will either point to the next group or end of list
         # There are k nodes to reverse
         if count == k:
-            # The current group's tail after reversal
+            # The current group's tail after reversal - set tail to the start of the sublist to be reversed
             tail = prev_tail.next
 
             # Reverse k nodes and connect the previous group to the newly reversed group
