@@ -173,6 +173,38 @@ Output: 10
 #### Hint
 This would an application of both `NSL` and `NSR`, and thus including the current histogram bar we can calculate the maximum area.
 
+Code
+```python
+def largestRectangleArea(heights):
+    n = len(heights)
+    nsl, nsr = [-1] * n, [n] * n
+
+    # Next smaller to the left - identify the maximum left you can go for your current height
+    stack = []
+    for index in range(n):
+        while stack and heights[stack[-1]] >= heights[index]:
+            stack.pop()
+        if stack:
+            nsl[index] = stack[-1]
+        stack.append(index)
+    
+    # Next larger to the right - identify the maximum right you can go for your current height
+    stack = []
+    for index in range(n-1, -1, -1):
+        while stack and heights[stack[-1]] >= heights[index]:
+            stack.pop()
+        if stack:
+            nsr[index] = stack[-1]
+        stack.append(index)
+    
+    result = 0
+    for index, height in enumerate(heights):
+        bars = nsr[index] - nsl[index] - 1
+        result = max(result, height * bars)
+
+    return result
+```
+
 ### Rain Water Trapping*
 Given an array of non-negative integers representing the height of bars in a histogram, find the total amount of water that can be trapped between the bars after raining.
 

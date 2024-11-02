@@ -1285,34 +1285,52 @@ Return the least time until you can reach the bottom right square `(n - 1, n - 1
 
 Code
 ```python
-def swim_in_water(grid):
+def swimInWater(grid):
     n = len(grid)
-    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    elevation = [[float('inf')] * n for _ in range(n)]
+    elevation[0][0] = grid[0][0]
 
-    # Min-heap priority queue, starting with the top-left corner
     min_heap = [(grid[0][0], 0, 0)]
-    visited = set()
-    max_elevation = grid[0][0]
+    directions = [(1, 0), (-1, 0), (0, -1), (0, 1)]
 
     while min_heap:
-        elevation, row, col = heapq.heappop(min_heap)
-
-        if (row, col) in visited:
-            continue
-
-        max_elevation = max(max_elevation, elevation)
-        visited.add((row, col))
-
-        # If we reached the bottom-right corner, return the max elevation
-        if row == n-1 and col == n-1:
-            return max_elevation
-        
-        # Explore the neighbors
+        current_elevation, row, col = heapq.heappop(min_heap)
         for direction in directions:
             n_row, n_col = row + direction[0], col + direction[1]
-            if 0<=n_row<n and 0<=n_col<n and (n_row, n_col) not in visited:
-                heapq.heappush(min_heap, (grid[n_row][n_col], n_row, n_col))
+            if 0<=n_row<n and 0<=n_col<n and elevation[n_row][n_col] > max(grid[n_row][n_col], current_elevation):
+                elevation[n_row][n_col] = max(grid[n_row][n_col], current_elevation)
+                heapq.heappush(min_heap, (elevation[n_row][n_col], n_row, n_col))
     
+    return elevation[n-1][n-1]
+```
+
+###### Path with Minimum Effort
+You are a hiker preparing for an upcoming hike. You are given `heights`, a 2D array of size `rows x columns`, where `heights[row][col]` represents the height of cell `(row, col)`. You are situated in the top-left cell, `(0, 0)`, and you hope to travel to the bottom-right cell, `(rows-1, columns-1)` (i.e., **0-indexed**). You can move **up**, **down**, **left**, or **right**, and you wish to find a route that requires the minimum **effort**.
+
+A route's **effort** is the **maximum absolute difference** in heights between two consecutive cells of the route.
+
+Return the *minimum **effort** required to travel from the top-left cell to the bottom-right cell*.
+
+Code
+```python
+def minimumEffortPath(heights):
+    m, n = len(heights), len(heights[0])
+    dist = [[float('inf')] * n for _ in range(m)]
+    dist[0][0] = 0
+
+    min_heap = [(0, 0, 0)]
+    directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+
+    while min_heap:
+        current_effort, row, col = heapq.heappop(min_heap)
+        for direction in directions:
+            n_row, n_col = row + direction[0], col + direction[1]
+            if 0<=n_row<m and 0<=n_col<n and dist[n_row][n_col] > max(current_effort, abs(heights[n_row][n_col] - heights[row][col])):
+                dist[n_row][n_col] = max(current_effort, abs(heights[n_row][n_col] - heights[row][col])) 
+                heapq.heappush(min_heap, (dist[n_row][n_col], n_row, n_col))
+    
+    if dist[m-1][n-1] != float('inf'):
+        return dist[m-1][n-1]
     return -1
 ```
 
@@ -1362,8 +1380,8 @@ def bellman_ford_edges(start, edges, num_vertices):
     for _ in range(num_vertices - 1):
         new_dist = dist.copy()  
         for u, v, w in edges:  
-            if dist[u] != float('inf') and dist[u] + w < dist[v]:  
-                dist[v] = dist[u] + w
+            if dist[u] != float('inf') and dist[u] + w < new_dist[v]:  
+                new_dist[v] = dist[u] + w
         dist = new_dist  
   
     # Check for negative weight cycles  
@@ -1437,7 +1455,7 @@ def find_cheapest_price(n, flights, src, dest, k):
     cost[src] = 0
 
     # Perform relaxation up to k + 1 times 
-    for _ in range(k):
+    for _ in range(k+1):
         # Create a copy of the current costs
         new_cost = cost.copy()
         for frm, to, price in flights:
@@ -1471,9 +1489,11 @@ def floyd_warshall(graph):
             dist[i][j] = weight
     
     for k in range(n):
-        for i in range(n):
-            for j in range(n):
-                dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+        for u in range(n):
+            for v in range(n):
+                if dist[u][k] != float('inf') and dist[k][v] 1= float('inf'):
+                    if dist[u][k] + dist[k][v] < dist[u][v]:
+                        dist[u][v] = dist[u][k] + dist[k][v]
     
     # check for negative weight cycles
     for i in range(n):
@@ -1481,6 +1501,50 @@ def floyd_warshall(graph):
             # graph contains a negative weight cycle
             return -1
     return dist
+```
+
+###### Problems
+###### Find the City With the Smallest Number of Neighbors at a Threshold Distance
+There are n cities numbered from `0` to `n-1`. Given the array `edges` where `edges[i] = [fromi, toi, weighti]` represents a bidirectional and weighted edge between cities `fromi` and `toi`, and given the integer `distanceThreshold`.
+
+Return the city with the smallest number of cities that are reachable through some path and whose distance is **at most** `distanceThreshold`, If there are multiple such cities, return the city with the greatest number.
+
+Notice that the distance of a path connecting cities *i* and *j* is equal to the sum of the edges' weights along that path.
+
+###### Intuition
+Here we need to find distance from between all the cities, no single source but all the cities are sources. Thus a problem where `Bellman Ford` can be used - shortest path between all vertex pairs.
+
+Code
+```python
+def findTheCity(n, edges, distanceThreshold):
+    dist = [[float('inf')] * n for _ in range(n)]
+
+    for u in range(n):
+        dist[u][u] = 0
+    
+    for edge in edges:
+        u, v, weight = edge
+        dist[u][v] = weight
+        dist[v][u] = weight
+    
+    for k in range(n):
+        for u in range(n):
+            for v in range(n):
+                if dist[u][k] != float('inf') and dist[k][v] != float('inf') and dist[u][k] + dist[k][v] < dist[u][v]:
+                    dist[u][v] = dist[u][k] + dist[k][v]
+    
+    # Find the city with the smallest number of reachable cities within the distance threshold  
+    min_count = n  
+    city = -1  
+        
+    for u in range(n):  
+        count = sum(1 for v in range(n) if u != v and dist[u][v] <= distanceThreshold)
+        print(f"City {u} can reach {count} cities within distance {distanceThreshold}")
+        if count <= min_count:  
+            min_count = count  
+            city = u  
+        
+    return city  
 ```
 
 ### Disjoint Union Set - DSU
@@ -1815,6 +1879,53 @@ def kruskal(n , edges):
 ```
 
 #### Problems
+#### Min Cost to Connect All Points
+You are given an array `points` representing integer coordinates of some points on a 2D-plane, where `points[i] = [xi, yi]`.
+
+The cost of connecting two points `[xi, yi]` and `[xj, yj]` is the **manhattan distance** between them: `|xi - xj| + |yi - yj|`, where `|val|` denotes the absolute value of `val`.
+
+Return the minimum cost to make all points connected. All points are connected if there is **exactly one** simple path between any two points.
+
+##### Intuition
+- The problem is essentially about finding the Minimum Spanning Tree (MST) of a graph where the nodes are points in a 2D plane and the edges are the Manhattan distances between these points.
+- We would be using the Prim's algorithm for finding the MST.
+
+Code
+```python
+def min_cost_connect_points(points):
+    n = len(points)
+
+    # Priority queue to select the edge with minimum cost
+    min_heap = [(0, 0)] # (cost, point_index)
+    visited = set()
+    total_cost, edges_used = 0, 0
+
+    while edges_used < n:
+        # Pop the edge with the smallest cost from the heap  
+        cost, i = heapq.heappop(min_heap)  
+          
+        # If the point has already been visited, skip it  
+        if i in visited:  
+            continue  
+          
+        # Mark the point as visited  
+        visited.add(i)  
+          
+        # Add the cost of this edge to the total cost  
+        total_cost = total_cost + cost  
+          
+        # Iterate over all points to update the heap with edges from the newly visited point  
+        for j in range(n):  
+            if j not in visited:  
+                # Calculate the Manhattan distance between points i and j  
+                manhattan_distance = abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1])  
+                  
+                # Push the new edge to the heap  
+                heapq.heappush(min_heap, (manhattan_distance, j))
+
+    return total_cost
+```
+
 #### Reconstruct Itenary
 You are given a list of airline `tickets` where `tickets[i] = [fromi, toi]` represent the departure and the arrival airports of one flight. Reconstruct the itinerary in order and return it.
 
@@ -1879,53 +1990,6 @@ def findItinerary(tickets):
       
     # Reverse the itinerary to get the correct order  
     return itinerary[::-1]
-```
-
-#### Min Cost to Connect All Points
-You are given an array `points` representing integer coordinates of some points on a 2D-plane, where `points[i] = [xi, yi]`.
-
-The cost of connecting two points `[xi, yi]` and `[xj, yj]` is the **manhattan distance** between them: `|xi - xj| + |yi - yj|`, where `|val|` denotes the absolute value of `val`.
-
-Return the minimum cost to make all points connected. All points are connected if there is **exactly one** simple path between any two points.
-
-##### Intuition
-- The problem is essentially about finding the Minimum Spanning Tree (MST) of a graph where the nodes are points in a 2D plane and the edges are the Manhattan distances between these points.
-- We would be using the Prim's algorithm for finding the MST.
-
-Code
-```python
-def min_cost_connect_points(points):
-    n = len(points)
-
-    # Priority queue to select the edge with minimum cost
-    min_heap = [(0, 0)] # (cost, point_index)
-    visited = set()
-    total_cost, edges_used = 0, 0
-
-    while edges_used < n:
-        # Pop the edge with the smallest cost from the heap  
-        cost, i = heapq.heappop(min_heap)  
-          
-        # If the point has already been visited, skip it  
-        if i in visited:  
-            continue  
-          
-        # Mark the point as visited  
-        visited.add(i)  
-          
-        # Add the cost of this edge to the total cost  
-        total_cost = total_cost + cost  
-          
-        # Iterate over all points to update the heap with edges from the newly visited point  
-        for j in range(n):  
-            if j not in visited:  
-                # Calculate the Manhattan distance between points i and j  
-                manhattan_distance = abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1])  
-                  
-                # Push the new edge to the heap  
-                heapq.heappush(min_heap, (manhattan_distance, j))
-
-    return total_cost
 ```
 
 ### Hamiltonian Path - Travelling Salesman Problem
