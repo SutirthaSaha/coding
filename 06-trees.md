@@ -356,6 +356,9 @@ def is_balanced(root):
         is_balanced = is_left_balanced and is_right_balanced and abs(left_height - right_height) <= 1
 
         return (is_balanced, 1 + max(left_height, right_height))
+
+    is_balanced, _ = solve(root)
+    return is_balanced
 ```
 ### Same Tree
 Given the roots of two binary trees p and q, write a function to check if they are the same or not.
@@ -429,6 +432,59 @@ def isSubTree(root, subRoot):
     if root.val == subRoot.val and isSameTree(root, subRoot):
         return True
     return isSubTree(root.left, subRoot) and isSubTree(root.right, subRoot) 
+```
+
+### Lowest Common Ancestor of a Binary Tree
+Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree.
+
+*The lowest common ancestor is defined between two nodes p and q as the lowest node in T that has both p and q as descendants (where we allow a node to be a descendant of itself).*
+
+Example
+```mermaid
+graph TD;  
+    3 --> 5;  
+    3 --> 1;  
+    5 --> 6;  
+    5 --> 2;  
+    2 --> 7;  
+    2 --> 4;  
+    1 --> 0;  
+    1 --> 8;
+```
+```
+Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
+Output: 3
+Explanation: The LCA of nodes 5 and 1 is 3.
+```
+
+#### Intuition
+To find the lowest common ancestor of two nodes p and q in a binary tree, we can use a recursive approach. The idea is to traverse the tree from the root and look for the nodes p and q. We can use the following logic:
+- **Base Case**: If the current node is None, return None. This means we have reached the end of a path without finding either p or q.
+- If the current node is either p or q, return the current node. This means we have found one of the nodes.
+- **Recursion**: Recursively search for p and q in the left and right subtrees.
+- **Result Combination**:
+  - If both the left and right recursive calls return non-None results, it means p and q are found in different subtrees of the current node, so the current node is their LCA.
+  - If only one of the recursive calls returns a non-None result, return that result because it means both p and q are located in one subtree.
+
+Code
+```python
+def lca(root, p, q):
+    # Base case  
+    if not root:  
+        return None  
+    if root == p or root == q:  
+        return root  
+        
+    # Recursively find p and q in the left and right subtrees  
+    left = lca(root.left, p, q)  
+    right = lca(root.right, p, q)  
+        
+    # If both left and right are not None, it means p and q are found in different subtrees  
+    if left and right:  
+        return root  
+        
+    # Otherwise, return the non-None child  
+    return left if left else right 
 ```
 
 ### Lowest Common Ancestor of a Binary Search Tree
@@ -643,6 +699,124 @@ def goodNodes(root: TreeNode) -> int:
         return count  
     
     return dfs(root, root.val)
+```
+
+### Vertical Order Traversal
+```
+TODO
+```
+
+### Boundary Traversal
+Given a Binary Tree, find its Boundary Traversal. The traversal should be in the following order: 
+
+- **Left boundary nodes**: defined as the path from the root to the left-most node ie- the leaf node you could reach when you always travel preferring the left subtree over the right subtree. 
+- **Leaf nodes**: All the leaf nodes except for the ones that are part of left or right boundary.
+- **Reverse right boundary nodes**: defined as the path from the right-most node to the root. The right-most node is the leaf node you could reach when you always travel preferring the right subtree over the left subtree. Exclude the root from this as it was already included in the traversal of left boundary nodes.
+
+#### Intuition
+The intuition behind the solution involves breaking down the traversal into three parts:
+- Left Boundary: Traverse the left boundary starting from the root, moving down to the left-most node, and excluding any leaf nodes.
+- Leaf Nodes: Traverse all leaf nodes, ensuring not to include any nodes that are part of the left or right boundary.
+- Right Boundary: Traverse the right boundary starting from the right-most leaf node, moving up to the root, and then reverse this list to maintain the correct order.
+
+Code
+```python
+def boundaryOfBinaryTree(root):
+    if not root:  
+        return []  
+        
+    def isLeaf(node):  
+        return not node.left and not node.right  
+        
+    def addLeftBoundary(node):  
+        while node:  
+            if not isLeaf(node):  
+                boundary.append(node.val)  
+            if node.left:  
+                node = node.left  
+            else:  
+                node = node.right  
+        
+    def addLeaves(node):  
+        if isLeaf(node):  
+            boundary.append(node.val)  
+            return  
+        if node.left:  
+            addLeaves(node.left)  
+        if node.right:  
+            addLeaves(node.right)  
+        
+    def addRightBoundary(node):  
+        stack = []  
+        while node:  
+            if not isLeaf(node):  
+                stack.append(node.val)  
+            if node.right:  
+                node = node.right  
+            else:  
+                node = node.left  
+        while stack:  
+            boundary.append(stack.pop())  
+        
+    boundary = []  
+        
+    if not isLeaf(root):  
+        boundary.append(root.val)  
+        
+    if root.left:  
+        addLeftBoundary(root.left)  
+        
+    addLeaves(root)  
+        
+    if root.right:  
+        addRightBoundary(root.right)  
+        
+    return boundary
+```
+ 
+### Diameter of a Binary Tree
+Given the `root` of a binary tree, return the *length of the **diameter** of the tree*.
+
+The **diameter** of a binary tree is the **length** of the longest path between any two nodes in a tree. This path may or may not pass through the `root`.
+
+The **length** of a path between two nodes is represented by the number of edges between them.
+
+Example
+```mermaid
+graph TD;  
+    1 --> 2;  
+    1 --> 3;  
+    2 --> 4;  
+    2 --> 5;
+```
+```
+Input: root = [1,2,3,4,5]
+Output: 3
+Explanation: 3 is the length of the path [4,2,1,3] or [5,2,1,3].
+```
+
+#### Intuition
+For calculating the diameter at each node, there can be 2 choices:
+- Path considering the node: height(left sub-tree) + height(right sub-tree)
+- Path not considering the node: We pass the current max_height possible from this node to its callers - 1 + max(height(left sub-tree), height(right sub-tree))
+
+Code:
+```python
+def diameterOfBinaryTree(root):
+    diameter = 0
+    def solve(root):
+        if root is None:
+            return 0
+        left_height = solve(root.left)
+        right_height = solve(root.right)
+
+        nonlocal diameter
+        diameter = max(diameter, left_height + right_height)
+
+        return 1 + max(left_height, right_height)
+    
+    solve(root)
+    return diameter
 ```
 
 ### Validate Binary Search Tree

@@ -546,10 +546,17 @@ def ladderLength(begin_word, end_word, word_list):
 Now coming to the various algorithms of graph:
 
 ### Cycle Detection
+A cycle in a graph is a path of edges and vertices wherein a vertex is reachable from itself, meaning you can start at a vertex, travel along a sequence of edges, and return to the starting vertex without traversing any edge more than once.
+
+**Detecting Cycles**
+- **Directed Graph**: Use `Depth-First Search (DFS)` with a `recursion stack` to detect back edges or `Kahn's Algorithm (BFS)` leveraging `in-degrees of nodes`.
+- **Undirected Graph**: Use `DFS` or `BFS` with a `parent tracking mechanism` to ensure cycles are not **falsely detected** due to bidirectional edges.
+#### Problems
+#### 1. Find if Cycle Exists in a Directed Graph
 Given a directed graph, check whether the graph contains a cycle or not.
 
+#### DFS
 #### Intuition
-This can be done using the DFS method.
 We need to modify the existing DFS implementation to check for a backedge - that can cause cycles. For this we maintain a separate `recursion_stack` set along with the existing `visited` set.
 
 ##### Why do we need a separate `recursion_stack` set, wouldn't `visited` set be enough?
@@ -595,8 +602,36 @@ def cycle_detection(graph):
     return False
 ```
 
-#### Problems
-##### Graph Valid Tree* - Cycle Detection in Undirected Graph
+### BFS
+In a directed graph, we can use a BFS approach with the help of an additional data structure called in-degree to detect cycles. The in-degree of a node is the number of edges directed towards that node. The idea is to use Kahn’s algorithm for topological sorting. If the graph contains a cycle, topological sorting is not possible.
+
+Code
+```python
+def cycle_detection(graph):
+    n = len(graph.keys())
+    indegree_map = {i: 0 for i in range(n)}
+    for node in graph:
+        for neighbor in graph[node]:
+            indegree_map[neighbor] = indegree_map[neighbor] + 1
+    
+    queue = deque()
+    for node in graph:
+        if indegree_map[node] == 0:
+            queue.append(node)
+    
+    count = 0
+    while queue:
+        node = queue.popleft()
+        count = count + 1
+        for neighbor in graph[node]:
+            indegree_map[neighbor] = indegree_map[neighbor] - 1
+            if indegree_map[neighbor] == 0:
+                queue.append(neighbor)
+    
+    return count == n
+```
+
+##### 2.  Graph Valid Tree* - Cycle Detection in Undirected Graph
 Given `n` nodes labeled from `0` to `n - 1` and a list of undirected edges (each edge is a pair of nodes), write a function to check whether these edges make up a valid tree.
 
 Example
@@ -608,10 +643,11 @@ edges = [[0, 1], [0, 2], [0, 3], [1, 4]]
 Output:
 true
 ```
-
+##### DFS
 ###### Intuition
 If a cycle is detected it is not a valid tree - so an extension of the cycle detection problem.
 - However this is an undirected graph and thus we must ensure that we don't consider the parent as a candidate for the cycle - **trivial cycle**.
+- In the case of an undirected graph, the `recursion_stack` set is not needed because the `visited` set combined with the `parent` node check (prev node) is sufficient to avoid **false positives for cycles**.
 - Check if the graph is a valid tree:  
   - The entire graph should be connected (all nodes visited from node 0)
   - There should be no cycles (DFS should return True)
@@ -644,6 +680,30 @@ def validTree(n, edges):
         return True
     
     return dfs(0, -1) and len(visited) == n
+```
+
+##### BFS
+In an undirected graph, we can use a BFS approach with the help of a parent map to detect cycles. The idea is to ensure that we do not revisit the parent node during traversal, similar to the DFS approach but using a queue.
+
+Code
+```python
+def isCycle(V, adj):
+    queue = deque()
+    queue.append((0, -1))
+    visited = set()
+    visited.add(0)
+    
+    while queue:
+        node, parent = queue.popleft()
+        for neighbor in adj[node]:
+            if neighbor == parent:
+                continue
+            if neighbor in visited:
+                return True
+            visited.add(neighbor)
+            queue.append((neighbor, node))
+    
+    return False
 ```
 
 ### Topological Sort
@@ -1992,6 +2052,60 @@ def findItinerary(tickets):
     return itinerary[::-1]
 ```
 
+### Bipartite Graph
+A bipartite graph is a type of graph where the set of vertices can be divided into two disjoint and independent sets, U and V, such that every edge connects a vertex in U to a vertex in V. In other words, there are no edges between vertices within the same set.
+
+Key Properties:
+- **Two Sets of Vertices**: The vertices can be split into two groups, and no two vertices within the same group are adjacent.
+- **Colorability**: A graph is bipartite if and only if it is 2-colorable, meaning you can color the graph using two colors such that no two adjacent vertices share the same color.
+- **Cycle Property**: A graph is bipartite if and only if it does not contain any odd-length cycles.
+
+#### [Is Graph Bipartite?](https://leetcode.com/problems/is-graph-bipartite)*
+There is an undirected graph with `n` nodes, where each node is numbered between `0` and `n - 1`. You are given a 2D array `graph`, where `graph[u]` is an array of nodes that node `u` is adjacent to. More formally, for each `v` in `graph[u]`, there is an undirected edge between node `u` and node `v`. 
+The graph has the following properties:
+- There are no self-edges (`graph[u]` does not contain `u`).
+- There are no parallel edges (`graph[u]` does not contain duplicate values).
+- If `v` is in `graph[u]`, then `u` is in `graph[v]` (the graph is undirected).
+- The graph may not be connected, meaning there may be two nodes `u` and `v` such that there is no path between them.
+
+A graph is **bipartite** if the nodes can be partitioned into two independent sets `A` and `B` such that every edge in the graph connects a node in set `A` and a node in set `B`.
+
+Return true if and only if it is bipartite.
+
+##### Intuition
+To determine if a graph is bipartite, we need to check if we can color the graph using two colors such that no two adjacent nodes have the same color. This can be achieved using either Breadth-First Search (BFS) or Depth-First Search (DFS).
+
+The basic idea is to attempt to color the graph using two colors while traversing it:
+- Start from an uncolored node, color it with one color.
+- Color all its adjacent nodes with the opposite color.
+- Continue this process for all nodes using BFS or DFS.
+- If at any point, we find an adjacent node that has the same color as the current node, the graph is not bipartite.
+
+Since the graph may not be connected, we need to apply this process for each connected component.
+
+Code
+```python
+def isBipartite(graph):  
+    n = len(graph)  
+    color = [-1] * n  # -1 indicates that the node has not been colored yet  
+      
+    def dfs(node, c):  
+        color[node] = c  
+        for neighbor in graph[node]:  
+            if color[neighbor] == -1:  # If the neighbor is not colored, color it with the opposite color  
+                if not dfs(neighbor, 1 - c):  
+                    return False  
+            elif color[neighbor] == color[node]:  # If the neighbor has the same color, the graph is not bipartite  
+                return False  
+        return True  
+      
+    for start in range(n):  
+        if color[start] == -1:  # If the node is not colored, start a DFS  
+            if not dfs(start, 0):  
+                return False  
+      
+    return True
+```
 ### Hamiltonian Path - Travelling Salesman Problem
 ### Graph Coloring
 ### Strongly connected components - Kosaraju's Algorithm
