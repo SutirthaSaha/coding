@@ -626,7 +626,7 @@ def reorder_list(head):
         first_half, second_half = temp1, temp2 
 ```
 
-### Add Two Numbers*
+### [Add Two Numbers](https://leetcode.com/problems/add-two-numbers)*
 You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.
 
 You may assume the two numbers do not contain any leading zero, except the number 0 itself.
@@ -662,4 +662,57 @@ def add_two_numbers(l1, l2):
         curr = curr.next
 
     return dummy.next
+```
+
+### [Intersection of Two Linked List](https://leetcode.com/problems/intersection-of-two-linked-lists)
+Given the heads of two singly linked-lists `headA` and `headB`, return *the node at which the two lists intersect*. If the two linked lists have no intersection at all, return `null`.  
+  
+For example, the following two linked lists begin to intersect at node `c1`: 
+```mermaid
+graph LR;  
+    A1[a1] --> A2[a2]  
+    A2 --> C1[c1]  
+    C1 --> C2[c2]  
+    C2 --> C3[c3]  
+    B1[b1] --> B2[b2]  
+    B2 --> B3[b3]  
+    B3 --> C1
+```
+
+The test cases are generated such that there are no cycles anywhere in the entire linked structure.
+
+Note: The linked lists must retain their original structure after the function returns.\
+
+#### Intuition
+The key insight is that if two linked lists intersect, the nodes after the intersection point will be the same for both lists. Therefore, once aligned at the same distance from the end, we can traverse them simultaneously to find the intersection. 
+By adjusting the starting points of the two lists so that they have the same number of nodes to traverse until the end, we can ensure that any intersection will be encountered at the same time in both traversals.
+
+Code
+```python
+def getIntersectionNode(headA, headB):
+    def getLength(head):
+        temp = head
+        length = 0
+        while temp:
+            temp = temp.next
+            length = length + 1
+        return length
+    
+    tempA, tempB = headA, headB
+    lenA = getLength(tempA)
+    lenB = getLength(tempB)
+
+    while lenA > lenB:
+        tempA = tempA.next
+        lenA = lenA - 1
+    
+    while lenB > lenA:
+        tempB = tempB.next
+        lenB = lenB - 1
+    
+    while tempA and tempB and tempA != tempB:
+        tempA = tempA.next
+        tempB = tempB.next
+    
+    return tempA
 ```
