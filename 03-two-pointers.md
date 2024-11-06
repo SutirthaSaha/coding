@@ -220,7 +220,7 @@ def trap(height):
 ```
 
 #### The Celebrity Problem
-In a party of n people, a celebrity is defined as someone who is known by everyone but knows no one. You are given a matrix M of size n x n where M[i][j] is 1 if person i knows person j, otherwise it is 0. Implement a function findCelebrity that determines if there is a celebrity in the party. If there is a celebrity, return their index (0-based index). If there is no celebrity, return -1.
+In a party of n people, a celebrity is defined as someone who is known by everyone but knows no one. You are given a matrix `M` of size `n x n` where `M[i][j]` is 1 if person `i` knows person `j`, otherwise it is 0. Implement a function `findCelebrity` that determines if there is a celebrity in the party. If there is a celebrity, return their index (0-based index). If there is no celebrity, return -1.
 
 Example:
 ```
@@ -304,8 +304,7 @@ Also known as the tortoise and hare technique, one pointer (the slow pointer) mo
 This is useful in solving several linked list problems.
 
 #### Problems
-#### Linked List Cycle Detection*
-
+#### [Linked List Cycle Detection](https://leetcode.com/problems/linked-list-cycle)*
 ##### Intuition
 - Different Speeds: Use two pointers, slow and fast. The slow pointer moves one step at a time, while the fast pointer moves two steps at a time.
 - Cycle Detection:
@@ -344,4 +343,82 @@ def middle_node(head):
         slow = slow.next
         fast = fast.next.next
     return slow
+```
+
+#### [Happy Number](https://leetcode.com/problems/happy-number)*
+Write an algorithm to determine if a number `n` is happy.
+
+A **happy number** is a number defined by the following process:
+- Starting with any positive integer, replace the number by the sum of the squares of its digits.
+- Repeat the process until the number equals 1 (where it will stay), or it **loops endlessly in a cycle which does not include 1**.
+- Those numbers for which this process **ends in 1** are happy.
+
+Return `true` if `n` is a *happy number*, and `false` if not.
+
+##### Intuition
+The problem of determining whether a number is a happy number can also be effectively solved using the slow-fast pointer approach, similar to detecting cycles in a linked list. This approach uses two pointers moving at different speeds to detect cycles.
+
+**Key Idea:**
+- Use two pointers, slow and fast.
+- slow moves one step at a time (calculates the sum of squares once).
+- fast moves two steps at a time (calculates the sum of squares twice).
+- If slow or fast reaches 1, then the number is a happy number.
+- If there is a cycle, slow and fast will eventually meet - not happy number.
+
+Code
+```
+def isHappy(n):
+    def get_digit_square_sum(n):
+        total = 0
+        while n:
+            total = total + (n % 10)**2
+            n = n // 10
+        return total
+    
+    slow, fast = get_digit_square_sum(n), get_digit_square_sum(get_digit_square_sum(n))
+
+    while fast != 1 and slow != fast:
+        slow = get_digit_square_sum(slow)
+        fast = get_digit_square_sum(get_digit_square_sum(fast))
+    
+    return fast == 1
+```
+
+#### [Find the Duplicate Number](https://leetcode.com/problems/find-the-duplicate-number)
+Given an array of integers nums containing n + 1 integers where each integer is in the range [1, n] inclusive.
+There is only one repeated number in nums, return this repeated number.
+You must solve the problem without modifying the array nums and using only constant extra space.
+
+Example:
+```
+Input: nums = [1,3,4,2,2]
+Output: 2
+```
+
+##### Intuition
+The problem of finding the duplicate number in an array can be solved using the slow-fast pointer approach because the values are within the range `[1, n]`, each value can be used as an index to access the array. This allows us to traverse the array in a manner similar to traversing a linked list. The presence of a cycle in this array indicates a duplicate number.
+
+Key Idea:
+- Use two pointers, slow and fast.
+- slow moves one step at a time.
+- fast moves two steps at a time.
+- Since there is a duplicate number a cycle exists and the slow and fast will eventually meet.
+- Once they meet, reset one pointer to the start and move both pointers one step at a time to find the entrance to the cycle, which is the duplicate number.
+
+Code
+```python
+def findDuplicate(nums):
+    slow, fast = nums[0], nums[0]
+
+    while True:
+        slow, fast = nums[slow], nums[nums[fast]]
+        if slow == fast:
+            break
+    
+    pointer = nums[0]
+
+    while slow != pointer:
+        slow, pointer = nums[slow], nums[pointer]
+    
+    return pointer
 ```

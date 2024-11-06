@@ -307,7 +307,7 @@ def diameter_binary_tree(root):
     return max_diameter[0]
 ```
 
-### Balanced Binary Tree
+### [Balanced Binary Tree](https://leetcode.com/problems/balanced-binary-tree)
 Given a binary tree, determine if it is height-balanced.
 `height-balanced`: A height-balanced binary tree is a binary tree in which the depth of the two subtrees of every node never differs by more than one.
 
@@ -360,7 +360,7 @@ def is_balanced(root):
     is_balanced, _ = solve(root)
     return is_balanced
 ```
-### Same Tree
+### [Same Tree](https://leetcode.com/problems/same-tree)
 Given the roots of two binary trees p and q, write a function to check if they are the same or not.
 
 Two binary trees are considered the same if they are structurally identical, and the nodes have the same value.
@@ -387,7 +387,7 @@ def is_same_tree(p, q):
     return is_same_tree(p.left, q.left) and is_same_tree(p.right, q.right)
 ```
 
-### Subtree of Another Tree
+### [Subtree of Another Tree](https://leetcode.com/problems/subtree-of-another-tree)
 Given the roots of two binary trees root and subRoot, return true if there is a subtree of root with the same structure and node values of subRoot and false otherwise.
 
 A subtree of a binary tree tree is a tree that consists of a node in tree and all of this node's descendants. The tree tree could also be considered as a subtree of itself.
@@ -487,7 +487,7 @@ def lca(root, p, q):
     return left if left else right 
 ```
 
-### Lowest Common Ancestor of a Binary Search Tree
+### [Lowest Common Ancestor of a Binary Search Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree)*
 Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST.
 
 According to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between two nodes p and q as the lowest node in T that has both p and q as descendants (where we allow a node to be a descendant of itself).”
@@ -639,7 +639,7 @@ def rightSideView(root):
     return result
 ```
 
-### Cound Good Nodes in Binary Tree
+### [Cound Good Nodes in Binary Tree](https://leetcode.com/problems/count-good-nodes-in-binary-tree)*
 Given a binary tree `root`, a node `X` in the tree is named **good** if in the path from root to `X` there are no nodes with a value greater than `X`.
 
 Return the number of **good** nodes in the binary tree.
@@ -774,7 +774,7 @@ def boundaryOfBinaryTree(root):
     return boundary
 ```
  
-### Diameter of a Binary Tree
+### [Diameter of a Binary Tree](https://leetcode.com/problems/diameter-of-binary-tree)
 Given the `root` of a binary tree, return the *length of the **diameter** of the tree*.
 
 The **diameter** of a binary tree is the **length** of the longest path between any two nodes in a tree. This path may or may not pass through the `root`.
@@ -819,7 +819,7 @@ def diameterOfBinaryTree(root):
     return diameter
 ```
 
-### Validate Binary Search Tree
+### [Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree)
 Given the root of a binary tree, determine if it is a valid binary search tree (BST).
 
 A valid BST is defined as follows:
@@ -855,7 +855,7 @@ def is_valid_BST(root):
     return validate(root, float('-inf'), float('inf'))
 ```
 
-### Kth Smallest Element in BST
+### [Kth Smallest Element in BST](https://leetcode.com/problems/kth-smallest-element-in-a-bst)
 Given the root of a binary search tree, and an integer k, return the kth smallest value (1-indexed) of all the values of the nodes in the tree.
 
 Example:
@@ -875,7 +875,8 @@ graph TD
     B1 --> D2
 ```
 
-#### Intuition
+#### Naive Solution
+##### Intuition
 - To find the kth smallest element in a BST, we can take advantage of the in-order traversal property of BSTs. **In-order traversal of a BST visits the nodes in ascending order**. 
 - Therefore, performing an in-order traversal and keeping track of the count of nodes visited will allow us to find the kth smallest element.
 
@@ -895,6 +896,42 @@ def kthSmallest(root, k):
       
     # Return the k-1th element since k is 1-indexed  
     return sorted_elements[k-1]
+```
+
+#### Optimal Solution
+##### Intuition
+The naive solution performs a full in-order traversal of the tree, which can be inefficient for large trees. Instead, we can optimize the approach by performing an in-order traversal but stopping as soon as we reach the k-th smallest element. This way, we avoid traversing the entire tree.
+In-Order Traversal with Early Stopping using a counter to keep track of the number of nodes visited and stop the traversal as soon as the counter reaches k.
+
+Code
+```python
+def kthSmallest(root, k):  
+    # Initialize the counter and the result  
+    count = 0  
+    result = None  
+      
+    # Helper function to perform in-order traversal with early stopping  
+    def in_order_traversal(node):  
+        nonlocal count, result  
+        if node is None or result is not None:  
+            return  
+          
+        # Traverse the left subtree  
+        in_order_traversal(node.left)  
+          
+        # Visit the current node  
+        count += 1  
+        if count == k:  
+            result = node.val  
+            return  
+          
+        # Traverse the right subtree  
+        in_order_traversal(node.right)  
+      
+    # Start the in-order traversal  
+    in_order_traversal(root)  
+      
+    return result
 ```
 
 ##### Iterative In-Order Traversal
@@ -924,7 +961,7 @@ def kthSmallest(root: TreeNode, k: int) -> int:
         current = current.right
 ```
 
-### Construct Binary Tree from Preorder and Inorder Traversal
+### [Construct Binary Tree from Preorder and Inorder Traversal](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal)
 Given two integer arrays preorder and inorder where preorder is the preorder traversal of a binary tree and inorder is the inorder traversal of the same tree, construct and return the binary tree.
 
 Example:
@@ -980,10 +1017,10 @@ def buildTree(preorder, inorder):
     return root
 ```
 
-### Binary Tree Maximum Path Sum
+### [Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum)
 Refer DP on Trees in Dynamic Programming
 
-### Serialize and Deserialize Binary Tree
+### [Serialize and Deserialize Binary Tree](https://leetcode.com/problems/serialize-and-deserialize-binary-tree)
 Serialization is the process of converting a data structure or object into a sequence of bits so that it can be stored in a file or memory buffer, or transmitted across a network connection link to be reconstructed later in the same or another computer environment.
 
 Design an algorithm to serialize and deserialize a binary tree. There is no restriction on how your serialization/deserialization algorithm should work. You just need to ensure that a binary tree can be serialized to a string and this string can be deserialized to the original tree structure.
@@ -1061,4 +1098,37 @@ class Codec:
             index += 1  
         
         return root
+```
+
+### [Path Sum II](https://leetcode.com/problems/path-sum-ii)
+Given the `root` of a binary tree and an integer `targetSum`, return all root-to-leaf paths where the sum of the node values in the path equals `targetSum`. Each path should be returned as a list of the node values, not node references.
+A **root-to-leaf path** is a path starting from the root and ending at any leaf node. A **leaf** is a node with no children.
+
+#### Intuition
+Perform in-order traversal on the binary tree and keep appending to the path till you encounter a leaf node and then check for the path sum. If equal add to the result else continue with the rest of the traversal.
+
+Code
+```python
+def pathSum(root, targetSum):
+    if root is None:
+        return []
+    
+    result = []
+
+    def dfs(root, path):
+        path.append(root.val)
+
+        if root.left is None and root.right is None and sum(path) == targetSum:
+            result.append(path[:])
+        
+        if root.left:
+            dfs(root.left, path)
+        
+        if root.right:
+            dfs(root.right, path)
+        
+        path.pop()
+    
+    dfs(root, [])
+    return result
 ```

@@ -63,7 +63,7 @@ That is where heap is to be used which is `O(n * log k)`.
   -  the heap only has the largest k elements and the minimum of these would be the kth largest
 
 ## Problems
-### Kth Largest Element*
+### [Kth Largest Element](https://leetcode.com/problems/kth-largest-element-in-an-array)*
 We would be using the `heapq` module of python collections. As discussed we would be requiring a `min heap` in this case.
 The top of the heap is in the `0th` index unlike stack.
 ```python
@@ -95,6 +95,9 @@ def kth_smallest(nums, k):
 ```
 
 ### Sort a K sorted array
+```
+TODO
+```
 
 ### K Closest Number
 Given an array of numbers and a value `val` and we need to find the `k` closest numbers to the `val`.
@@ -466,4 +469,31 @@ class MedianFinder:
             return -self.max_heap[0]
         else:
             return (-self.max_heap[0] + self.min_heap[0]) / 2
+```
+
+### [Find K Pairs with Smallest Sums](https://leetcode.com/problems/find-k-pairs-with-smallest-sums)*
+You are given two integer arrays `nums1` and `nums2` sorted in **non-decreasing order** and an integer `k`.
+Define a pair `(u, v)` which consists of one element from the first array and one element from the second array.
+Return the `k` pairs `(u1, v1), (u2, v2), ..., (uk, vk)` with the smallest sums.
+
+#### Intuition
+The key idea is to use a min-heap to efficiently manage and extract the pairs with the smallest sums. Since the arrays are sorted, the smallest possible pairs will involve the smallest elements of both arrays.
+- Begin by considering pairs that involve the smallest elements from both arrays. Specifically, pairs of the form (`nums1[i]`, `nums2[0]`) for the first few elements of `nums1`.
+- Use a **min-heap** to keep track of these pairs. The heap allows us to efficiently extract the smallest sum pair and then consider the next possible pair involving the same element from `nums1` but the next element from `nums2`.
+- Extract the smallest sum pair from the heap and add it to the result list.
+- After extracting a pair `(nums1[i], nums2[j])`, push the next pair `(nums1[i], nums2[j+1])` into the heap to continue finding the next smallest sum pairs.
+
+Code
+```
+def kSmallestPairs(nums1, nums2, k):
+    min_heap = []
+    for i in range(min(k, len(nums1))):
+        heapq.heappush(min_heap, (nums1[i]+nums2[0], i, 0))
+    result = []
+    while len(result) < k:
+        _, i, j = heapq.heappop(min_heap)
+        result.append([nums1[i], nums2[j]])
+        if j + 1 < len(nums2):
+            heapq.heappush(min_heap, (nums1[i]+nums2[j+1], i, j+1))
+    return result
 ```

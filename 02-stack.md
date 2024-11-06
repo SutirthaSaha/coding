@@ -163,7 +163,7 @@ Output: [1, 1, 1, 2, 1, 4, 6]
 #### Hint
 This is an application of `NGL`, such that you can get the consecutive days between that and today - giving you the stock span.
 
-### Maximum Area Histogram*
+### [Maximum Area Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram)*
 Given an array representing the heights of bars in a histogram, find the area of the largest rectangle that can be formed within the bounds of the histogram.
 
 Example:
@@ -205,7 +205,7 @@ def largestRectangleArea(heights):
     return result
 ```
 
-### Rain Water Trapping*
+### [Rain Water Trapping](https://leetcode.com/problems/trapping-rain-water)*
 Given an array of non-negative integers representing the height of bars in a histogram, find the total amount of water that can be trapped between the bars after raining.
 
 #### Naive
@@ -274,7 +274,7 @@ def trap(height):
     return water_trapped
 ```
 
-### Implementing a Min Stack*
+### [Implementing a Min Stack](https://leetcode.com/problems/min-stack)*
 Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.
 
 Implement the MinStack class:
@@ -406,7 +406,7 @@ class MinStack:
         return self.min_val  
 ```
 
-### Daily Temperatures
+### [Daily Temperatures](https://leetcode.com/problems/daily-temperatures)*
 Given an array of integers temperatures represents the daily temperatures, return an array answer such that answer[i] is the number of days you have to wait after the ith day to get a warmer temperature. If there is no future day for which this is possible, keep answer[i] == 0 instead.
 
 Example 1:
@@ -445,7 +445,7 @@ def daily_temperatures(temperatures):
     return result
 ```
 
-### Car Fleet*
+### [Car Fleet](https://leetcode.com/problems/car-fleet)*
 There are n cars at given miles away from the starting mile 0, traveling to reach the mile target. You are given two integer arrays position and speed, both of length n, where position[i] is the starting mile of the i-th car and speed[i] is the speed of the i-th car in miles per hour.
 
 A car cannot pass another car, but it can catch up and then travel next to it at the speed of the slower car. A car fleet is a car or cars driving next to each other. The speed of the car fleet is the minimum speed of any car in the fleet. If a car catches up to a car fleet at the mile target, it will still be considered as part of the car fleet.
@@ -555,12 +555,12 @@ class Stack:
         return None
 ```
 
-### Longest Valid Parenthesis
+### [Longest Valid Parenthesis](https://leetcode.com/problems/longest-valid-parentheses)*
 Given a string containing just the characters '(' and ')', find the length of the longest valid (well-formed) parentheses substring.
 
 #### Intuition
 - Use a stack to keep track of the indices of the characters.
-- Push the index of the last unmatched ')' onto the stack. Initialize the stack with -1 to handle the edge case for the first valid substring.
+- Push the index of the last unmatched `)` onto the stack. Initialize the stack with -1 to handle the edge case for the first valid substring.
 - As you iterate through the string, push the index of '(' onto the stack.
 - When you encounter ')', pop the stack:
   - If the stack is empty after popping, push the current index onto the stack as the new base for future valid substrings.
@@ -578,7 +578,7 @@ def longestValidParentheses(s):
         else:  
             stack.pop()  # Pop the stack for ')'  
             if not stack:  
-                stack.append(i)  # Push the current index as the new base  
+                stack.append(i)  # Push the current index as the new base - would reach here only if there is an extra )fo  
             else:  
                 max_length = max(max_length, i - stack[-1])  # Calculate the length of the current valid substring  
   
@@ -598,7 +598,7 @@ TODO
 ```
 
 ### Generic Stack Problems:
-#### Valid Parenthesis*
+#### [Valid Parenthesis](https://leetcode.com/problems/valid-parentheses)*
 Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.
 
 An input string is valid if:
@@ -635,7 +635,7 @@ def is_valid(s):
     return not stack 
 ``` 
 
-#### Evaluate Reverse Polish Notation*
+#### [Evaluate Reverse Polish Notation](https://leetcode.com/problems/evaluate-reverse-polish-notation)*
 You are given an array of strings tokens that represents an arithmetic expression in a Reverse Polish Notation.
 
 Evaluate the expression. Return an integer that represents the value of the expression.
