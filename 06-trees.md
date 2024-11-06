@@ -76,21 +76,6 @@ graph TD;
     D --> I[Right Child]
 ```
 
-### Binary Search Tree
-A binary tree in which each node has a key, and every node's key is greater than the keys in its left subtree and less than the keys in its right subtree.
-```mermaid
-graph TD;  
-      A[Root: 8]  
-      A --> B[Left Child: 3]  
-      A --> C[Right Child: 10]  
-      B --> D[Left Child: 1]  
-      B --> E[Right Child: 6]  
-      E --> F[Left Child: 4]  
-      E --> G[Right Child: 7]  
-      C --> H[Right Child: 14]  
-      H --> I[Left Child: 13]
-```
-
 ## Basic Structure
 ### Node class
 Each node in the binary tree is represented by an instance of the `Node` class.
@@ -165,6 +150,301 @@ class BinaryTree:
 **Fact: Inorder Traversal of a BST is always ordered.**
 
 ## Problems
+### Binary Tree Level Order Traversal
+Given the root of a binary tree, return the level order traversal of its nodes' values. (i.e., from left to right, level by level).
+
+Example:
+```mermaid
+graph TD  
+    A[3]  
+    B[9]  
+    C[20]  
+    D[15]  
+    E[7]  
+    A --> B  
+    A --> C  
+    C --> D  
+    C --> E
+```
+```
+Input: root = [3,9,20,null,null,15,7]
+Output: [[3],[9,20],[15,7]]
+```
+#### Intuition
+- This would be similar to the BFS or level-order traversal that we have seen earlier.
+- The only difference would be that we would empty the queue for at once for each level and populate it with the children.
+
+Code
+```python
+def level_order(root):
+    if root is None:
+        return []
+    
+    queue = deque()
+    queue.append(root)
+    result = []
+
+    while queue:
+        level_nodes = []
+        level_size = len(queue)
+
+        for _ in range(level_size):
+            node = queue.popleft()
+            level_nodes.append(node.val)
+            if node.left:
+                queue.append(node.left)
+            if node.right:
+                queue.append(node.right)
+        
+        results.append(level_nodes)
+
+    return result
+```
+
+### Binary Tree Right Side View
+Given the root of a binary tree, imagine yourself standing on the right side of it, return the values of the nodes you can see ordered from top to bottom.
+
+Example:
+```mermaid
+graph TD  
+    A[3]  
+    B[9]  
+    C[20]  
+    D[15]  
+    E[7]  
+    A --> B  
+    A --> C  
+    C --> D  
+    C --> E
+```
+```
+Input: root = [3,9,20,null,null,15,7]
+Output: [3, 20, 7]
+```
+
+#### Intuition
+This would be a small modification on the existing level order traversal, where for each level we have to just add the last node to the result.
+
+```python
+def rightSideView(root):
+    if root is None:
+        return []
+    
+    result = []
+    queue = deque()
+    queue.append(root)
+
+    while queue:
+        level_size = len(queue)
+
+        for i in range(level_size):
+            node = queue.popleft()
+
+            # Add to the result for the last node in the level
+            if i == level_size - 1:
+                result.append(node.val)
+            if node.left:
+                queue.append(node.left)
+            if node.right:
+                queue.append(node.right)
+    
+    return result
+```
+
+### [Vertical Order Traversal](https://leetcode.com/problems/vertical-order-traversal-of-a-binary-tree)*
+Given the `root` of a binary tree, calculate the **vertical order traversal** of the binary tree.
+
+For each node at position `(row, col)`, its left and right children will be at positions `(row + 1, col - 1)` and `(row + 1, col + 1)` respectively. The root of the tree is at `(0, 0)`.
+
+The **vertical order traversal** of a binary tree is a list of top-to-bottom orderings for each column index starting from the leftmost column and ending on the rightmost column. There may be multiple nodes in the same row and same column. In such a case, sort these nodes by their values.
+Return the ***vertical order traversal of the binary tree***.
+
+#### Concept
+In order to find the top view or the bottom view of the tree we use `horizontal distance` - the horizontal distance is updated as follows:
+- left child: -1 from the current node's horizontal distance
+- right child: +1 from the current node's horizontal distance
+
+The origin of the horizontal distance is the root which is 0, the left child of the root would have -1 and the right would have +1.
+For the top view, just take the first node in all the horizontal distance, for the bottom view take the last one.
+
+#### Intuition
+- In this problem we would handle both the `horizontal distance` and the `vertical distance`, but the grouping would be done by horizontal distance as it would act as the column and then we can go row-wise for each column.
+- Once we have grouped all the nodes by their horizontal distance, ensure that we sort it by the vertical distance to maintain the order.
+
+Code
+```python
+def verticalTraversal(root):
+    horizontal_distance_map = defaultdict(list)
+    
+    def solve(root, vertical_distance, horizontal_distance):
+        if root is None:
+            return
+        horizontal_distance_map[horizontal_distance].append((vertical_distance, root.val))
+        if root.left:
+            solve(root.left, vertical_distance+1, horizontal_distance -1)
+        if root.right:
+            solve(root.right, vertical_distance+1, horizontal_distance+1)
+    
+    solve(root, 0, 0)
+    result = []
+    for horizontal_distance in sorted(horizontal_distance_map.keys()):
+        horizontal_distance_map[horizontal_distance].sort()
+        result.append([val for vertical_distance, val in horizontal_distance_map[horizontal_distance]])
+    
+    return result
+```
+
+### Boundary Traversal
+Given a Binary Tree, find its Boundary Traversal. The traversal should be in the following order: 
+
+- **Left boundary nodes**: defined as the path from the root to the left-most node ie- the leaf node you could reach when you always travel preferring the left subtree over the right subtree. 
+- **Leaf nodes**: All the leaf nodes except for the ones that are part of left or right boundary.
+- **Reverse right boundary nodes**: defined as the path from the right-most node to the root. The right-most node is the leaf node you could reach when you always travel preferring the right subtree over the left subtree. Exclude the root from this as it was already included in the traversal of left boundary nodes.
+
+#### Intuition
+The intuition behind the solution involves breaking down the traversal into three parts:
+- Left Boundary: Traverse the left boundary starting from the root, moving down to the left-most node, and excluding any leaf nodes.
+- Leaf Nodes: Traverse all leaf nodes, ensuring not to include any nodes that are part of the left or right boundary.
+- Right Boundary: Traverse the right boundary starting from the right-most leaf node, moving up to the root, and then reverse this list to maintain the correct order.
+
+Code
+```python
+def boundaryOfBinaryTree(root):
+    if not root:  
+        return []  
+        
+    def isLeaf(node):  
+        return not node.left and not node.right  
+        
+    def addLeftBoundary(node):  
+        while node:  
+            if not isLeaf(node):  
+                boundary.append(node.val)  
+            if node.left:  
+                node = node.left  
+            else:  
+                node = node.right  
+        
+    def addLeaves(node):  
+        if isLeaf(node):  
+            boundary.append(node.val)  
+            return  
+        if node.left:  
+            addLeaves(node.left)  
+        if node.right:  
+            addLeaves(node.right)  
+        
+    def addRightBoundary(node):  
+        stack = []  
+        while node:  
+            if not isLeaf(node):  
+                stack.append(node.val)  
+            if node.right:  
+                node = node.right  
+            else:  
+                node = node.left  
+        while stack:  
+            boundary.append(stack.pop())  
+        
+    boundary = []  
+        
+    if not isLeaf(root):  
+        boundary.append(root.val)  
+        
+    if root.left:  
+        addLeftBoundary(root.left)  
+        
+    addLeaves(root)  
+        
+    if root.right:  
+        addRightBoundary(root.right)  
+        
+    return boundary
+```
+
+##### Iterative In-Order Traversal
+The solution can be made more efficient by avoiding the need to store the entire in-order traversal in a list. Instead, using an iterative approach with a stack to perform the in-order traversal and stop as soon as you reach the kth smallest element. 
+
+```python
+def kthSmallest(root: TreeNode, k: int) -> int:  
+    stack = []  
+    current = root  
+    count = 0  
+      
+    while stack or current:  
+        # Go to the leftmost node  
+        while current:  
+            stack.append(current)  
+            current = current.left  
+          
+        # Process the node  
+        current = stack.pop()  
+        count = count + 1  
+          
+        # If we've reached the kth node  
+        if count == k:  
+            return current.val  
+          
+        # Go to the right subtree  
+        current = current.right
+```
+
+### [Construct Binary Tree from Preorder and Inorder Traversal](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal)
+Given two integer arrays preorder and inorder where preorder is the preorder traversal of a binary tree and inorder is the inorder traversal of the same tree, construct and return the binary tree.
+
+Example:
+```
+Input: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
+Output: [3,9,20,null,null,15,7]
+```
+```mermaid
+graph TD  
+    A3[3]  
+    B9[9]  
+    C20[20]  
+    D15[15]  
+    E7[7]  
+      
+    A3 --> B9  
+    A3 --> C20  
+    C20 --> D15  
+    C20 --> E7
+```
+
+#### Intuition
+- **Preorder traversal** provides the root of the tree first.
+- **Inorder traversal** provides the relative positions of nodes in the left and right subtrees.
+- Using the root from the preorder array, we can split the inorder array into left and right subtrees. Recursively applying this process will help us reconstruct the entire tree.
+
+Code
+```python
+def buildTree(preorder, inorder):
+    if not preorder or inorder:
+        return None
+
+    # The first element in preorder is the root  
+    root_val = preorder[0]  
+    root = TreeNode(root_val)
+
+    # Find the index of the root in inorder  
+    root_index_in_inorder = inorder.index(root_val)  
+
+    # Elements to the left of root_index_in_inorder are in the left subtree  
+    left_inorder = inorder[:root_index_in_inorder]  
+    # Elements to the right of root_index_in_inorder are in the right subtree  
+    right_inorder = inorder[root_index_in_inorder + 1:]
+
+    # The number of elements in the left subtree is len(left_inorder)  
+    left_preorder = preorder[1:1 + len(left_inorder)]  
+    right_preorder = preorder[1 + len(left_inorder):]
+
+    # Recursively build the left and right subtrees  
+    root.left = buildTree(left_preorder, left_inorder)  
+    root.right = buildTree(right_preorder, right_inorder)  
+  
+    return root
+```
+
 ### Invert Binary Tree
 Given the root of a binary tree, invert the tree, and return its root.
 ```mermaid
@@ -228,7 +508,7 @@ def invertTree(root):
     return root
 ```
 
-### Maximum Depth of Binary Tree
+### [Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree)*
 Given the root of a binary tree, return its maximum depth.
 
 A binary tree's maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.
@@ -243,68 +523,6 @@ def max_depth(root):
     if root is None:
         return 0
     return 1 + max(max_depth(root.left), max_depth(root.right))
-```
-
-### Diameter of Binary Tree
-Given the root of a binary tree, return the length of the diameter of the tree.
-The diameter of a binary tree is the length of the longest path between any two nodes in a tree. This path may or may not pass through the root.
-The length of a path between two nodes is represented by the number of edges between them.
-
-Example:
-```
-Input: root = [1, 2, 3, 4, 5]
-Output: 3
-```
-```mermaid
-graph TD;  
-    style 1 fill:#f9f,stroke:#333,stroke-width:2px;  
-    style 2 fill:#a9d,stroke:#333,stroke-width:2px;  
-    style 3 fill:#9cf,stroke:#333,stroke-width:2px;  
-    style 4 fill:#fc9,stroke:#333,stroke-width:2px;  
-    style 5 fill:#c9f,stroke:#333,stroke-width:2px;  
-  
-    1["1"]  
-    2["2"]  
-    3["3"]  
-    4["4"]  
-    5["5"]  
-  
-    1 --> 2  
-    1 --> 3  
-    2 --> 4  
-    2 --> 5
-```
-Explanation: Diameter: 4->2->1->3 = 3
-
-#### Intuition
-The diameter of a binary tree is the length of the longest path between any two nodes. This path may or may not pass through the root. To solve this problem, we need to consider the following:
-- The longest path might pass through the root.
-- The longest path might be entirely within the left subtree.
-- The longest path might be entirely within the right subtree.
-
-To find the longest path passing through any node, we can use the height (or depth) of the subtrees. The longest path through any node is the sum of the heights of its left and right subtrees.
-
-```python
-def diameter_binary_tree(root):
-    # initialize maximum diameter
-    max_diameter = [0]
-
-    def depth(root):
-        if not root:
-            return 0
-        
-        # Recursively get the height of the left and the right subtrees
-        left_height = depth(root.left)
-        right_height = depth(root.right)
-
-        # The diameter passign through this node is left_height + right_height
-        max_diameter[0] = max(max_diameter[0], left_height + right_height)
-
-        # Return the height of the current node
-        return max(left_height, right_height) + 1
-    
-    depth(root)
-    return max_diameter[0]
 ```
 
 ### [Balanced Binary Tree](https://leetcode.com/problems/balanced-binary-tree)
@@ -487,157 +705,70 @@ def lca(root, p, q):
     return left if left else right 
 ```
 
-### [Lowest Common Ancestor of a Binary Search Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree)*
-Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST.
-
-According to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between two nodes p and q as the lowest node in T that has both p and q as descendants (where we allow a node to be a descendant of itself).”
-
-Example:
-```
-Input: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
-Output: 6
-```
-```mermaid 
-graph TD  
-    A[6]  
-    B[2]  
-    C[8]  
-    D[0]  
-    E[4]  
-    F[7]  
-    G[9]  
-    H[3]  
-    I[5]  
-    A --> B  
-    A --> C  
-    B --> D  
-    B --> E  
-    C --> F  
-    C --> G  
-    E --> H  
-    E --> I
-```
-Explanation: The LCA of nodes 2 and 8 is 6.
-
-#### Intuition
-- **Binary Search Tree Property**:
-  - In a BST, the left subtree of a node contains only nodes with values less than the node's value.
-  - The right subtree of a node contains only nodes with values greater than the node's value.
-- **Navigating the Tree**:
-  - If both nodes p and q are greater than the current node, then the LCA must be in the right subtree.
-  - If both nodes p and q are less than the current node, then the LCA must be in the left subtree.
-  - If one node is on one side (left) and the other node is on the other side (right) of the current node, then the current node is the LCA.
-
-Code
-```python
-def lca(root, p, q):
-    if p.val < root.val and q.val < root.val:
-        return lca(root.left, p, q)
-    if p.val > root.val and q.val > root.val:
-        return lca(root.right, p, q)
-    return root
-```
-
-### Binary Tree Level Order Traversal
-Given the root of a binary tree, return the level order traversal of its nodes' values. (i.e., from left to right, level by level).
+### [Diameter of Binary Tree](https://leetcode.com/problems/diameter-of-binary-tree)
+Given the root of a binary tree, return the length of the diameter of the tree.
+The diameter of a binary tree is the length of the longest path between any two nodes in a tree. This path may or may not pass through the root.
+The length of a path between two nodes is represented by the number of edges between them.
 
 Example:
+```
+Input: root = [1, 2, 3, 4, 5]
+Output: 3
+```
 ```mermaid
-graph TD  
-    A[3]  
-    B[9]  
-    C[20]  
-    D[15]  
-    E[7]  
-    A --> B  
-    A --> C  
-    C --> D  
-    C --> E
+graph TD;  
+    style 1 fill:#f9f,stroke:#333,stroke-width:2px;  
+    style 2 fill:#a9d,stroke:#333,stroke-width:2px;  
+    style 3 fill:#9cf,stroke:#333,stroke-width:2px;  
+    style 4 fill:#fc9,stroke:#333,stroke-width:2px;  
+    style 5 fill:#c9f,stroke:#333,stroke-width:2px;  
+  
+    1["1"]  
+    2["2"]  
+    3["3"]  
+    4["4"]  
+    5["5"]  
+  
+    1 --> 2  
+    1 --> 3  
+    2 --> 4  
+    2 --> 5
 ```
-```
-Input: root = [3,9,20,null,null,15,7]
-Output: [[3],[9,20],[15,7]]
-```
+Explanation: Diameter: 4->2->1->3 = 3
+
 #### Intuition
-- This would be similar to the BFS or level-order traversal that we have seen earlier.
-- The only difference would be that we would empty the queue for at once for each level and populate it with the children.
+The diameter of a binary tree is the length of the longest path between any two nodes. This path may or may not pass through the root. To solve this problem, we need to consider the following:
+- The longest path might pass through the root.
+- The longest path might be entirely within the left subtree.
+- The longest path might be entirely within the right subtree.
 
-Code
+To find the longest path passing through any node, we can use the height (or depth) of the subtrees. The longest path through any node is the sum of the heights of its left and right subtrees.
+
 ```python
-def level_order(root):
-    if root is None:
-        return []
-    
-    queue = deque()
-    queue.append(root)
-    result = []
+def diameter_binary_tree(root):
+    # initialize maximum diameter
+    max_diameter = [0]
 
-    while queue:
-        level_nodes = []
-        level_size = len(queue)
-
-        for _ in range(level_size):
-            node = queue.popleft()
-            level_nodes.append(node.val)
-            if node.left:
-                queue.append(node.left)
-            if node.right:
-                queue.append(node.right)
+    def depth(root):
+        if not root:
+            return 0
         
-        results.append(level_nodes)
+        # Recursively get the height of the left and the right subtrees
+        left_height = depth(root.left)
+        right_height = depth(root.right)
 
-    return result
-```
+        # The diameter passign through this node is left_height + right_height
+        max_diameter[0] = max(max_diameter[0], left_height + right_height)
 
-### Binary Tree Right Side View
-Given the root of a binary tree, imagine yourself standing on the right side of it, return the values of the nodes you can see ordered from top to bottom.
-
-Example:
-```mermaid
-graph TD  
-    A[3]  
-    B[9]  
-    C[20]  
-    D[15]  
-    E[7]  
-    A --> B  
-    A --> C  
-    C --> D  
-    C --> E
-```
-```
-Input: root = [3,9,20,null,null,15,7]
-Output: [3, 20, 7]
-```
-
-#### Intuition
-This would be a small modification on the existing level order traversal, where for each level we have to just add the last node to the result.
-
-```python
-def rightSideView(root):
-    if root is None:
-        return []
+        # Return the height of the current node
+        return max(left_height, right_height) + 1
     
-    result = []
-    queue = deque()
-    queue.append(root)
-
-    while queue:
-        level_size = len(queue)
-
-        for i in range(level_size):
-            node = queue.popleft()
-
-            # Add to the result for the last node in the level
-            if i == level_size - 1:
-                result.append(node.val)
-            if node.left:
-                queue.append(node.left)
-            if node.right:
-                queue.append(node.right)
-    
-    return result
+    depth(root)
+    return max_diameter[0]
 ```
+
+### [Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum)
+Refer DP on Trees in Dynamic Programming
 
 ### [Cound Good Nodes in Binary Tree](https://leetcode.com/problems/count-good-nodes-in-binary-tree)*
 Given a binary tree `root`, a node `X` in the tree is named **good** if in the path from root to `X` there are no nodes with a value greater than `X`.
@@ -700,325 +831,6 @@ def goodNodes(root: TreeNode) -> int:
     
     return dfs(root, root.val)
 ```
-
-### Vertical Order Traversal
-```
-TODO
-```
-
-### Boundary Traversal
-Given a Binary Tree, find its Boundary Traversal. The traversal should be in the following order: 
-
-- **Left boundary nodes**: defined as the path from the root to the left-most node ie- the leaf node you could reach when you always travel preferring the left subtree over the right subtree. 
-- **Leaf nodes**: All the leaf nodes except for the ones that are part of left or right boundary.
-- **Reverse right boundary nodes**: defined as the path from the right-most node to the root. The right-most node is the leaf node you could reach when you always travel preferring the right subtree over the left subtree. Exclude the root from this as it was already included in the traversal of left boundary nodes.
-
-#### Intuition
-The intuition behind the solution involves breaking down the traversal into three parts:
-- Left Boundary: Traverse the left boundary starting from the root, moving down to the left-most node, and excluding any leaf nodes.
-- Leaf Nodes: Traverse all leaf nodes, ensuring not to include any nodes that are part of the left or right boundary.
-- Right Boundary: Traverse the right boundary starting from the right-most leaf node, moving up to the root, and then reverse this list to maintain the correct order.
-
-Code
-```python
-def boundaryOfBinaryTree(root):
-    if not root:  
-        return []  
-        
-    def isLeaf(node):  
-        return not node.left and not node.right  
-        
-    def addLeftBoundary(node):  
-        while node:  
-            if not isLeaf(node):  
-                boundary.append(node.val)  
-            if node.left:  
-                node = node.left  
-            else:  
-                node = node.right  
-        
-    def addLeaves(node):  
-        if isLeaf(node):  
-            boundary.append(node.val)  
-            return  
-        if node.left:  
-            addLeaves(node.left)  
-        if node.right:  
-            addLeaves(node.right)  
-        
-    def addRightBoundary(node):  
-        stack = []  
-        while node:  
-            if not isLeaf(node):  
-                stack.append(node.val)  
-            if node.right:  
-                node = node.right  
-            else:  
-                node = node.left  
-        while stack:  
-            boundary.append(stack.pop())  
-        
-    boundary = []  
-        
-    if not isLeaf(root):  
-        boundary.append(root.val)  
-        
-    if root.left:  
-        addLeftBoundary(root.left)  
-        
-    addLeaves(root)  
-        
-    if root.right:  
-        addRightBoundary(root.right)  
-        
-    return boundary
-```
- 
-### [Diameter of a Binary Tree](https://leetcode.com/problems/diameter-of-binary-tree)
-Given the `root` of a binary tree, return the *length of the **diameter** of the tree*.
-
-The **diameter** of a binary tree is the **length** of the longest path between any two nodes in a tree. This path may or may not pass through the `root`.
-
-The **length** of a path between two nodes is represented by the number of edges between them.
-
-Example
-```mermaid
-graph TD;  
-    1 --> 2;  
-    1 --> 3;  
-    2 --> 4;  
-    2 --> 5;
-```
-```
-Input: root = [1,2,3,4,5]
-Output: 3
-Explanation: 3 is the length of the path [4,2,1,3] or [5,2,1,3].
-```
-
-#### Intuition
-For calculating the diameter at each node, there can be 2 choices:
-- Path considering the node: height(left sub-tree) + height(right sub-tree)
-- Path not considering the node: We pass the current max_height possible from this node to its callers - 1 + max(height(left sub-tree), height(right sub-tree))
-
-Code:
-```python
-def diameterOfBinaryTree(root):
-    diameter = 0
-    def solve(root):
-        if root is None:
-            return 0
-        left_height = solve(root.left)
-        right_height = solve(root.right)
-
-        nonlocal diameter
-        diameter = max(diameter, left_height + right_height)
-
-        return 1 + max(left_height, right_height)
-    
-    solve(root)
-    return diameter
-```
-
-### [Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree)
-Given the root of a binary tree, determine if it is a valid binary search tree (BST).
-
-A valid BST is defined as follows:
-- The left subtree of a node contains only nodes with keys less than the node's key.
-- The right subtree of a node contains only nodes with keys greater than the node's key.
-- Both the left and right subtrees must also be binary search trees.
-
-#### Intuition
-- To validate if a binary tree is a BST, we need to ensure that for every node, all nodes in its left subtree are less than the node's value, and all nodes in its right subtree are greater than the node's value. 
-- We can achieve this by using a recursive approach where we pass down the allowable range for node values.
-
-For each node, we:
-- Check if the node’s value is within the allowable range.
-- Recursively validate the left subtree with an updated range where the upper bound is the current node’s value.
-- Recursively validate the right subtree with an updated range where the lower bound is the current node’s value.
-
-Code
-```python
-def is_valid_BST(root):
-    def validate(root, low, high):
-        # An empty tree is a valid BST
-        if not root:
-            return True
-
-        # The current node's value must be between low and high  
-        if not (low < node.val < high):
-            return False
-        
-        # The left and right subtree must also be valid
-        return validate(node.left, low, node.val) and validate(node.right, node.val, high)
-    
-    # For the root the boundary would be the maximum possible
-    return validate(root, float('-inf'), float('inf'))
-```
-
-### [Kth Smallest Element in BST](https://leetcode.com/problems/kth-smallest-element-in-a-bst)
-Given the root of a binary search tree, and an integer k, return the kth smallest value (1-indexed) of all the values of the nodes in the tree.
-
-Example:
-```
-Input: root = [3,1,4,null,2], k = 1
-Output: 1
-```
-```mermaid
-graph TD  
-    A3[3]  
-    B1[1]  
-    C4[4]  
-    D2[2]  
-      
-    A3 --> B1  
-    A3 --> C4  
-    B1 --> D2
-```
-
-#### Naive Solution
-##### Intuition
-- To find the kth smallest element in a BST, we can take advantage of the in-order traversal property of BSTs. **In-order traversal of a BST visits the nodes in ascending order**. 
-- Therefore, performing an in-order traversal and keeping track of the count of nodes visited will allow us to find the kth smallest element.
-
-Code
-```python
-def kthSmallest(root, k):
-    # Helper function to perform in-order traversal  
-    def in_order_traversal(node):  
-        if node is None:  
-            return []  
-  
-        # Traverse the left subtree, then the current node, and finally the right subtree  
-        return in_order_traversal(node.left) + [node.val] + in_order_traversal(node.right)  
-      
-    # Perform in-order traversal to get all elements in sorted order  
-    sorted_elements = in_order_traversal(root)  
-      
-    # Return the k-1th element since k is 1-indexed  
-    return sorted_elements[k-1]
-```
-
-#### Optimal Solution
-##### Intuition
-The naive solution performs a full in-order traversal of the tree, which can be inefficient for large trees. Instead, we can optimize the approach by performing an in-order traversal but stopping as soon as we reach the k-th smallest element. This way, we avoid traversing the entire tree.
-In-Order Traversal with Early Stopping using a counter to keep track of the number of nodes visited and stop the traversal as soon as the counter reaches k.
-
-Code
-```python
-def kthSmallest(root, k):  
-    # Initialize the counter and the result  
-    count = 0  
-    result = None  
-      
-    # Helper function to perform in-order traversal with early stopping  
-    def in_order_traversal(node):  
-        nonlocal count, result  
-        if node is None or result is not None:  
-            return  
-          
-        # Traverse the left subtree  
-        in_order_traversal(node.left)  
-          
-        # Visit the current node  
-        count += 1  
-        if count == k:  
-            result = node.val  
-            return  
-          
-        # Traverse the right subtree  
-        in_order_traversal(node.right)  
-      
-    # Start the in-order traversal  
-    in_order_traversal(root)  
-      
-    return result
-```
-
-##### Iterative In-Order Traversal
-The solution can be made more efficient by avoiding the need to store the entire in-order traversal in a list. Instead, using an iterative approach with a stack to perform the in-order traversal and stop as soon as you reach the kth smallest element. 
-
-```python
-def kthSmallest(root: TreeNode, k: int) -> int:  
-    stack = []  
-    current = root  
-    count = 0  
-      
-    while stack or current:  
-        # Go to the leftmost node  
-        while current:  
-            stack.append(current)  
-            current = current.left  
-          
-        # Process the node  
-        current = stack.pop()  
-        count = count + 1  
-          
-        # If we've reached the kth node  
-        if count == k:  
-            return current.val  
-          
-        # Go to the right subtree  
-        current = current.right
-```
-
-### [Construct Binary Tree from Preorder and Inorder Traversal](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal)
-Given two integer arrays preorder and inorder where preorder is the preorder traversal of a binary tree and inorder is the inorder traversal of the same tree, construct and return the binary tree.
-
-Example:
-```
-Input: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
-Output: [3,9,20,null,null,15,7]
-```
-```mermaid
-graph TD  
-    A3[3]  
-    B9[9]  
-    C20[20]  
-    D15[15]  
-    E7[7]  
-      
-    A3 --> B9  
-    A3 --> C20  
-    C20 --> D15  
-    C20 --> E7
-```
-
-#### Intuition
-- **Preorder traversal** provides the root of the tree first.
-- **Inorder traversal** provides the relative positions of nodes in the left and right subtrees.
-- Using the root from the preorder array, we can split the inorder array into left and right subtrees. Recursively applying this process will help us reconstruct the entire tree.
-
-Code
-```python
-def buildTree(preorder, inorder):
-    if not preorder or inorder:
-        return None
-
-    # The first element in preorder is the root  
-    root_val = preorder[0]  
-    root = TreeNode(root_val)
-
-    # Find the index of the root in inorder  
-    root_index_in_inorder = inorder.index(root_val)  
-
-    # Elements to the left of root_index_in_inorder are in the left subtree  
-    left_inorder = inorder[:root_index_in_inorder]  
-    # Elements to the right of root_index_in_inorder are in the right subtree  
-    right_inorder = inorder[root_index_in_inorder + 1:]
-
-    # The number of elements in the left subtree is len(left_inorder)  
-    left_preorder = preorder[1:1 + len(left_inorder)]  
-    right_preorder = preorder[1 + len(left_inorder):]
-
-    # Recursively build the left and right subtrees  
-    root.left = buildTree(left_preorder, left_inorder)  
-    root.right = buildTree(right_preorder, right_inorder)  
-  
-    return root
-```
-
-### [Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum)
-Refer DP on Trees in Dynamic Programming
 
 ### [Serialize and Deserialize Binary Tree](https://leetcode.com/problems/serialize-and-deserialize-binary-tree)
 Serialization is the process of converting a data structure or object into a sequence of bits so that it can be stored in a file or memory buffer, or transmitted across a network connection link to be reconstructed later in the same or another computer environment.
@@ -1132,3 +944,186 @@ def pathSum(root, targetSum):
     dfs(root, [])
     return result
 ```
+
+## Binary Search Tree
+A binary tree in which each node has a key, and every node's key is greater than the keys in its left subtree and less than the keys in its right subtree.
+```mermaid
+graph TD;  
+      A[Root: 8]  
+      A --> B[Left Child: 3]  
+      A --> C[Right Child: 10]  
+      B --> D[Left Child: 1]  
+      B --> E[Right Child: 6]  
+      E --> F[Left Child: 4]  
+      E --> G[Right Child: 7]  
+      C --> H[Right Child: 14]  
+      H --> I[Left Child: 13]
+```
+
+### [Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree)
+Given the root of a binary tree, determine if it is a valid binary search tree (BST).
+
+A valid BST is defined as follows:
+- The left subtree of a node contains only nodes with keys less than the node's key.
+- The right subtree of a node contains only nodes with keys greater than the node's key.
+- Both the left and right subtrees must also be binary search trees.
+
+#### Intuition
+- To validate if a binary tree is a BST, we need to ensure that for every node, all nodes in its left subtree are less than the node's value, and all nodes in its right subtree are greater than the node's value. 
+- We can achieve this by using a recursive approach where we pass down the allowable range for node values.
+
+For each node, we:
+- Check if the node’s value is within the allowable range.
+- Recursively validate the left subtree with an updated range where the upper bound is the current node’s value.
+- Recursively validate the right subtree with an updated range where the lower bound is the current node’s value.
+
+Code
+```python
+def is_valid_BST(root):
+    def validate(root, low, high):
+        # An empty tree is a valid BST
+        if not root:
+            return True
+
+        # The current node's value must be between low and high  
+        if not (low < node.val < high):
+            return False
+        
+        # The left and right subtree must also be valid
+        return validate(node.left, low, node.val) and validate(node.right, node.val, high)
+    
+    # For the root the boundary would be the maximum possible
+    return validate(root, float('-inf'), float('inf'))
+```
+
+### [Lowest Common Ancestor of a Binary Search Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree)*
+Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST.
+
+According to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between two nodes p and q as the lowest node in T that has both p and q as descendants (where we allow a node to be a descendant of itself).”
+
+Example:
+```
+Input: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
+Output: 6
+```
+```mermaid 
+graph TD  
+    A[6]  
+    B[2]  
+    C[8]  
+    D[0]  
+    E[4]  
+    F[7]  
+    G[9]  
+    H[3]  
+    I[5]  
+    A --> B  
+    A --> C  
+    B --> D  
+    B --> E  
+    C --> F  
+    C --> G  
+    E --> H  
+    E --> I
+```
+Explanation: The LCA of nodes 2 and 8 is 6.
+
+#### Intuition
+- **Binary Search Tree Property**:
+  - In a BST, the left subtree of a node contains only nodes with values less than the node's value.
+  - The right subtree of a node contains only nodes with values greater than the node's value.
+- **Navigating the Tree**:
+  - If both nodes p and q are greater than the current node, then the LCA must be in the right subtree.
+  - If both nodes p and q are less than the current node, then the LCA must be in the left subtree.
+  - If one node is on one side (left) and the other node is on the other side (right) of the current node, then the current node is the LCA.
+
+Code
+```python
+def lca(root, p, q):
+    if p.val < root.val and q.val < root.val:
+        return lca(root.left, p, q)
+    if p.val > root.val and q.val > root.val:
+        return lca(root.right, p, q)
+    return root
+```
+
+### [Kth Smallest Element in BST](https://leetcode.com/problems/kth-smallest-element-in-a-bst)
+Given the root of a binary search tree, and an integer k, return the kth smallest value (1-indexed) of all the values of the nodes in the tree.
+
+Example:
+```
+Input: root = [3,1,4,null,2], k = 1
+Output: 1
+```
+```mermaid
+graph TD  
+    A3[3]  
+    B1[1]  
+    C4[4]  
+    D2[2]  
+      
+    A3 --> B1  
+    A3 --> C4  
+    B1 --> D2
+```
+
+#### Naive Solution
+##### Intuition
+- To find the kth smallest element in a BST, we can take advantage of the in-order traversal property of BSTs. **In-order traversal of a BST visits the nodes in ascending order**. 
+- Therefore, performing an in-order traversal and keeping track of the count of nodes visited will allow us to find the kth smallest element.
+
+Code
+```python
+def kthSmallest(root, k):
+    # Helper function to perform in-order traversal  
+    def in_order_traversal(node):  
+        if node is None:  
+            return []  
+  
+        # Traverse the left subtree, then the current node, and finally the right subtree  
+        return in_order_traversal(node.left) + [node.val] + in_order_traversal(node.right)  
+      
+    # Perform in-order traversal to get all elements in sorted order  
+    sorted_elements = in_order_traversal(root)  
+      
+    # Return the k-1th element since k is 1-indexed  
+    return sorted_elements[k-1]
+```
+
+#### Optimal Solution
+##### Intuition
+The naive solution performs a full in-order traversal of the tree, which can be inefficient for large trees. Instead, we can optimize the approach by performing an in-order traversal but stopping as soon as we reach the k-th smallest element. This way, we avoid traversing the entire tree.
+In-Order Traversal with Early Stopping using a counter to keep track of the number of nodes visited and stop the traversal as soon as the counter reaches k.
+
+Code
+```python
+def kthSmallest(root, k):  
+    # Initialize the counter and the result  
+    count = 0  
+    result = None  
+      
+    # Helper function to perform in-order traversal with early stopping  
+    def in_order_traversal(node):  
+        nonlocal count, result  
+        if node is None or result is not None:  
+            return  
+          
+        # Traverse the left subtree  
+        in_order_traversal(node.left)  
+          
+        # Visit the current node  
+        count += 1  
+        if count == k:  
+            result = node.val  
+            return  
+          
+        # Traverse the right subtree  
+        in_order_traversal(node.right)  
+      
+    # Start the in-order traversal  
+    in_order_traversal(root)  
+      
+    return result
+```
+
+
