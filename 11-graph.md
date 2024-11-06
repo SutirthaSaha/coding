@@ -303,7 +303,7 @@ def find_circle_num(isConnected):
 ```
 **This problem has also been solved later with Disjoint Set Union approach**
 
-##### Number of Islands
+##### [Number of Islands](https://leetcode.com/problems/number-of-islands)
 Given an `m x n` 2D binary grid grid which represents a map of '1's (land) and '0's (water), return the number of islands.
 An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.
 
@@ -338,7 +338,7 @@ def num_islands(grid):
     return islands
 ``` 
 
-##### Max Area of Island
+##### [Max Area of Island](https://leetcode.com/problems/max-area-of-island)
 You are given an `m x n` binary matrix grid. An island is a group of 1's (representing land) connected 4-directionally (horizontal or vertical.) You may assume all four edges of the grid are surrounded by water.
 
 The area of an island is the number of cells with a value 1 in the island.
@@ -381,7 +381,7 @@ def max_area_islands(grid):
     return max_area
 ```
 
-#### Clone Graph
+#### [Clone Graph](https://leetcode.com/problems/clone-graph)
 Given a reference of a node in a connected undirected graph. Return a deep copy (clone) of the graph.
 Each node in the graph contains a value (int) and a list (List[Node]) of its neighbors.
 ```
@@ -422,7 +422,7 @@ def clone(node):
     return dfs(node)
 ```
 
-#### Word Ladder
+#### [Word Ladder](https://leetcode.com/problems/word-ladder)
 Given two words (beginWord and endWord), and a dictionary's word list, find the length of the shortest transformation sequence from beginWord to endWord, such that:
 - Only one letter can be changed at a time.
 - Each transformed word must exist in the word list.
@@ -631,7 +631,7 @@ def cycle_detection(graph):
     return count == n
 ```
 
-##### 2.  Graph Valid Tree* - Cycle Detection in Undirected Graph
+##### 2.  [Graph Valid Tree](https://leetcode.com/problems/graph-valid-tree)* - Cycle Detection in Undirected Graph
 Given `n` nodes labeled from `0` to `n - 1` and a list of undirected edges (each edge is a pair of nodes), write a function to check whether these edges make up a valid tree.
 
 Example
@@ -805,7 +805,7 @@ def topological_sort(graph):
 ```
 
 #### Problems
-#### Course Schedule I
+#### [Course Schedule I](https://leetcode.com/problems/course-schedule)*
 There are a total of `numCourses` courses you have to take, labeled from `0` to `numCourses - 1`. You are given an array `prerequisites` where `prerequisites[i] = [ai, bi]` indicates that you must take course `bi` first if you want to take course `ai`.
 For example, the pair `[0, 1]`, indicates that to take course `0` you have to first take course `1`.
 Return `true` if you can finish all courses. Otherwise, return `false`.
@@ -856,7 +856,7 @@ def can_finish(numCourses, prerequisites):
     return True
 ```
 
-#### Course Schedule II
+#### [Course Schedule II](https://leetcode.com/problems/course-schedule-ii)*
 There are a total of `numCourses` courses you have to take, labeled from `0` to `numCourses - 1`. You are given an array prerequisites where `prerequisites[i] = [ai, bi]` indicates that you must take course `bi` first if you want to take course `ai`.
 
 For example, the pair `[0, 1]`, indicates that to take course `0` you have to first take course `1`.
@@ -1024,7 +1024,7 @@ def flood_fill(grid, row, col, new_color):
 The recursive approach handles the issue of visiting the same cell again by marking cells with the new color as they are visited. Once a cell is changed to the new color, it will no longer match the original_color, which prevents it from being revisited.
 
 #### Problems
-##### Rotten Oranges
+##### [Rotten Oranges](https://leetcode.com/problems/rotting-oranges)
 You are given an m x n grid where each cell can have one of three values:
 - 0 representing an empty cell,
 - 1 representing a fresh orange, or
@@ -1077,7 +1077,7 @@ def orangesRotting(grid):
   - After processing the last batch of fresh oranges that can rot, we increment minutes_elapsed once more.
   - This results in minutes_elapsed being one more than the actual number of minutes required to rot all oranges.
 
-#### Pacific Atlantic Water Flow
+#### [Pacific Atlantic Water Flow](https://leetcode.com/problems/pacific-atlantic-water-flow)
 There is an `m x n` rectangular island that borders both the Pacific Ocean and Atlantic Ocean. The Pacific Ocean touches the island's left and top edges, and the Atlantic Ocean touches the island's right and bottom edges.
 The island is partitioned into a grid of square cells. You are given an `m x n` integer matrix heights where heights[r][c] represents the height above sea level of the cell at coordinate `(r, c)`.
 The island receives a lot of rain, and the rain water can flow to neighboring cells directly north, south, east, and west if the neighboring cell's height is less than or equal to the current cell's height. Water can flow from any cell adjacent to an ocean into the ocean.
@@ -1125,7 +1125,7 @@ def pacific_atlantic(heights):
     
     return pacific & atlantic
 ```
-#### Surrounded Regions
+#### [Surrounded Regions](https://leetcode.com/problems/surrounded-regions)
 You are given an `m x n` matrix board containing letters 'X' and 'O', capture regions that are surrounded:
 - **Connect**: A cell is connected to adjacent cells horizontally or vertically.
 - **Region**: To form a region connect every 'O' cell.
@@ -1179,7 +1179,7 @@ def surround_regions(grid):
                 grid[row][col] = "O"
 ```
 
-#### Walls and Gates
+#### [Walls and Gates](https://leetcode.com/problems/walls-and-gates)
 You are given a 2D grid representing rooms in a building. The grid contains the following values:
 - -1 for a wall or an obstacle.
 - 0 for a gate.
@@ -1286,7 +1286,7 @@ def dijkstra(start, graph):
     return dist
 ```
 ###### Problems
-###### Network Delay Time
+###### [Network Delay Time]()
 You are given a network of `n` nodes, labeled from `1 to n`. You are also given times, a list of travel times as directed edges `times[i] = (ui, vi, wi)`, where `ui` is the source node, `vi` is the target node, and `wi` is the time it takes for a signal to travel from source to target.
 
 We will send a signal from a given node `k`. Return the minimum time it takes for all the `n` nodes to receive the signal. If it is impossible for all the `n` nodes to receive the signal, return `-1`.
@@ -1332,7 +1332,7 @@ def networkDelayTime(times, n, k):
     return max_shortest_time
 ```
 
-###### Swim in Rising Water
+###### [Swim in Rising Water](https://leetcode.com/problems/swim-in-rising-water)
 You are given an `n x n` integer matrix grid where each value `grid[i][j]` represents the elevation at that point `(i, j)`.
 
 The rain starts to fall. At time `t`, the depth of the water everywhere is `t`. You can swim from a square to another 4-directionally adjacent square if and only if the elevation of both squares individually are at most `t`. You can swim infinite distances in zero time. Of course, you must stay within the boundaries of the grid during your swim.
@@ -1364,7 +1364,7 @@ def swimInWater(grid):
     return elevation[n-1][n-1]
 ```
 
-###### Path with Minimum Effort
+###### [Path with Minimum Effort](https://leetcode.com/problems/path-with-minimum-effort)
 You are a hiker preparing for an upcoming hike. You are given `heights`, a 2D array of size `rows x columns`, where `heights[row][col]` represents the height of cell `(row, col)`. You are situated in the top-left cell, `(0, 0)`, and you hope to travel to the bottom-right cell, `(rows-1, columns-1)` (i.e., **0-indexed**). You can move **up**, **down**, **left**, or **right**, and you wish to find a route that requires the minimum **effort**.
 
 A route's **effort** is the **maximum absolute difference** in heights between two consecutive cells of the route.
@@ -1467,7 +1467,7 @@ graph LR
 Starting with node 1, for this graph to relax till E we would need `|V| - 1` or 4 iterations.
 
 ###### Problems
-###### Cheapest Flights Within K Stop
+###### [Cheapest Flights Within K Stop](https://leetcode.com/problems/cheapest-flights-within-k-stops)
 There are n cities connected by some number of flights. You are given an array `flights` where `flights[i] = [fromi, toi, pricei]` indicates that there is a flight from city `fromi` to city `toi` with cost `pricei`.
 
 You are also given three integers `src`, `dst`, and `k`, return the cheapest price from `src` to `dst` with at most `k` stops. If there is no such route, return `-1`.
@@ -1564,7 +1564,7 @@ def floyd_warshall(graph):
 ```
 
 ###### Problems
-###### Find the City With the Smallest Number of Neighbors at a Threshold Distance
+###### [Find the City With the Smallest Number of Neighbors at a Threshold Distance](https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance)
 There are n cities numbered from `0` to `n-1`. Given the array `edges` where `edges[i] = [fromi, toi, weighti]` represents a bidirectional and weighted edge between cities `fromi` and `toi`, and given the integer `distanceThreshold`.
 
 Return the city with the smallest number of cities that are reachable through some path and whose distance is **at most** `distanceThreshold`, If there are multiple such cities, return the city with the greatest number.
@@ -1695,7 +1695,7 @@ def union(node1, node2):
 ```
 
 #### Problems
-##### Number of Connected Components in an Undirected Graph
+##### [Number of Connected Components in an Undirected Graph](https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph)*
 Given an undirected graph with n nodes and edges, find the number of connected components in the graph.
 ```python
 def count_components(n, edges):
@@ -1732,7 +1732,7 @@ def count_components(n, edges):
     return len(components) 
 ```
 
-##### Number of Provinces*
+##### [Number of Provinces](https://leetcode.com/problems/number-of-provinces)*
 There are `n` cities. Some of them are connected, while some are not. If city `a` is connected directly with city `b`, and city `b` is connected directly with city `c`, then city `a` is connected indirectly with city `c`.
 A province is a group of directly or indirectly connected cities and no other cities outside of the group.
 You are given an `n x n` matrix `isConnected` where `isConnected[i][j] = 1` if the `ith` city and the `jth` city are directly connected, and `isConnected[i][j] = 0` otherwise.
@@ -1788,7 +1788,7 @@ def find_circle_num(isConnected):
     return len(provinces)
 ```
 
-#### Redundant Connection
+#### [Redundant Connection](https://leetcode.com/problems/redundant-connection)
 In this problem, a tree is an **undirected graph** that is connected and has no cycles.
 You are given a graph that started as a tree with `n` nodes labeled from `1` to `n`, with one additional edge added. The added edge has two **different** vertices chosen from `1` to `n`, and was not an edge that already existed. The graph is represented as an array `edges` of length `n` where `edges[i] = [ai, bi]` indicates that there is an edge between nodes `ai` and `bi` in the graph.
 
@@ -1836,6 +1836,152 @@ def redundant_connection(edges):
             return [u, v]
 ```
 
+#### [Accounts Merge](https://leetcode.com/problems/accounts-merge)*
+Given a list of accounts where each element accounts[i] is a list of strings, where the first element accounts[i][0] is a name, and the rest of the elements are emails representing emails of the account.
+
+Now, we would like to merge these accounts. Two accounts definitely belong to the same person if there is some common email to both accounts. Note that even if two accounts have the same name, they may belong to different people as people could have the same name. A person can have any number of accounts initially, but all of their accounts definitely have the same name.
+
+After merging the accounts, return the accounts in the following format: the first element of each account is the name, and the rest of the elements are emails in sorted order. The accounts themselves can be returned in any order.
+
+##### Intuition
+The intuition behind solving the accounts merge problem using the Union-Find (Disjoint Set Union) approach is to efficiently group emails that belong to the same user based on their connections across different accounts. Here's the high-level logic:
+
+- **Union-Find Data Structure**: Use the Union-Find data structure to manage the merging of emails. Each email is initially its own parent, representing a unique set.
+- **Union Operation**: For each account, union all the emails in that account together. This ensures that all emails in the same account are connected through a common root.
+- **Find Operation**: Use the find operation with path compression to determine the root parent of each email. This helps in efficiently finding and grouping connected emails.
+- **Group Emails by Root**: After processing all accounts, group emails by their root parent. Emails with the same root parent are part of the same connected component, indicating they belong to the same user.
+
+The core idea is to treat each email as a node and each account as an edge connecting nodes. By unioning emails within the same account, the Union-Find structure helps to identify all connected components, which represent the merged accounts.
+
+Code
+```python
+def accountsMerge(accounts):
+    parent = {} # This dictionary will map each email to its parent email
+    rank = {}
+
+    def find(node):
+        if parent[node] != node:
+            parent[node] = find(parent[node]) # Path compression
+        return parent[node]
+    
+    def union(node1, node2):
+        parent1 = find(node1)
+        parent2 = find(node2)
+
+        if parent1 != parent2:
+            if rank[parent1] >= rank[parent2]:
+                parent[parent2] = parent1
+                rank[parent1] = rank[parent1] + rank[parent2]
+            else:
+                parent[parent1] = parent2
+                rank[parent2] = rank[parent2] + rank[parent1]
+    
+    email_to_name = {}  # This dictionary maps each email to the corresponding name
+
+    # Initialize the union-find structure and email_to_name map
+    for account in accounts:
+        name = account[0]
+        first_email = account[1]
+        for email in account[1:]:
+            if email not in parent:
+                parent[email] = email # Each email is its own parent initially
+                rank[email] = 1
+            email_to_name[email] = name
+            union(first_email, email) # Union the first email with the current email
+    
+    # Group emails by their root parent
+    groups = defaultdict(list)
+    for email in parent:
+        root_email = find(email)
+        groups[root_email].append(email)
+    
+    # Format the result
+    result = []
+    for root_email in groups:
+        merged_account_name = email_to_name[root_email]
+        merged_account_emails = sorted(groups[root_email])
+        result.append([merged_account_name] + merged_account_emails)
+    
+    return result
+```
+
+#### Minimize Malware Spread
+You are given a network of n nodes represented as an n x n adjacency matrix graph, where the ith node is directly connected to the jth node if graph[i][j] == 1.
+
+Some nodes initial are initially infected by malware. Whenever two nodes are directly connected, and at least one of those two nodes is infected by malware, both nodes will be infected by malware. This spread of malware will continue until no more nodes can be infected in this manner.
+
+Suppose M(initial) is the final number of nodes infected with malware in the entire network after the spread of malware stops. We will remove exactly one node from initial.
+
+Return the node that, if removed, would minimize M(initial). If multiple nodes could be removed to minimize M(initial), return such a node with the smallest index.
+
+Note that if a node was removed from the initial list of infected nodes, it might still be infected later due to the malware spread.
+
+Example:
+```
+Input: graph = [[1,1,0],[1,1,0],[0,0,1]], initial = [0,1]
+Output: 0
+```
+
+##### Intuition
+Using the Disjoint Set Union (DSU), also known as Union-Find, is effective for this problem because it helps efficiently manage and query the connected components of the graph. Here’s the detailed intuition:
+
+- **Graph Representation**: The graph is given as an n x n adjacency matrix where graph[i][j] == 1 means node i is directly connected to node j.
+- **Union-Find Structure**: This data structure helps in grouping nodes into connected components. Each component is treated as a single unit, which simplifies the problem of determining the impact of removing a node.
+- **Component Size and Infection Count**: By identifying the size of each connected component and how many initially infected nodes are in each component, we can determine the potential impact of removing any single infected node.
+- **Effect of Node Removal**: If a node is the sole infected node in its component, removing it will prevent the entire component from getting infected. The larger the component, the more beneficial it is to remove that node.
+- **Optimal Node Selection**: If multiple nodes can minimize the infection equally, the node with the smallest index should be chosen.
+
+Code
+```python
+def minMalwareSpread(self, graph: List[List[int]], initial: List[int]) -> int:  
+    n = len(graph)  
+    parent = {i: i for i in range(n)}  
+    rank = [1] * n 
+
+    def find(node):
+        if node != parent[node]:
+            parent[node] = find(parent[node]) # Path Compression
+        return parent[node]
+
+    def union(node1, node2):
+        parent1 = find(node1)
+        parent2 = find(node2)
+
+        if parent1 != parent2:
+            if rank[parent1] >= rank[parent2]:
+                parent[parent2] = parent1
+                rank[parent1] = rank[parent1] + rank[parent2]
+            else:
+                parent[parent1] = parent2
+                rank[parent2] = rank[parent2] + rank[parent1]
+         
+
+    # Union nodes that are directly connected  
+    for u in range(n):
+        for v in range(n):
+            if graph[u][v] == 1:
+                union(u, v)
+
+    # Count the number of initially infected nodes in each component  
+    connected_components = defaultdict(int)
+    for node in initial:
+        parent_node = find(node)
+        connected_components[parent_node] = connected_components[parent_node] + 1 
+
+    # Determine the best node to remove  
+    best_node = (-1, float('inf'))  # Tuple to keep track of (component_size, -node)  
+    for node in initial:  
+        parent_node = find(node)  
+        if component_infected_count[parent_node] == 1:  # Only consider nodes that are the sole infected node in their component  
+            component_size = rank[parent_node]  # Use rank as an estimate for component size  
+            best_node = max(best_node, (component_size, -node))  # Maximize component size, minimize node index  
+
+    # Return the best node to remove  
+    if best_node[0] == -1:
+        return min(initial) # In case all the infected nodes don't have any connected - return the one with minium value
+    return -best_node[1]
+```
+
 ### Minimum Spanning Tree
 A Minimum Spanning Tree (MST) of a weighted, connected, undirected graph is a spanning tree that has the minimum possible total edge weight compared to all other spanning trees of the graph.
 **Easy words**: A Minimum Spanning Tree connects all the vertices in a graph with the minimum possible total edge weight, ensuring no cycles are formed.
@@ -1846,7 +1992,7 @@ A Minimum Spanning Tree (MST) of a weighted, connected, undirected graph is a sp
 - Uniqueness: If all the edge weights are distinct, the MST is unique. If there are edges with equal weights, there may be multiple MSTs with the same total weight.
 
 #### Algorithms to find MST
-##### 1. Prim's
+##### 1. Prim's Algorithm
 Prim's Algorithm is a greedy algorithm that finds a Minimum Spanning Tree (MST) for a weighted, connected, undirected graph. The algorithm operates by growing the MST one vertex at a time, starting from an arbitrary vertex and repeatedly adding the smallest edge that connects a vertex in the MST to a vertex outside the MST.
 
 **Step-by-Step Process:**
@@ -1884,7 +2030,7 @@ def prim(start, graph):
     
     return min_cost
 ```
-##### 2. Kruskal's
+##### 2. Kruskal's Algorithm
 Kruskal's Algorithm is another greedy algorithm for finding the Minimum Spanning Tree of a graph. It works by sorting all the edges in the graph by their weight and then adding them one by one to the MST, ensuring that no cycles are formed.
 
 ###### Step-by-Step Process
@@ -1939,7 +2085,7 @@ def kruskal(n , edges):
 ```
 
 #### Problems
-#### Min Cost to Connect All Points
+#### [Minimum Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points)*
 You are given an array `points` representing integer coordinates of some points on a 2D-plane, where `points[i] = [xi, yi]`.
 
 The cost of connecting two points `[xi, yi]` and `[xj, yj]` is the **manhattan distance** between them: `|xi - xj| + |yi - yj|`, where `|val|` denotes the absolute value of `val`.
@@ -2060,6 +2206,28 @@ Key Properties:
 - **Colorability**: A graph is bipartite if and only if it is 2-colorable, meaning you can color the graph using two colors such that no two adjacent vertices share the same color.
 - **Cycle Property**: A graph is bipartite if and only if it does not contain any odd-length cycles.
 
+```mermaid
+graph TD  
+    subgraph Set_A  
+        A1[A1]  
+        A2[A2]  
+        A3[A3]  
+    end  
+  
+    subgraph Set_B  
+        B1[B1]  
+        B2[B2]  
+        B3[B3]  
+    end  
+  
+    A1 --> B1  
+    A1 --> B2  
+    A2 --> B2  
+    A2 --> B3  
+    A3 --> B1  
+    A3 --> B3  
+```
+
 #### [Is Graph Bipartite?](https://leetcode.com/problems/is-graph-bipartite)*
 There is an undirected graph with `n` nodes, where each node is numbered between `0` and `n - 1`. You are given a 2D array `graph`, where `graph[u]` is an array of nodes that node `u` is adjacent to. More formally, for each `v` in `graph[u]`, there is an undirected edge between node `u` and node `v`. 
 The graph has the following properties:
@@ -2155,6 +2323,89 @@ graph LR
     C4 --> C7  
     C6 --> C7 
 ```
+
+Kosaraju's Algorithm is a well-known algorithm used to find the Strongly Connected Components (SCCs) of a directed graph. A strongly connected component is a maximal subgraph where every vertex is reachable from every other vertex within the subgraph.
+
+##### Intuition
+The intuition behind Kosaraju's Algorithm for finding Strongly Connected Components (SCCs) in a directed graph leverages depth-first search (DFS) and the properties of graph transposition. The algorithm operates in two main phases and uses the concept of finish times and the reversed graph to effectively discover SCCs.
+
+**Concepts**
+- **Finish Times in DFS**:
+  - When performing DFS on a graph, each vertex is assigned a finish time based on when the DFS completes exploring all vertices reachable from it.
+  - Vertices with later finish times are those that are deeper in the DFS traversal, indicating that all possible paths from these vertices have been explored.
+- **Graph Transposition**:
+  - Transposing (reversing) a graph means reversing the direction of all its edges.
+  - In the transposed graph, the direction of reachability is reversed. Paths that existed in the original graph now point in the opposite direction.
+- **Order of Processing**:
+  - The order in which vertices are processed in the second pass of DFS is crucial.
+  - By processing vertices in the decreasing order of their finish times from the first DFS, we ensure that when we start a DFS on a vertex in the transposed graph, we capture an entire SCC in one go.
+
+**Why this works?**
+- Capturing SCCs:
+  - In the transposed graph, if we start DFS from a vertex that had the highest finish time in the original graph, we are guaranteed to explore all vertices in its SCC.
+  - This is because, in the transposed graph, edges point back to vertices that could reach the starting vertex in the original graph.
+- Isolation of SCCs:
+  - After capturing one SCC, the vertices in that SCC are marked as visited.
+  - Subsequent DFS calls will start from vertices in other SCCs, as vertices in the already visited SCCs will not be revisited.
+  Steps of Kosaraju's Algorithm:
+
+**Steps**
+- First Pass (Order Vertices by Finish Time):
+  - Perform a DFS on the original graph, keeping track of the finish time of each vertex.
+  - Store the vertices in a stack according to their finish times (i.e., push them onto the stack in the order they finish).
+- Second Pass (Transpose and DFS):
+  - Transpose (reverse) the graph.
+  - Perform DFS on the transposed graph, processing vertices in the order defined by the stack (from the first pass).
+  - Each DFS call in this pass will discover an SCC.
+
+Code
+```python
+def find_sccs(graph):  
+    n = len(graph)  
+    visited = set()  
+    stack = []  
+  
+    # First DFS to fill the stack with nodes in the order of their finishing times  
+    def dfs(node):  
+        visited.add(node)  
+        for neighbor in graph[node]:  
+            if neighbor not in visited:  
+                dfs(neighbor)  
+        stack.append(node)  
+  
+    # Run DFS from each node to fill the stack  
+    for node in range(n):  
+        if node not in visited:  
+            dfs(node)  
+  
+    # Transpose the graph  
+    transposed_graph = {i: [] for i in range(n)}  
+    for node in graph:  
+        for neighbor in graph[node]:  
+            transposed_graph[neighbor].append(node)  
+  
+    # Second DFS on the transposed graph to find SCCs  
+    def dfs_transposed(node):  
+        visited.add(node)  
+        component.add(node)  
+        for neighbor in transposed_graph[node]:  
+            if neighbor not in visited:  
+                dfs_transposed(neighbor)  
+  
+    visited = set()  # Reset visited for the second pass  
+    sccs = []  # List to hold all SCCs  
+  
+    # Process all nodes in the order defined by the stack  
+    while stack:  
+        node = stack.pop()  
+        if node not in visited:  
+            component = set()  
+            dfs_transposed(node)  
+            sccs.append(component)  
+  
+    return sccs
+```
+
 ### Network Flow
 #### 1. Ford-Fulkerson
 #### 2. Edmonds Karp
