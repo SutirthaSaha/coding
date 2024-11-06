@@ -18,6 +18,7 @@ Dynamic Programming is actually **enhanced recursion**. There are some calls whi
 - Matrix Chain Multiplication
 - DP on Trees
 - DP on Grid
+- Catalan Numbers
 
 ### 0-1 Knapsack
 Knapsack is a bag to store items and you are given a list of items with `weight` and `value`. The bag would have a `capacity` and you would need to choose items to put in bag. No fractional items can be taken in the bag.
@@ -149,7 +150,7 @@ def subset_sum(nums, target):
 ```
 The above is the recursive solution, memoization one can be implemented easily by using a `mem` dictionary as shown earlier. 
 
-##### Equal Sum Subset
+##### [Equal Sum Subset](https://leetcode.com/problems/partition-equal-subset-sum)
 Given an array of numbers and we need to find whether the array can be divided into equal subsets.
 
 ```mermaid
@@ -291,14 +292,14 @@ def subsets_with_given_diff(arr, diff):
     target = (total + diff) / 2 # would always be divisible by 2
     return count_subset_sum(arr, target) # already solved earlier
 ```
-### Target Sum
+### [Target Sum](https://leetcode.com/problems/target-sum)*
 Given an array and a target value. Count the number of ways to reach the target but modifying the sign of each of the array element.
 
 This is modification of the `Subset Sum` problem, just that here we have 2 choices for selecting an element:
 - Positive(+ve) value of the element
 - Negative(-ve) value of the element
 
-### Word Break
+### [Word Break](https://leetcode.com/problems/word-break)*
 Given a string s and a dictionary of strings wordDict, return true if s can be segmented into a space-separated sequence of one or more dictionary words.
 
 Note that the same word in the dictionary may be reused multiple times in the segmentation.
@@ -476,7 +477,34 @@ graph TD
 ```
 The code too would remain the same. There can be modifications where the length array can be restricted and their prices would be provided.
 
-##### Coin Change Problem: Possible number of ways
+##### [Coin Change Problem: Minimum number of coins](https://leetcode.com/problems/coin-change)
+Given a value V, if we want to make change for V cents, and we have infinite supply of each of C = { C1, C2, .. , Cm} valued coins, what is the minimum number of coins to make the change?
+
+Example:
+Input: coins[] = {25, 10, 5}, V = 30
+Output: Minimum 2 coins required
+We can use one coin of 25 cents and one of 5 cents.
+
+This problem is similar to the previous problem where we have `Unbounded + Subset Sum`. The difference from the previous problem would be that we need to find out which combination of denominations awould require the minimum number.
+
+```python
+def min_coins(amount, denominations):
+    n = len(denominations)
+    def solve(index, coins, amount):
+        if amount == 0:
+            return coins
+        if index == n:
+            return float('inf')
+        if denominations[index] <= amount:
+            return min(solve(index+1, coins, amount), solve(index, coins+1, amount-denominations[index]))
+        else:
+            return solve(index+1, coins, amount)
+    return solve(0, 0, amount)
+```
+
+This is again the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
+
+##### [Coin Change Problem: Possible number of ways](https://leetcode.com/problems/coin-change-ii)
 Given a value N, if we want to make change for N cents, and we have infinite supply of each of S = { S1, S2, .. , Sm} valued coins, how many ways can we make the change? The order of coins doesn’t matter.
 Example:
 for N = 4 and S = {1,2,3}, there are four solutions: {1,1,1,1},{1,1,2},{2,2},{1,3}. So output should be 4.
@@ -508,38 +536,11 @@ def coin_ways(amount, denominations):
 ```
 This is again the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
 
-##### Coin Change Problem: Minimum number of coins
-Given a value V, if we want to make change for V cents, and we have infinite supply of each of C = { C1, C2, .. , Cm} valued coins, what is the minimum number of coins to make the change?
-
-Example:
-Input: coins[] = {25, 10, 5}, V = 30
-Output: Minimum 2 coins required
-We can use one coin of 25 cents and one of 5 cents.
-
-This problem is similar to the previous problem where we have `Unbounded + Subset Sum`. The difference from the previous problem would be that we need to find out which combination of denominations awould require the minimum number.
-
-```python
-def min_coins(amount, denominations):
-    n = len(denominations)
-    def solve(index, coins, amount):
-        if amount == 0:
-            return coins
-        if index == n:
-            return float('inf')
-        if denominations[index] <= amount:
-            return min(solve(index+1, coins, amount), solve(index, coins+1, amount-denominations[index]))
-        else:
-            return solve(index+1, coins, amount)
-    return solve(0, 0, amount)
-```
-
-This is again the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
-
 ### Fibonacci Numbers
 In this pattern, you'll notice that the problem is being solved by repeatedly calculating the same sub-problems. This redundant computation can be avoided by using memoization.
 
 #### Problems
-#### Fibonacci Number
+#### [Fibonacci Number](https://leetcode.com/problems/fibonacci-number)
 The Fibonacci sequence is a series of numbers where each number is the sum of the two preceding ones, usually starting with 0 and 1. The sequence goes: 0, 1, 1, 2, 3, 5, 8, 13, 21, and so forth. The problem is to find the `nth` Fibonacci number.
 
 ##### Naive Approach - Recursive Solution
@@ -596,7 +597,7 @@ def fib(n):
 
 Dynamic programming approach that stores intermediate results to avoid redundant calculations, reducing the time complexity to `O(n)`.
 
-#### Climbing Stairs
+#### [Climbing Stairs](https://leetcode.com/problems/climbing-stairs)
 You are climbing a staircase. It takes n steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?
 
 ##### Intuition
@@ -612,7 +613,7 @@ def climbing_stairs(n):
 ```
 This is again the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
 
-#### Minimum Cost Climbing Stairs
+#### [Minimum Cost Climbing Stairs](https://leetcode.com/problems/min-cost-climbing-stairs)
 You are given an integer array `cost` where `cost[i]` is the cost of `ith` step on a staircase. Once you pay the cost, you can either climb one or two steps.
 You can either start from the step with index `0`, or the step with index `1`.
 Return the minimum cost to reach the top of the floor.
@@ -634,7 +635,7 @@ def min_cost_climbing_stairs(cost):
 ```
 This is again the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
 
-#### House Robber
+#### [House Robber](https://leetcode.com/problems/house-robber)
 You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed. All houses at this place are arranged in a circle. That means the first house is the neighbor of the last one. Meanwhile, adjacent houses have a security system connected, and it will automatically contact the police if two adjacent houses were broken into on the same night. Given an integer array `nums` representing the amount of money of each house, return the maximum amount of money you can rob tonight without alerting the police.  
 
 ##### Parent problem
@@ -705,7 +706,7 @@ def maximum_alternative_subsequence_sum(arr):
     return solve(0, True)
 ```
 
-#### Decode Ways
+#### [Decode Ways](https://leetcode.com/problems/decode-ways)
 You have intercepted a secret message encoded as a string of numbers. The message is decoded via the following mapping:  
 - "1" -> 'A'  
 - "2" -> 'B'  
@@ -826,6 +827,7 @@ Given two sequences, find the length of longest subsequence present in both of t
 We have already seen the problem to calculate the length of the longest common subsequence in 2 strings. This would be a modification on the same.
 
 ##### Intuition
+###### Approach 1
 - Add a character to the result if they are equal
 - If not equal, update the grid position to whichever is the maximum.
 
@@ -850,6 +852,26 @@ def print_lcs(mem, string1, string2):
 
     return "".join(result) 
 ```
+
+###### Approach 2
+```python
+def lcs(string1, string2):
+    m, n = len(string1), len(string2)
+    def solve(index1, index2):
+        if index1 == m or index2 == n:
+            return ""
+        if string1[index1] == string2[index2]:
+            return string1[index1] + solve(index1+1, index2+1)
+        
+        option1 = solve(index1+1, index2)
+        option2 = solve(index1, index2+1)
+
+        if len(option1) >= len(option2):
+            return option1
+        return option2 
+```
+
+This is just the recursive solution, you can memoize it for improving the time complexity.
 
 #### Longest Common Substring
 In LCS(Longest Common Subsequence), it was possible to select non-contiguous sequence. But in this case we can only take in sub-strings so the intuition for the solution would be as follows:
@@ -916,7 +938,7 @@ From out knowledge we know how to use LCS - compare the characters of the 2 stri
 
 From the choices when characters not equal, we have to minimise the operations.
 
-#### Longest Palindromic Subsequence
+#### [Longest Palindromic Subsequence](https://leetcode.com/problems/longest-palindromic-subsequence)
 Given a sequence, find the length of the longest palindromic subsequence in it.
 Example :
 Input:"bbbab"
@@ -938,7 +960,7 @@ Remove characters 'e' and 'd'. Resultant string will be 'abcba' which is a palin
 - We already know `Longest Palindromic Subsequence`, and delete the rest of the characters.
 - `len(string)- LPS` - would give us the minimum deletions.
 
-#### Minimum number of Insertion to make a string palindrome
+#### [Minimum number of Insertion to make a string palindrome](https://leetcode.com/problems/minimum-insertion-steps-to-make-a-string-palindrome)
 Given a string, find the minimum number of characters to be inserted to form Palindrome string out of given string.
 
 Examples:
@@ -1025,7 +1047,7 @@ What if it is not specified that `s` would be a subsequence and either can be a 
 return lcs == min(len(s), len(t))
 ```
 
-#### Interleaving String
+#### [Interleaving String](https://leetcode.com/problems/interleaving-string)
 Given strings `s1`, `s2`, and `s3`, find whether `s3` is formed by an interleaving of `s1` and `s2`.
 An interleaving of two strings `s` and `t` is a configuration where `s` and `t` are divided into `n` and `m` substrings respectively, such that:
 - `s = s1 + s2 + ... + sn`
@@ -1080,7 +1102,7 @@ def is_interleave(s1, s2, s3):
     return solve(0, 0, 0)
 ```
 
-#### Distinct Subsequences
+#### [Distinct Subsequences](https://leetcode.com/problems/distinct-subsequences)
 Given two strings `s` and `t`, return the number of distinct subsequences of `s` which equals `t`.
 
 ##### Intuition
@@ -1110,7 +1132,7 @@ def num_distinct(s, t):
     return solve(0, 0)
 ```
 
-#### Edit Distance
+#### [Edit Distance](https://leetcode.com/problems/edit-distance)
 Given two strings word1 and word2, return the minimum number of operations required to convert word1 to word2.
 You have the following three operations permitted on a word:
 - Insert a character
@@ -1154,7 +1176,7 @@ def min_distance(word1, word2):
     return solve(0, 0)
 ```
 
-### Longest Increasing Subsequence
+### [Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence)
 The Longest Increasing Subsequence problem is a classic dynamic programming problem that asks for the length of the longest subsequence in a given array such that all elements of the subsequence are sorted in increasing order.
 
 #### Problem
@@ -1231,7 +1253,7 @@ The problem is to find the contiguous subarray within a one-dimensional array of
 Kadane's Algorithm makes a greedy choice at each step by selecting the option that maximizes the sum up to the current element. This choice ensures that the local maximum is always the best option for achieving the global maximum.
 
 ##### Working:
-- The algorithm keeps track of two key pieces of information: the maximum sum of the subarray that ends at the current position and the maximum sum of any subarray encountered so far.
+- The algorithm keeps track of two key pieces of information: **the maximum sum of the subarray that ends at the current position** and **the maximum sum of any subarray encountered so far**.
 - As you iterate through the array, for each element, you decide whether to include it in the current subarray or to start a new subarray with this element. This decision is based on which option yields a higher sum.
   - If including the element in the current subarray results in a higher sum, you continue with the current subarray.
   - If starting a new subarray with the current element results in a higher sum, you start a new subarray.
@@ -1244,8 +1266,8 @@ def maximum_subarray_problem(nums):
     max_subarray = nums[0]
 
     for num in nums[1:]:
-        max_ending_here = max(num, max_ending_here + num)
-        max_subarray = max(max_subarray, max_ending_here)
+        max_ending_here = max(num, max_ending_here + num) # Continuing vs. Starting Fresh
+        max_subarray = max(max_subarray, max_ending_here) # Tracking Current and Global Maximum
     
     return max_subarray
 ```
@@ -1253,7 +1275,7 @@ def maximum_subarray_problem(nums):
 #### Problems based on Kadane's Algorithm
 - Maximum Product Subarray
 
-#### Maximum Product Subarray
+#### [Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray)
 Given an array of integers, find the contiguous subarray within the array that has the largest product.
 
 ##### Intuition
@@ -1279,7 +1301,7 @@ def maximum_product_subarray(nums):
             # TWIST: negative multiplied by negative is positive
             max_product, min_product = min_product, max_product
         
-        # same old same old
+        # same old same old - Continuing vs. Starting Fresh
         max_product = max(num, max_product * num)
         min_product = max(num, min_product * num)
 
@@ -1329,6 +1351,7 @@ def solve(arr, start, end):
 - Palindromic Substrings
 - Scrambled String
 - Egg Dropping Problem
+- Burst Balloons
 
 #### Problems
 #### Matrix Chain Mulitplication
@@ -1437,7 +1460,7 @@ def matrix_chain_multiplication(arr):
 
 For the for loop condition and the values for the further recursive calls, should be calculated. Don't memorize.
 
-#### Palidrome Partitioning
+#### [Palidrome Partitioning](https://leetcode.com/problems/palindrome-partitioning-ii)
 Given a string, a partitioning of the string is a palindrome partitioning if every substring of the partition is a palindrome. 
 Example: “aba|b|bbabb|a|b|aba” is a palindrome partitioning of “ababbbabbababa”.
 
@@ -1475,7 +1498,7 @@ This is the recursive code, ensure to implement memoization with dictionary to i
 
 #### Egg Dropping
 
-#### Burst Balloons
+#### [Burst Balloons](https://leetcode.com/problems/burst-balloons)
 You are given `n` balloons, indexed from `0` to `n - 1`. Each balloon is painted with a number on it represented by an array `nums`. You are asked to burst all the balloons.
 If you burst the `ith` balloon, you will get `nums[i - 1] * nums[i] * nums[i + 1]` coins. If `i - 1` or `i + 1` goes out of bounds of the array, then treat it as if there is a balloon with a `1` painted on it.
 Return the **maximum coins you can collect by bursting the balloons** wisely.
@@ -1637,7 +1660,7 @@ Dynamic Programming (DP) on grids is a common topic in algorithmic problem-solvi
 - Minimum Path Sum
 - Longest Increasing Path in a Matrix
 
-#### Unique Paths
+#### [Unique Paths](https://leetcode.com/problems/unique-paths)
 Given an m x n grid, find the number of possible unique paths from the top-left corner to the bottom-right corner. You can only move either down or right at any point in time.
 
 ##### Recursive Solution
@@ -1666,7 +1689,7 @@ def unique_paths(grid):
     return solve(0, 0)
 ```
 
-#### Unique Paths(With Obstacles)
+#### [Unique Paths(With Obstacles)](https://leetcode.com/problems/unique-paths-ii)
 Given an m x n grid with obstacles (represented by 1s), find the number of unique paths from the top-left corner to the bottom-right corner.
 
 ##### Hint:
@@ -1695,7 +1718,7 @@ for direction in directions:
 return result
 ```
 
-#### Longest Increasing Path in a Matrix
+#### [Longest Increasing Path in a Matrix](https://leetcode.com/problems/longest-increasing-path-in-a-matrix)
 Given an m x n matrix of integers, find the length of the longest increasing path in the matrix. You can move in four directions: up, down, left, and right.
 
 ##### Intuition
@@ -1748,8 +1771,11 @@ def longestIncreasingPath(matrix):
     return lip
 ```
 
+### Catalan Numbers
+
+
 ### Miscellaneous
-#### Palindromic Substrings*
+#### [Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings)*
 Given a string s, return the number of palindromic substrings in it.
 A string is a palindrome when it reads the same backward as forward.
 A substring is a contiguous sequence of characters within the string.
