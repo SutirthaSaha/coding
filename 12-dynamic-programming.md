@@ -19,6 +19,7 @@ Dynamic Programming is actually **enhanced recursion**. There are some calls whi
 - DP on Trees
 - DP on Grid
 - Catalan Numbers
+- Miscellaneous
 
 ### 0-1 Knapsack
 Knapsack is a bag to store items and you are given a list of items with `weight` and `value`. The bag would have a `capacity` and you would need to choose items to put in bag. No fractional items can be taken in the bag.
