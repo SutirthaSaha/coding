@@ -1126,4 +1126,124 @@ def kthSmallest(root, k):
     return result
 ```
 
+**For the Kth Largest Element in BST, traverse the right subtree, then root and then the left subtree - Reverse Inorder Traversal**
 
+### Inorder Successor of BST
+Given a BST, and a reference to a Node x in the BST. Find the Inorder Successor of the given node in the BST.
+
+Example
+```mermaid
+graph TD;  
+    A[2] --> B[1]  
+    A[2] --> C[3]  
+    style A fill:#f9f,stroke:#333,stroke-width:4px;
+```
+```
+K(data of x) = 2
+Output: 3 
+Explanation: 
+Inorder traversal : 1 2 3 
+Hence, inorder successor of 2 is 3.
+```
+
+#### Intuition
+In a Binary Search Tree (BST), the inorder traversal visits nodes in ascending order. The inorder successor of a node x is the node that appears immediately after x in this traversal. To find the inorder successor, we can leverage the properties of the BST:
+- **Right Subtree Check**: If x has a right subtree, the inorder successor is the leftmost node in that right subtree. This is because the leftmost node in the right subtree is the smallest node that is greater than x.
+- **Ancestor Check**: If x does not have a right subtree, the inorder successor is one of its ancestors. Specifically, it is the nearest ancestor for which x is in the left subtree. This is because such an ancestor is the next node in the ascending order traversal.
+
+Code
+```python
+def inorderSuccessor(root, x):
+    successor = None
+    
+    def inorder(root):
+        nonlocal successor
+        if root.data > x.data:
+            successor = root
+            if root.left:
+                inorder(root.left)
+        else:
+            if root.right:
+                inorder(root.right)
+    
+    inorder(root)
+    return successor
+```
+
+### [Closest Nodes Query in BST](https://leetcode.com/problems/closest-nodes-queries-in-a-binary-search-tree)
+You are given the root of a binary search tree and an array queries of size n consisting of positive integers.
+
+Find a 2D array answer of size `n` where `answer[i] = [mini, maxi]`:
+- mini is the largest value in the tree that is smaller than or equal to queries[i]. If a such value does not exist, add -1 instead.
+- maxi is the smallest value in the tree that is greater than or equal to queries[i]. If a such value does not exist, add -1 instead.
+
+Return the array answer.
+
+#### Intuition
+In a Binary Search Tree (BST), for any given node, all nodes in the left subtree are smaller and all nodes in the right subtree are larger. This property allows us to efficiently find the floor and ceil values for any given query by traversing the tree.
+- **Floor Value**: The largest value in the BST that is smaller than or equal to the given value. To find this, we move to the right subtree whenever the current node's value is smaller than the query value.
+- **Ceil Value**: The smallest value in the BST that is greater than or equal to the given value. To find this, we move to the left subtree whenever the current node's value is greater than the query value.
+
+Code
+```python
+def closestNodes(root, queries):
+    def find_floor_and_ceil(root, val):
+        nonlocal floor, ceil
+        if not root:
+            return
+        if root.val == val:
+            floor = ceil = root.val
+        elif root.val < val:
+            # If the current node's value is less than the query value
+            floor = root.val # update floor
+            find_floor_and_ceil(root.right, val) # move to the right subtree
+        else:
+            # If the current node's value is greater than the query value
+            ceil = root.val # update ceil
+            find_floor_and_ceil(root.left, val) # move to the left subtree
+    
+    result = []
+    for val in queries:
+        floor, ceil = -1, -1
+        find_floor_and_ceil(root, val)
+        result.append([floor, ceil])
+    
+    return result
+```
+
+### [Binary Search Tree Iterator](https://leetcode.com/problems/binary-search-tree-iterator)
+Implement the `BSTIterator` class that represents an iterator over the in-order traversal of a binary search tree (BST):
+- **BSTIterator(TreeNode root)**: Initializes an object of the BSTIterator class. The root of the BST is given as part of the constructor. The pointer should be initialized to a non-existent number smaller than any element in the BST.
+- **boolean hasNext()**: Returns true if there exists a number in the traversal to the right of the pointer, otherwise returns false.
+- **int next()**: Moves the pointer to the right, then returns the number at the pointer.
+
+Notice that by initializing the pointer to a non-existent smallest number, the first call to next() will return the smallest element in the BST.
+You may assume that next() calls will always be valid. That is, there will be at least a next number in the in-order traversal when next() is called.
+
+#### Intuition
+The Binary Search Tree (BST) Iterator needs to simulate an in-order traversal of the BST. In an in-order traversal, nodes are visited in ascending order (left-root-right). To efficiently implement this, we use a stack to track the nodes. Here's the intuition behind the solution:
+- **Stack Usage**: The stack is used to simulate the recursion stack of an in-order traversal. We push all left children of the current node onto the stack.
+- **Initialization**: When the iterator is initialized, we push all the left children of the root onto the stack. This ensures that the smallest element is on top of the stack.
+- **next() Method**: The next element is the top of the stack. After popping the top element, we push all the left children of its right child onto the stack.
+- **hasNext() Method**: This method checks if there are any elements left to visit by checking if the stack is empty.
+
+Code
+```python
+class BSTIterator:
+    def __init__(self, root: Optional[TreeNode]):
+        self.stack = []
+        self._push_all(root)
+    
+    def _push_all(self, root):
+        while root:
+            self.stack.append(root)
+            root = root.left
+
+    def next(self) -> int:
+        node = self.stack.pop()
+        self._push_all(node.right)
+        return node.val
+
+    def hasNext(self) -> bool:
+        return len(self.stack) != 0
+```

@@ -246,6 +246,34 @@ def solve(source, helper, destination, n):
     solve(helper, destination, source, n-1)
 ```
 
+#### Josephus problem
+There are n people standing in a circle (numbered clockwise 1 to n) waiting to be executed. The counting begins at point 1 in the circle and proceeds around the circle in a fixed direction (clockwise). In each step, a certain number of people are skipped and the next person is executed. The elimination proceeds around the circle (which is becoming smaller and smaller as the executed people are removed), until only the last person remains, who is given freedom.
+
+Given the total number of persons n and a number k which indicates that k-1 persons are skipped and kth person is killed in circle. The task is to choose the place in the initial circle so that you are the last one remaining and so survive.
+
+Consider if n = 5 and k = 2, then the safe position is 3.
+
+Firstly, the person at position 2 is killed, then person at position 4 is killed, then person at position 1 is killed. Finally, the person at position 5 is killed. So the person at position 3 survives
+
+##### Intuition
+- Hypothesis: On passing an index, the element at the index will be removed from the smaller input.
+- Induction: Delete element at kth index from the current one.
+- Base Condition: If the length of the persons becomes 1, that is the last person - element left.
+
+Code
+```python
+def josephus(self,n,k):
+    k = k -1
+    persons = [i+1 for i in range(n)]
+    def solve(index):
+        if len(persons) == 1:
+            return persons[0]
+        index = (index + k) % len(persons)
+        persons.pop(index)
+        return solve(index)
+    return solve(0)
+```
+
 ### Recursive Tree - Input/Output Method
 #### [Subsets](https://leetcode.com/problems/subsets)*
 Given an integer array nums of unique elements, return all possible subsets (the power set). The solution set must not contain duplicate subsets. Return the solution in any order.
@@ -616,17 +644,4 @@ def generateParenthesis(n):
 
     solve(n, n, "") 
     return result   
-```
-
-#### Josephus problem
-There are n people standing in a circle (numbered clockwise 1 to n) waiting to be executed. The counting begins at point 1 in the circle and proceeds around the circle in a fixed direction (clockwise). In each step, a certain number of people are skipped and the next person is executed. The elimination proceeds around the circle (which is becoming smaller and smaller as the executed people are removed), until only the last person remains, who is given freedom.
-
-Given the total number of persons n and a number k which indicates that k-1 persons are skipped and kth person is killed in circle. The task is to choose the place in the initial circle so that you are the last one remaining and so survive.
-
-Consider if n = 5 and k = 2, then the safe position is 3.
-
-Firstly, the person at position 2 is killed, then person at position 4 is killed, then person at position 1 is killed. Finally, the person at position 5 is killed. So the person at position 3 survives
-
-```
-TODO
 ```
