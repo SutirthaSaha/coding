@@ -174,8 +174,29 @@ def permutation(str):
     solve(0)
     return result
 ```
-```
-TODO: How to do permutations for duplicates?
+##### How to do permutations for duplicates?
+- Sort the initial array.
+- Maintain a visited set to skip the value already swapped with.
+
+Code
+```python
+def permutation(str):
+    str_arr = list(str)
+    str_arr.sort()
+    n = len(str_arr)
+    result = []
+    def solve(index):
+        if index == n:
+            result.append(str_arr[:])
+        visited = set()
+        for swap_index in range(index, n):
+            if str_arr[swap_index] not in visited:
+                visited.add(str_arr[swap_index])
+                arr[index], arr[swap_index] = arr[swap_index], arr[index]
+                solve(index+1)
+                arr[index], arr[swap_index] = arr[swap_index], arr[index]
+    solve(0)
+    return result
 ```
 
 ### Largest number in at most K swaps
