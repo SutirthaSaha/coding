@@ -1493,11 +1493,144 @@ def palindrome_partition(string):
 ```
 This is the recursive code, ensure to implement memoization with dictionary to improve the time-complexity.
 
-#### Evaluate Expression To True
+#### Evaluate Expression To True-[Boolean Parenthesization Recursion](https://www.geeksforgeeks.org/problems/boolean-parenthesization5610/1)
+Given a boolean expression with following symbols.
+Symbols
+    'T' --- true 
+    'F' --- false 
+And following operators filled between symbols
+Operators
+    &   ---boolean AND
+    |   --- boolean OR
+    ^   --- boolean XOR 
+Count the number of ways we can parenthesize the expression so that the value of expression evaluates to true.
 
-#### Scrambled String
+Example:
+```
+Input: symbol[]    = {T, F, T}
+       operator[]  = {^, &}
+Output: 2
+The given expression is "T ^ F & T", it evaluates true in two ways "((T ^ F) & T)" and "(T ^ (F & T))"
+```
+
+##### Intuition
+- `start` and `end` - 0 and n-1 where n is the length of the string s.
+- **Base Condition** - If the subexpression is a single symbol (start == end), return the symbol as it is.
+- **k loop scheme**: k value can range from `start+1` to `end-1`, stepping by 2 to skip symbols. The partitions would be (start, k-1) and (k+1, end) - skipping the current operator.
+- **Calculate the temporary answer**: Store all the possible results from the `left` and `right` partitions.
+- Then iterate through the results to see which of them have `'T'` as result. 
+
+Code
+```
+def countWays(n, s):
+    def operate(operand1, operand2, operator):
+        operand1 = True if operand1 == 'T' else False
+        operand2 = True if operand2 == 'T' else False
+        
+        if operator == '&':
+            result = operand1 and operand2
+            return 'T' if result else 'F'
+        elif operator == '|':
+            result = operand1 or operand2
+            return 'T' if result else 'F'
+        else:
+            result = operand1 ^ operand2
+            return 'T' if result else 'F'
+    
+    def solve(start, end):
+        if start == end:
+            return s[start]
+        results = []
+        for k in range(start+1, end):
+            left_results = solve(start, k-1)
+            right_results = solve(k+1, end)
+            
+            for left_result in left_results:
+                for right_result in right_results:
+                    results.append(operate(left_result, right_result, s[k]))
+        return results
+    
+    results = solve(0, n-1)
+    count = 0
+    for result in results:
+        if result == 'T':
+            count = count + 1
+    return count
+```
+
+Similar Problem: [Different Ways to Add Parenthesis](https://leetcode.com/problems/different-ways-to-add-parentheses)
+
+#### [Scramble String](https://leetcode.com/problems/scramble-string)
+We can scramble a string `s` to get a string `t` using the following algorithm:
+- If the length of the string is 1, stop.
+- If the length of the string is > 1, do the following:
+- Split the string into two non-empty substrings at a random index, i.e., if the string is s, divide it to x and y where s = x + y.
+- Randomly decide to swap the two substrings or to keep them in the same order. i.e., after this step, s may become s = x + y or s = y + x.
+- Apply step 1 recursively on each of the two substrings x and y.
+
+Given two strings s1 and s2 of the same length, return true if s2 is a scrambled string of s1, otherwise, return false.
+
+##### Intuition
+- `start` and `end`: `0` and `n-1` where `n` is the length of the string.
+- **Base Condition**: If s1 is equal to s2, return True.
+- **k loop scheme**: `k` value can range from 1 to n-1. 
+  - Without swap scenario: The partitions would be (s1[:k], s1[k:]) and (s2[:k], s2[k:]), compare the first part of s1 with the first part of s2, and the second part of s1 with the second part of s2.
+  - With swap scenario: The partitions would be (s2[:n-k], s2[n-k:]), compare the first part of s1 with the second part of s2, and the second part of s1 with the first part of s2.
+- Calculate the temporary answer: Recursively check both partitions and combine the results to determine if s2 is a scrambled version of s1.
+
+Code
+```
+def isScramble(s1, s2):
+    m, n = len(s1), len(s2)
+    if m != n:
+        return False
+
+    def solve(s1, s2):
+        if s1 == s2:
+            return True
+        n = len(s1)
+        for k in range(1, n):
+            result_with_swap = solve(s1[:k], s2[n-k:]) and solve(s1[k:], s2[:n-k])
+            result_without_swap = solve(s1[:k], s2[:k]) and solve(s1[k:], s2[k:])
+            if result_with_swap or result_without_swap:
+                return True
+        return False
+    
+    return solve(s1, s2)
+```
 
 #### Egg Dropping
+You are given `n` floors and `k` eggs. You have to minimize the number of times you have to drop the eggs to find the critical floor where critical floor means the floor beyond which eggs start to break. Assumptions of the problem:
+- If egg breaks at `ith` floor then it also breaks at all greater floors.
+- If egg does not break at `ith` floor then it does not break at all lower floors.
+- Unbroken egg can be used again.
+
+Note: You have to find minimum trials required to find the critical floor not the critical floor
+
+##### Intuition
+- **Base Conditions:**
+  - If we have only one egg, we need to try dropping it from each floor starting from the first to the highest floor (i.e., f trials).
+  - If there is only one floor or no floors, we need f trials.
+- **Recursive Check:**
+  - For each floor `k` from `1` to `f`, consider the two possible outcomes:
+    - **The egg breaks:** In this case, we need to check the floors below k with one less egg.
+    - **The egg does not break:** In this case, we need to check the floors above k with the same number of eggs.
+- We want to minimize the maximum number of trials needed in the worst case.
+
+Code
+```
+def eggDrop(self, e, f):
+    def solve(e, f):
+        if e == 1 or f <= 1:
+            return f
+        attempts = f
+        for k in range(1, f+1):
+            max_attempts = 1 + max(solve(e-1, k-1), solve(e, f-k))
+            attempts = min(attempts, max_attempts)
+        return attempts
+    
+    return solve(e, f)
+```
 
 #### [Burst Balloons](https://leetcode.com/problems/burst-balloons)
 You are given `n` balloons, indexed from `0` to `n - 1`. Each balloon is painted with a number on it represented by an array `nums`. You are asked to burst all the balloons.
@@ -1660,6 +1793,7 @@ Dynamic Programming (DP) on grids is a common topic in algorithmic problem-solvi
 - Unique Paths (with Obstacles)
 - Minimum Path Sum
 - Longest Increasing Path in a Matrix
+- Maximal Square
 
 #### [Unique Paths](https://leetcode.com/problems/unique-paths)
 Given an m x n grid, find the number of possible unique paths from the top-left corner to the bottom-right corner. You can only move either down or right at any point in time.
@@ -1772,8 +1906,114 @@ def longestIncreasingPath(matrix):
     return lip
 ```
 
-### Catalan Numbers
+#### [Maximal Square](https://leetcode.com/problems/maximal-square)
+Given an m x n binary matrix filled with 0's and 1's, find the largest square containing only 1's and return its area.
 
+##### Intuition
+###### Recursive Solution
+Square Formation Criteria:
+- A square of '1's can only form if all cells within that square are '1'.
+- Specifically, for a square to end at a cell (i, j), the cell itself must be '1'.
+- The size of the square ending at (i, j) depends on the squares ending at its neighboring cells: (i-1, j), (i, j-1), and (i-1, j-1).
+
+Code
+```python
+def maximalSquare(matrix):
+    m, n = len(matrix), len(matrix[0])
+    mem = dict()
+
+    def solve(row, col):
+        if row < 0 or col < 0 or matrix[row][col] == "0":
+            return 0
+        if (row, col) not in mem:
+            left = solve(row, col - 1)
+            diag = solve(row - 1, col - 1)
+            right = solve(row - 1, col)
+
+            max_side = 1 + min(left, diag, right)
+            mem[(row, col)] = max_side
+        return mem[(row, col)]
+    
+    max_side = 0
+    for row in range(m):
+        for col in range(n):
+            max_side = max(max_side, solve(row, col))
+```
+
+### Catalan Numbers
+Catalan numbers are a sequence of natural numbers that appear in various counting problems, often involving recursive structures. They can be defined using a recurrence relation, which reflects their combinatorial nature.
+**Relation**
+```
+C_n = C_0 * C_n-1 + C_1 * C_n-2 + ... + C_n * C_0
+
+where, C_0 = 1 and C_1 = 1
+```
+
+Catalan numbers are used to solve combinatorial problems that can be decomposed into smaller, similar subproblems. Some common use-cases include:
+- Counting the number of valid parentheses expressions of a given length.
+- Counting the number of distinct binary search trees (BSTs) that can be formed with n nodes.
+- Counting the number of ways to triangulate a polygon with n+2 sides.
+
+#### Problems
+#### Unique Binary Search Trees
+Given an integer n, return the number of structurally unique BSTs (binary search trees) which has exactly n nodes of unique values from 1 to n.
+
+##### Intuition
+A BST can be uniquely defined by its root node, with left and right subtrees that are themselves BSTs. The nth Catalan number counts the number of distinct BSTs with n nodes.
+
+Explanation:
+- For n nodes, consider each node i (from 1 to n) as the root.
+- The left subtree will contain nodes from 1 to i-1.
+- The right subtree will contain nodes from i+1 to n.
+- The number of unique BSTs with n nodes is the sum of the Cartesian product of the number of unique BSTs in the left and right subtrees for each possible root. This is directly captured by the Catalan number recurrence relation.
+
+Code
+```python
+def numTrees(n):  
+    def countBST(start, end):  
+        if start > end:  
+            return 1  
+        totalTrees = 0  
+        for i in range(start, end + 1):  
+            leftTrees = countBST(start, i - 1)  
+            rightTrees = countBST(i + 1, end)  
+            totalTrees += leftTrees * rightTrees  
+        return totalTrees  
+  
+    return countBST(1, n)
+```
+
+#### Generate Parentheses
+Given n pairs of parentheses, write a function to generate all combinations of well-formed parentheses.
+
+##### Intuition
+A valid parentheses expression can be thought of as a balanced binary tree, where each pair of parentheses represents a node with a left and a right child. The nth Catalan number counts the number of ways to correctly match n pairs of parentheses.
+
+Explanation:
+Consider a valid parentheses expression with `n` pairs. The structure can be decomposed into smaller subproblems:
+- The first opening parenthesis must be matched with a closing parenthesis at some position.
+- The string inside this pair must be a valid parentheses expression, and the string outside it must also be a valid parentheses expression.
+- This leads directly to the recurrence relation for Catalan numbers: each valid expression can be constructed by considering each possible position for the first closing parenthesis and combining the number of valid expressions inside and outside.
+
+Code
+```python
+def generateParenthesis(n):  
+    def backtrack(curr, left, right):  
+        if len(curr) == 2 * n:  
+            result.append(curr[:])  
+            return  
+        if left < n:
+            curr.append("(")
+            backtrack(curr, left + 1, right)
+            curr.pop()  
+        if right < left:
+            curr.append(")")  
+            backtrack(curr, left, right + 1)  
+            curr.pop()
+    result = []  
+    backtrack([], 0, 0)  
+    return result
+```
 
 ### Miscellaneous
 #### [Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings)*

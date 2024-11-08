@@ -95,8 +95,30 @@ def kth_smallest(nums, k):
 ```
 
 ### Sort a K sorted array
-```
-TODO
+A K-sorted array is an array where each element is at most k positions away from its target position in the sorted order. 
+
+To sort such an array efficiently, we can use a min-heap of size k+1:
+
+Code
+```python
+def sort_k_sorted_array(arr, k):  
+    heap = []  
+    result = []  
+  
+    # Build a min-heap with the first k+1 elements - this ensures that we would have the smallest element in the heap
+    for i in range(k + 1):  
+        heapq.heappush(heap, arr[i])  
+  
+    # Iterate through the remaining elements and keep adding the root of min-heap (smallest value) to the result
+    for i in range(k + 1, len(arr)):  
+        result.append(heapq.heappop(heap))  
+        heapq.heappush(heap, arr[i])  
+  
+    # Extract the remaining elements from the heap  
+    while heap:  
+        result.append(heapq.heappop(heap))  
+  
+    return result
 ```
 
 ### K Closest Number
