@@ -593,7 +593,11 @@ Solve the Tower of Hanoi problem iteratively. Given three rods (source, auxiliar
 
 Implement a function iterativeHanoi(n, source, auxiliary, destination) that prints the steps to move the disks.
 
-```
+#### Intuition
+Intuition behind the solution to this problem.
+
+Code
+```python
 TODO
 ```
 
