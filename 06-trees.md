@@ -251,6 +251,11 @@ def rightSideView(root):
     return result
 ```
 
+### [Populating Next Right Pointers in Each Node](https://leetcode.com/problems/populating-next-right-pointers-in-each-node)
+```
+TODO
+```
+
 ### [Vertical Order Traversal](https://leetcode.com/problems/vertical-order-traversal-of-a-binary-tree)*
 Given the `root` of a binary tree, calculate the **vertical order traversal** of the binary tree.
 
@@ -1071,6 +1076,11 @@ def is_valid_BST(root):
     return validate(root, float('-inf'), float('inf'))
 ```
 
+### [Convert Sorted Array to Binary Search Tree](https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree)
+```
+TODO
+```
+
 ### [Lowest Common Ancestor of a Binary Search Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree)*
 Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST.
 
@@ -1321,4 +1331,91 @@ class BSTIterator:
 
     def hasNext(self) -> bool:
         return len(self.stack) != 0
+```
+
+### [Two Sum IV - Input is a BST](https://leetcode.com/problems/two-sum-iv-input-is-a-bst)
+Given the `root` of a binary search tree and an integer `k`, return `true` *if there exist two elements in the BST such that their sum is equal to `k`*, or `false` otherwise.
+
+#### Intuition
+To solve the problem, we can use a two-pointer technique, which is commonly used in array problems to find pairs that sum up to a target value. Here, we adapt this technique to work with the BST by utilizing two iterators:
+- **BST Iterator**: This iterator traverses the BST in ascending order (in-order traversal).
+- **Reverse BST Iterator**: This iterator traverses the BST in descending order (reverse in-order traversal).
+
+The main idea is to simulate the two-pointer approach using the two iterators by moving them according to the condition until they cross or reach the target sum.
+
+The rationale behind this approach is that by traversing the BST from both ends simultaneously, we can efficiently narrow down the potential pairs of values that may sum up to k. This method avoids the need for a full traversal of the tree for each potential pair, thus optimizing the search process.
+
+Code
+```python
+def findTarget(root, k):  
+    # Define an iterator to traverse the BST in ascending order  
+    class BSTIterator:  
+        def __init__(self, root):  
+            self.stack = []  
+            self._push_all(root)  
+          
+        def _push_all(self, root):  
+            # Push all the left children to the stack  
+            while root:  
+                self.stack.append(root)  
+                root = root.left  
+          
+        def next(self):  
+            # Pop the top element from the stack and push its right child and all left children  
+            node = self.stack.pop()  
+            self._push_all(node.right)  
+            return node.val  
+          
+        def has_next(self):  
+            return len(self.stack) > 0  
+  
+    # Define an iterator to traverse the BST in descending order  
+    class ReverseBSTIterator:  
+        def __init__(self, root):  
+            self.stack = []  
+            self._push_all(root)  
+          
+        def _push_all(self, root):  
+            # Push all the right children to the stack  
+            while root:  
+                self.stack.append(root)  
+                root = root.right  
+          
+        def next(self):  
+            # Pop the top element from the stack and push its left child and all right children  
+            node = self.stack.pop()  
+            self._push_all(node.left)  
+            return node.val  
+          
+        def has_next(self):  
+            return len(self.stack) > 0  
+  
+    # Initialize the two iterators  
+    bst = BSTIterator(root)  
+    rev_bst = ReverseBSTIterator(root)  
+  
+    # Get the smallest and largest values from the BST  
+    left = bst.next()  
+    right = rev_bst.next()  
+  
+    # Two-pointer technique to find two elements that sum up to k  
+    while left < right:  
+        s = left + right  
+        if s == k:  
+            return True  
+        elif s < k:  
+            if not bst.has_next():  
+                return False  
+            left = bst.next()  
+        else:  
+            if not rev_bst.has_next():  
+                return False  
+            right = rev_bst.next()  
+  
+    return False
+```
+
+### [Maximum Sum BST in Binary Tree](https://leetcode.com/problems/maximum-sum-bst-in-binary-tree)
+```
+TODO
 ```
