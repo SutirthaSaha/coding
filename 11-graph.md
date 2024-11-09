@@ -190,6 +190,30 @@ def bfs(n, edges):
     return result
 ```
 
+#### Complexity Analysis:
+
+**Time Complexity: (O(V + E))**
+The time complexity of BFS is `(O(V + E))`, where `(V)` is the number of vertices and `(E)` is the number of edges in the graph. Here’s a detailed breakdown of why this is the case:
+
+- Vertex Processing:
+  - Each vertex is enqueued and dequeued exactly once. Enqueuing and dequeuing a vertex takes `(O(1))` time.
+  - Since there are `(V)` vertices, the total time for this step is `(O(V))`.
+- Edge Processing:
+  - For each vertex, the algorithm iterates over its adjacent vertices (i.e., its neighbors). This involves examining each edge at least once.
+  - If we sum this operation over all vertices, we get `(O(E))` time, as each edge is considered once in an undirected graph (or exactly once in a directed graph).
+
+Combining these steps, the total time complexity is `(O(V) + O(E) = O(V + E))`.
+
+**Space Complexity: (O(V))**
+The space complexity of BFS is `(O(V))`. Here’s a detailed breakdown:
+
+- Queue: The queue can contain at most `(V)` vertices at any given time. Thus, the space required for the queue is `(O(V))`.
+- Visited Array/Set: The visited array or set also stores `(V)` elements, one for each vertex. Thus, the space required for the visited array/set is `(O(V))`.
+
+Combining these, the total space complexity is `(O(V))`.
+
+**BFS is efficient for both sparse and dense graphs and is widely used in various applications, such as finding the shortest path in an unweighted graph, checking for bipartiteness, and more.**
+
 ### Depth First Search
 The DFS traversal visits nodes by exploring as far as possible along each branch before backtracking.
 ```mermaid
@@ -235,6 +259,32 @@ def traverse(n, edges):
     solve(0)
     return result
 ```
+
+#### Complexity Analysis:
+
+**Time Complexity: (O(V + E))**
+The time complexity of BFS is `(O(V + E))`, where `(V)` is the number of vertices and `(E)` is the number of edges in the graph. Here’s a detailed breakdown of why this is the case:
+
+- Vertex Processing:
+  - Each vertex is visited exactly once. Marking a vertex as visited and performing any constant-time operations at each vertex takes `(O(1))` time.
+  - Since there are `(V)` vertices, the total time for this step is `(O(V))`.
+- Edge Processing:
+  - For each vertex, the algorithm iterates over its adjacent vertices (i.e., its neighbors). This involves examining each edge at least once.
+  - If we sum this operation over all vertices, we get `(O(E))` time, as each edge is considered once in an undirected graph (or exactly once in a directed graph).
+
+Combining these steps, the total time complexity is `(O(V) + O(E) = O(V + E))`.
+
+**Space Complexity: (O(V))**
+The space complexity of BFS is `(O(V))`. Here’s a detailed breakdown:
+
+- Stack:
+  - In the worst case, the stack (whether explicit or implicit due to recursion) can contain all the vertices in the current path from the root to the deepest leaf node. In a graph with (V) vertices, the stack can thus hold up to (V) vertices. Therefore, the space required for the stack is (O(V)).
+- Visited Array/Set:
+  - The visited array or set also stores (V) elements, one for each vertex. Thus, the space required for the visited array/set is (O(V)).
+
+Combining these, the total space complexity is `(O(V))`.
+
+**DFS is useful for various applications, such as topological sorting, finding connected components, detecting cycles, and solving puzzles involving backtracking. It is particularly effective when the entire graph needs to be explored, or when the solution to a problem involves exploring all possible paths.**
 
 #### Extension of DFS - Connected Components
 For connected components, this is how the DFS logic would change.
@@ -631,7 +681,7 @@ def cycle_detection(graph):
     return count == n
 ```
 
-##### 2.  [Graph Valid Tree](https://leetcode.com/problems/graph-valid-tree)* - Cycle Detection in Undirected Graph
+##### 2. [Graph Valid Tree](https://leetcode.com/problems/graph-valid-tree)* - Cycle Detection in Undirected Graph
 Given `n` nodes labeled from `0` to `n - 1` and a list of undirected edges (each edge is a pair of nodes), write a function to check whether these edges make up a valid tree.
 
 Example
@@ -765,6 +815,11 @@ def topological_sort(graph):
     return [] # Graph has cycle
 ```
 
+##### Complexity Analysis
+Since based on BFS, the complexity remains the same.
+- Time Complexity: `(O(V + E))`
+- Space Complexity: `(O(V))`
+
 #### 2. DFS based
 - **Post-Order Addition**: Once all adjacent nodes of a node are visited, the node itself is added to the result list.
 - **Result Reversal**: Because nodes are added to the result list only after all their dependencies are resolved, the nodes appear in reverse topological order in the result list. Therefore, reversing the list gives you the correct topological order.
@@ -803,6 +858,11 @@ def topological_sort(graph):
     result.reverse()
     return result
 ```
+
+##### Complexity Analysis
+Since based on DFS, the complexity remains the same.
+- Time Complexity: `(O(V + E))`
+- Space Complexity: `(O(V))`
 
 #### Problems
 #### [Course Schedule I](https://leetcode.com/problems/course-schedule)*
@@ -1285,6 +1345,34 @@ def dijkstra(start, graph):
             dist[node] = -1
     return dist
 ```
+
+###### Complexity Analysis:
+
+**Time Complexity: (O((V + E) * log V))**
+The time complexity of Dijkstra is `(O(V + E) * log V)`, where `(V)` is the number of vertices and `(E)` is the number of edges in the graph. Here’s a detailed breakdown of why this is the case:
+
+- Initialization:
+  - Setting up the distance array takes `(O(V))`.
+- Main Loop:
+  - Each vertex is extracted exactly once from the priority queue. Extracting a minimum element from a binary heap takes `(O(log V))`. Since there are `(V)` vertices, the total time for extracting the minimum element is `(O(V * log V))`.
+- Edge Relaxation:
+  - For each vertex (u), we relax all its edges. Relaxing an edge involves checking and potentially updating the distance to a neighboring vertex (v). If an update is needed, we perform a **decrease-key operation** in the priority queue.
+  - The decrease-key operation in a binary heap takes `(O(log V))` time.
+  - Since each edge is relaxed exactly once, and there are `(E)` edges, the total time for edge relaxation is `(O(E * log V))`.
+
+Combining these steps, the total time complexity is `(O(V) + O(V * log V) + O(E * log V) = O((V + E) * log V))`.
+
+**Note: A decrease-key operation is an essential operation in priority queues, particularly in the context of algorithms like Dijkstra's and Prim's. It allows the value (or priority) of a given key (vertex) to be decreased. This is crucial for updating the shortest path estimates efficiently.**
+
+**Space Complexity: (O(V))**
+The space complexity of Dijkstra is `(O(V + E))`. Here’s a detailed breakdown:
+- Distance Array: The distance array stores distances for `(V)` vertices, resulting in `(O(V))` space.
+- Priority Queue: The priority queue can contain up to `(V)` vertices, resulting in `(O(V))` space.
+- Adjacency List: The adjacency list stores all edges, resulting in `(O(E))` space.
+
+Combining these, the total space complexity is `(O(V + E))`.
+
+
 ###### Problems
 ###### [Network Delay Time]()
 You are given a network of `n` nodes, labeled from `1 to n`. You are also given times, a list of travel times as directed edges `times[i] = (ui, vi, wi)`, where `ui` is the source node, `vi` is the target node, and `wi` is the time it takes for a signal to travel from source to target.
