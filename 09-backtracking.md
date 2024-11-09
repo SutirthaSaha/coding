@@ -174,7 +174,7 @@ def permutation(str):
     solve(0)
     return result
 ```
-##### How to do permutations for duplicates?
+##### [Permutations II](https://leetcode.com/problems/permutations-ii) - How to do permutations for duplicates?
 - Sort the initial array.
 - Maintain a visited set to skip the value already swapped with.
 

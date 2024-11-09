@@ -13,7 +13,7 @@ This technique is particularly useful for problems involving pairs, such as find
 - Move the pointers
 - Identify the stopping condition
 
-#### Two Sum Problem*
+#### [Two Sum Problem](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted)*
 Given an array of integers that is already sorted in ascending order, find two numbers such that they add up to a specific target number. The function should return indices of the two numbers such that they add up to the target.
 
 By default the solution that we would think is to iterate through all possible pairs and return the indices of the ones that add upto the target.
@@ -57,27 +57,7 @@ def two_sum(arr, target):
 ```
 
 #### Problems
-#### Valid Palindrome*
-Given a string, determine if it is a palindrome, considering only alphanumeric characters and ignoring cases.
-
-##### Intuition
-- We start comparing from both ends to check whether the characters are same, break if it doesn't match till we converge the pointers.
-- Here converge means that the pointers have passed each other as even the pointers pointing to the same element is a valid condition for odd-length palindromes.
-- There is also an approach where you start from the middle and go to the both ends but little lesss intuitive.
-
-```python
-def valid_palindrome(string):
-    n = len(string)
-    left, right = 0, n-1
-
-    while left <= right:
-        if string[left] != string[right]:
-            return False
-        left = left + 1
-        right = right - 1
-```
-
-#### Three Sum*
+#### [Three Sum](https://leetcode.com/problems/3sum)*
 Given an array, find all unique triplets that sum upto zero.
 
 ##### Intuition
@@ -118,7 +98,90 @@ def three_sum(nums):
     return result
 ```
 
-#### Container with Most Water*
+#### [4 Sum](https://leetcode.com/problems/4sum)*
+Given an array `nums` of `n` integers, return an array of all the unique quadruplets `[nums[a], nums[b], nums[c], nums[d]]` such that:
+- `0 <= a, b, c, d < n`
+- `a`, `b`, `c`, and `d` are distinct.
+- `nums[a] + nums[b] + nums[c] + nums[d] == target`
+You may return the answer in any order.
+
+##### Intuition
+- **Sorted Array Advantage**: Start by sorting the array. Sorting helps to systematically reduce the problem size and avoid duplicates.
+- **Recursive Decomposition**: Use a recursive function to reduce the k-sum problem to a simpler problem. Specifically, break down the 4-sum problem into smaller subproblems until reaching the 2-sum problem, which can be efficiently solved using the two-pointer technique.
+- **Base Case - Two Sum**:
+  - Use two pointers to find pairs in the sorted array that sum up to the target.
+  - Initialize two pointers: `left` at the start and `right` at the end of the array segment.
+  - Compute the sum of elements at these pointers.
+    - If the sum is equal to the target, add the pair to the result.
+    - If the sum is less than the target, increment the left pointer to increase the sum.
+    - If the sum is greater than the target, decrement the right pointer to decrease the sum.
+  - Continue until the pointers converge.
+- **Recursive Step**:
+  - For k > 2, iterate through the array, fix one element, and recursively solve the (k-1)-sum problem for the remaining elements.
+  - Ensure to skip duplicates to avoid repeating quadruplets.
+- **Combining Results**: The recursive function combines results from the base case to form valid quadruplets.
+
+Code
+```python
+def fourSum(nums, target):
+    result = []
+    nums.sort()
+    n = len(nums)
+    def solve(left, target, k, curr):
+        if k == 2:
+            right = n-1
+            while left < right:
+                total = nums[left] + nums[right]
+                if total == target:
+                    result.append(curr + [nums[left]] + [nums[right]])
+                    left = left + 1
+                    right = right - 1
+
+                    while left < right and nums[left] == nums[left-1]:
+                        left = left + 1
+                    while left < right and nums[right] == nums[right+1]:
+                        right = right - 1
+                elif total < target:
+                    left = left + 1
+                else:
+                    right = right - 1
+        else:
+            for index in range(left, n-k+1):
+                if index > left and nums[index] == nums[index - 1]:
+                    continue
+                target = target - nums[index]
+                curr.append(nums[index])
+                solve(index+1, target, k-1, curr)
+                target = target + nums[index]
+                curr.pop()
+    
+    solve(0, target, 4, [])
+    return result
+```
+
+**This also gives you generic solution for *n Sum***
+
+#### [Valid Palindrome](https://leetcode.com/problems/valid-palindrome)*
+Given a string, determine if it is a palindrome, considering only alphanumeric characters and ignoring cases.
+
+##### Intuition
+- We start comparing from both ends to check whether the characters are same, break if it doesn't match till we converge the pointers.
+- Here converge means that the pointers have passed each other as even the pointers pointing to the same element is a valid condition for odd-length palindromes.
+- There is also an approach where you start from the middle and go to the both ends but little lesss intuitive.
+
+```python
+def valid_palindrome(string):
+    n = len(string)
+    left, right = 0, n-1
+
+    while left <= right:
+        if string[left] != string[right]:
+            return False
+        left = left + 1
+        right = right - 1
+```
+
+#### [Container with Most Water](https://leetcode.com/problems/container-with-most-water)*
 Given an array of non-negative integers where each element represents the height of a vertical line on a graph, find two lines that together with the x-axis form a container that holds the most water.
 
 ##### Intuition
@@ -150,7 +213,7 @@ def max_area(height):
     return max_area
 ```
 
-#### Trapping Rain Water*
+#### [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water)*
 Given an array of non-negative integers representing the height of bars in a histogram, find the total amount of water that can be trapped between the bars after raining.
 
 ##### Naive
@@ -190,31 +253,29 @@ def trap(self, height: List[int]) -> int:
   - Keep track of the maximum heights encountered so far from the left (left_max) and right (right_max).
 - Calculate Trapped Water:
   - At each step, compare the heights at the left and right pointers.
-  - Whichever side is lesser, move the pointer that side and calculate the trapped water by comparing with the maximum on that side.
+  - Whichever side is lesser, calculate the trapped water by comparing with the maximum on that side and move the pointer that side.
 
 Questions:
 - **Why don't we consider the height on the other side for the trapped water?**
   We have already chosen the side which has the smaller height, thus removing the contention from the other side to be lesser. As the trapped rain water would depend upon the minimum from both sides.
-  
-- **Why do we move the pointer first and then calculate the trapped water?**
-  This is because at the first and the last index the water trapped would always be 0 and we start our pointers from the end.
 
-```code
+Code
+```python
 def trap(height):
     n = len(height)
-    left, right = 0, n - 1
+    left, right = 0, n-1
     left_max, right_max = height[left], height[right]
     trapped_water = 0
 
-    while left < right:
+    while left <= right:
         if height[left] <= height[right]:
-            left = left + 1
             left_max = max(left_max, height[left])
-            trapped_water = trapped_water + max(left_max - height[left], 0)
+            trapped_water = trapped_water + left_max - height[left]
+            left = left + 1
         else:
-            right = right - 1
             right_max = max(right_max, height[right])
-            trapped_water = trapped_water + max(right_max - height[right], 0)
+            trapped_water = trapped_water + right_max - height[right]
+            right = right - 1
     
     return trapped_water
 ```
