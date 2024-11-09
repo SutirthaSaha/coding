@@ -945,6 +945,81 @@ def pathSum(root, targetSum):
     return result
 ```
 
+### Flatten Binary Tree to Linked List
+Given the root of a binary tree, flatten the tree into a "linked list":
+- The "linked list" should use the same `TreeNode` class where the right child pointer points to the next node in the list and the left child pointer is always null.
+- The "linked list" should be in the same order as a pre-order traversal of the binary tree.
+
+Example:
+```mermaid
+graph TD;  
+    A[1]  
+    B[2]  
+    C[5]  
+    D[3]  
+    E[4]  
+    F[6]  
+      
+    A --> B  
+    A --> C  
+    B --> D  
+    B --> E  
+    C --> F
+```
+To
+```mermaid
+graph LR;  
+    A[1]  
+    B[2]  
+    C[3]  
+    D[4]  
+    E[5]  
+    F[6]  
+      
+    A --> B  
+    B --> C  
+    C --> D  
+    D --> E  
+    E --> F
+```
+
+#### Intuition
+- **Base Condition**: If the root is None, there is nothing to flatten, so we return immediately.
+- **Recursive Hypothesis**:
+  - We recursively flatten both the left and the right subtrees.
+  - After these recursive calls, we can assume that the left and right subtrees of the current node (root) are already flattened.
+- **Induction Step**:
+  - **Move Left Subtree to Right**: Assign the left subtree to the right pointer of the current node (root). This effectively moves the entire left subtree to the right.
+  - **Traverse to End of New Right Subtree**: Traverse to the end of the newly assigned right subtree (which was originally the left subtree). Finally, attach the original right subtree (stored in temp) to the end of the current right subtree.
+
+
+Code
+```python
+def flatten(root):
+    """
+    Do not return anything, modify root in-place instead.
+    """
+    # Base Condition
+    if not root:
+        return
+
+    # Hypothesis - flatten both the left and the right subtree
+    self.flatten(root.left)
+    self.flatten(root.right)
+
+    # Induction - Move the left subtree to the right, set the left child to None
+    temp = root.right
+    root.right = root.left
+    root.left = None
+
+    # Traverse to the end of the right subtree and attach the original right subtree to the end of the new right subtree
+    curr = root
+    while curr.right:
+        curr = curr.right
+    
+    curr.right = temp
+```
+
 ## Binary Search Tree
 A binary tree in which each node has a key, and every node's key is greater than the keys in its left subtree and less than the keys in its right subtree.
 ```mermaid

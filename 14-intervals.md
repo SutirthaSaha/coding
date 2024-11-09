@@ -126,6 +126,8 @@ def non_overlapping_intervals(intervals):
     return removals
 ```
 
+Similar Problem: **[N meetings in One Room](https://www.geeksforgeeks.org/problems/n-meetings-in-one-room-1587115620/1)**
+
 ### [Meeting Rooms](https://leetcode.com/problems/meeting-rooms)*
 Given an array of meeting time intervals, determine if a person could attend all meetings.
 
@@ -173,6 +175,8 @@ def meeting_rooms(intervals):
     
     return max_rooms
 ```
+
+Similar Problem: **[Minimum Platforms](https://www.geeksforgeeks.org/problems/minimum-platforms-1587115620/1)**
 
 ### [Minimum Interval to Include Each Query](https://leetcode.com/problems/minimum-interval-to-include-each-query)*
 You are given a 2D integer array `intervals`, where `intervals[i] = [lefti, righti]` describes the `ith` interval starting at `lefti` and ending at `righti` (inclusive). The size of an interval is defined as the number of integers it contains, or more formally `righti - lefti + 1`.

@@ -483,6 +483,43 @@ Explanation: merged array = [1,2,3,4] and median is (2 + 3) / 2 = 2.5.
 **Median**: The median of a sorted array is the middle element if the array has an odd number of elements, or the average of the two middle elements if the array has an even number of elements.
 
 #### Intuition
+##### Naive Solution
+- Merge both the arrays till the half point and return the median.
+
+Code
+```python
+def findMedianSortedArrays(nums1, nums2):
+    nums = []
+    n1, n2 = len(nums1), len(nums2)
+    half = math.ceil((n1 + n2 + 1) / 2)
+
+    index1, index2 = 0, 0
+
+    while index1<n1 and index2<n2 and len(nums)<half:
+        if nums1[index1] <= nums2[index2]:
+            nums.append(nums1[index1])
+            index1 = index1 + 1
+        else:
+            nums.append(nums2[index2])
+            index2 = index2 + 1
+    
+    while index1<n1 and len(nums)<half:
+        nums.append(nums1[index1])
+        index1 = index1 + 1
+
+    while index2<n2 and len(nums)<half:
+        nums.append(nums2[index2])
+        index2 = index2 + 1
+    
+    if (n1+n2) % 2:
+        return nums[half-1]
+    else:
+        return (nums[half-2]+nums[half-1]) / 2
+```
+
+Although this algorithm has a time complexity of `O(n)`, it also has a space complexity of `O(n)`. Can we do it in `O(1)` or constant pace.
+
+##### Optimal Solution
 - **Combining and Finding Median**: Merge the two sorted arrays and calculate median - but inefficient - `O(m+n)` time complexity. 
 - **Partioning the Arrays**: We can use binary search to partition the arrays such that the left half contains the first half of the combined elements and the right half contains the second half. Specifically, we need to ensure that:
   - All elements in the left half (from both arrays) are less than or equal to all elements in the right half.
@@ -820,4 +857,50 @@ def min_eating_speed(piles, H):
             start = mid + 1
     
     return result
+```
+
+### [Find Nth root of M](https://www.geeksforgeeks.org/problems/find-nth-root-of-m5843/1)
+You are given 2 numbers (n , m); the task is to find n√m (nth root of m).
+
+Example
+```
+Input: n = 2, m = 9
+Output: 3
+Explanation: 3^2 = 9
+```
+
+#### Intuition
+- **Determine the Range**:
+  - The minimum possible value of x is 1 because any number raised to any positive power will be at least 1.
+  - The maximum possible value of x is m because the nth root of m cannot exceed m.
+- **Binary Search Approach**:
+  - Use the binary search approach to find the integer x such that x^n = m.
+  - Initialize left to 1 and right to m.
+- **Check Feasibility**:
+  - For a given midpoint (mid), determine whether mid^n equals m.
+  - If `mid^n` equals m:
+    - We have found the nth root, so return mid.
+  - If `mid^n` is less than m:
+    - This means mid is too small. Move the left pointer to mid + 1 to search in the higher half.
+  - If `mid^n` is greater than m:
+    - This means mid is too large. Move the right pointer to mid - 1 to search in the lower half.
+- **Iterate Until Convergence**:
+  - Repeat the process until the binary search bounds converge.
+  - If the loop terminates without finding an exact match, return -1 to indicate that there is no integer x such that x^n = m.
+
+
+Code
+```python
+def nthRoot(self, n, m):
+    left, right = 1, m
+    while left <= right:
+        mid = left + (right - left) // 2
+        temp = mid ** n
+        if temp == m:
+            return mid
+        elif temp < m:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return -1
 ```
