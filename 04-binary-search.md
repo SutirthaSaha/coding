@@ -537,6 +537,7 @@ Although this algorithm has a time complexity of `O(n)`, it also has a space com
   - If the total number of elements is odd, the median is the maximum of the left elements.
   - If the total number of elements is even, the median is the average of the maximum of the left elements and the minimum of the right elements.
 
+Code
 ```python
 def find_median_sorted_arrays(nums1, nums2):
     if len(nums1) > len(nums2):
@@ -668,10 +669,13 @@ def peak_element(nums):
 
     while start <= end:
         mid = start + (end-start) // 2
+        # Check if mid is a peak element
         if (mid == 0 or arr[mid] > arr[mid-1]) and (mid == n-1 or arr[mid] > arr[mid+1]):
             return mid
+        # If the left neighbor is greater, then the peak must be on the left side
         elif mid > 0 and arr[mid] < arr[mid-1]:
             end = mid - 1
+        # If the right neighbor is greater, then the peak must be on the right side
         else:
             start = mid + 1
     return -1
