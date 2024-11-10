@@ -1372,7 +1372,6 @@ The space complexity of Dijkstra is `(O(V + E))`. Here’s a detailed breakdown:
 
 Combining these, the total space complexity is `(O(V + E))`.
 
-
 ###### Problems
 ###### [Network Delay Time]()
 You are given a network of `n` nodes, labeled from `1 to n`. You are also given times, a list of travel times as directed edges `times[i] = (ui, vi, wi)`, where `ui` is the source node, `vi` is the target node, and `wi` is the time it takes for a signal to travel from source to target.
@@ -1554,6 +1553,26 @@ graph LR
 
 Starting with node 1, for this graph to relax till E we would need `|V| - 1` or 4 iterations.
 
+###### Complexity Analysis:
+**Time Complexity: (O(V * E))**
+The time complexity of Bellman-Ford is `(O(V * E))`, where `(V)` is the number of vertices and `(E)` is the number of edges in the graph. Here's a detailed breakdown of why this is the case:
+- Initialization:
+  - Setting up the distance array takes `(O(V))`.
+- Main Loop:
+  - The algorithm iterates over all edges `(E)` for `(V - 1)` times. In each iteration, it performs edge relaxation.
+- Edge Relaxation:
+  - For each edge `(u, v)`, the algorithm checks and potentially updates the distance to the vertex `(v)`.
+  - Since there are `(E)` edges, and we repeat this process for `(V - 1)` iterations, the total time for edge relaxation is `(O(V * E))`.
+
+Combining these steps, the total time complexity is `(O(V) + O(V * E) = O(V * E))`.
+
+**Space Complexity: `(O(V + E))`**
+The space complexity of Bellman-Ford is `(O(V + E))`. Here’s a detailed breakdown:
+- Distance Array: The distance array stores distances for `(V)` vertices, resulting in `(O(V))` space.
+- Edge List: The edge list stores all edges, resulting in `(O(E))` space.
+
+Combining these, the total space complexity is `(O(V + E))`.
+
 ###### Problems
 ###### [Cheapest Flights Within K Stop](https://leetcode.com/problems/cheapest-flights-within-k-stops)
 There are n cities connected by some number of flights. You are given an array `flights` where `flights[i] = [fromi, toi, pricei]` indicates that there is a flight from city `fromi` to city `toi` with cost `pricei`.
@@ -1650,6 +1669,22 @@ def floyd_warshall(graph):
             return -1
     return dist
 ```
+
+###### Complexity Analysis
+**Time Complexity: `(O(V^3))`**
+The time complexity of the Floyd-Warshall algorithm is `(O(V^3))`, where `(V)` is the number of vertices in the graph. Here's a detailed breakdown of why this is the case:
+- Main Loop:
+  - The algorithm uses three nested loops, each iterating over all vertices `(V)`.
+  - For each pair of vertices `(i, j)`, the algorithm checks if there is a shorter path through an intermediate vertex `k`. This involves updating the distance matrix.
+
+Combining these steps, the total time complexity is `(O(V) * O(V) * O(V) = O(V^3))`.
+
+**Space Complexity: `(O(V^2))`**
+The space complexity of the Floyd-Warshall algorithm is `(O(V^2))`. Here’s a detailed breakdown:
+- Distance Matrix:
+  - The distance matrix stores the shortest distances between all pairs of vertices. This requires a 2D array of size `(V x V)`, resulting in `(O(V^2))` space.
+
+Combining these, the total space complexity is `(O(V^2))`.
 
 ###### Problems
 ###### [Find the City With the Smallest Number of Neighbors at a Threshold Distance](https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance)
@@ -1781,6 +1816,33 @@ def union(node1, node2):
             parent[parent1] = parent2
             rank[parent2] = rank[parent2] + rank[parent1]
 ```
+
+##### Complexity Analysis
+Disjoint Set Union (DSU), also known as Union-Find, is a data structure that supports two main operations efficiently:
+- **Find**: Determine which subset a particular element is in. This can be used for determining if two elements are in the same subset.
+- **Union**: Join two subsets into a single subset.
+
+To achieve efficient performance, DSU typically uses two optimizations:
+- **Path Compression**: This flattens the structure of the tree whenever `Find` is called, ensuring that all nodes **directly** point to the root.
+- **Union by Rank/Size**: This ensures that the smaller tree is always added under the root of the larger tree, keeping the tree **shallow**.
+
+**Time Complexity Analysis:**
+**Amortized Time Complexity: `(O(α(n)))`**
+The time complexity of the DSU operations with **path compression** and **union by rank/size** is **nearly constant**. The amortized time complexity for both Find and Union operations is `O(α(n))`, where `α(n)` is the `Inverse Ackermann function`. This function grows very slowly, so for all practical purposes, `O(α(n))` is considered to be almost constant time.
+
+Here's a more detailed breakdown:
+- **Find with Path Compression**: The Find operation with path compression takes `O(α(n))` time.
+- **Union with Rank/Size**: The Union operation with rank/size also takes `O(α(n))` time.
+
+Explanation of Inverse Ackermann Function (α(n)): 
+The Inverse Ackermann function, `α(n)`, is an extremely slowly growing function. For all practical input sizes, `α(n)` is less than **5**. This means that DSU operations are very efficient and **close to constant time** for all reasonable input sizes.
+
+**Space Complexity Analysis: `(O(V))`**
+The space complexity of the DSU data structure is `O(V)`, where `V` is the number of vertices (or elements) in the set. Here's a detailed breakdown:
+- **Parent array**: The parent array keeps track of the representative or parent of each vertex. This array requires `O(V)` space.
+- **Rank/Size array**: The rank or size array helps to keep the tree shallow by ensuring that the smaller tree is always added under the root of the larger tree during union operations. This array also requires `O(V)` space.
+
+Combining these, the total space complexity for the DSU data structure is `O(V)`.
 
 #### Problems
 ##### [Number of Connected Components in an Undirected Graph](https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph)*
@@ -2118,6 +2180,28 @@ def prim(start, graph):
     
     return min_cost
 ```
+
+###### Complexity Analysis
+**Time Complexity: `(O((V + E) * log V))`**
+The time complexity of the Prim's algorithm is `(O((V + E) * log V))`, where `(V)` is the number of vertices in the graph and `(E)` is the number of edges in the graph. Here's a detailed breakdown of why this is the case:
+- Initialization:
+  - Initializing the priority queue (min-heap) takes `(O(1))` time.
+- Main Loop:
+  - Each vertex is extracted exactly once from the priority queue. Extracting the minimum element from a binary heap takes `(O(log V))`. Since there are `(V)` vertices, the total time for extracting the minimum element is `(O(V * log V))`.
+  - For each vertex `(u)`, we examine its adjacent edges. Relaxing an edge involves checking and potentially updating the key value of a neighboring vertex `(v)`. If an update is needed, we perform a **decrease-key operation** in the priority queue.
+  - The decrease-key operation in a binary heap takes `(O(log V))` time.
+  - Since each edge is relaxed exactly once, and there are `(E)` edges, the total time for edge relaxation is `(O(E * log V))`.
+
+Combining these steps, the total time complexity is `[O(1) + O(V * log V) + O(E * log V) = O((V + E) * log V)]`
+
+**Space Complexity: `(O(V + E))`**
+The space complexity primarily depends on the storage of the graph and the heap.
+- Graph storage: The graph is stored as an adjacency list, which takes O(V + E) space.
+- Heap storage: The min-heap can contain up to V vertices, resulting in O(V) space.
+- Visited set: The visited set stores up to V vertices, resulting in O(V) space.
+
+Combining these, the total space complexity is `(O(V + E))`.
+
 ##### 2. Kruskal's Algorithm
 Kruskal's Algorithm is another greedy algorithm for finding the Minimum Spanning Tree of a graph. It works by sorting all the edges in the graph by their weight and then adding them one by one to the MST, ensuring that no cycles are formed.
 
@@ -2171,6 +2255,34 @@ def kruskal(n , edges):
     
     return mst_cost
 ```
+
+###### Complexity Analysis
+**Time Complexity: `(O(E * log V))`**
+The time complexity of Kruskal's algorithm is `(O(E * log V))`, where `(V)` is the number of vertices in the graph and `(E)` is the number of edges in the graph. Here's a detailed breakdown of why this is the case:
+- **Sorting the edges**:
+  - The first step in Kruskal's algorithm is to sort all the edges in non-decreasing order of their weights. If there are `(E)` edges, the time complexity for sorting the edges is `(O(E * log E))`.
+  - Since `E` can be at most `V^2` in a dense graph, `log E` is `O(log V^2) = O(2 * log V) = O(log V)`. Therefore, `O(E * log E)` is equivalent to `O(E * log V)` for large `E`.
+- **Initializing the Disjoint Set Union (DSU) data structure**:
+  - Initializing the DSU data structure (with path compression and union by rank/size) for `(V)` vertices takes `(O(V))` time.
+- **Processing each edge and performing union-find operations**:
+  - The main loop processes each edge in the sorted order and performs union-find operations to check if the current edge forms a cycle or not.
+  - For each edge, we perform the `Find` operation twice (once for each vertex of the edge) and potentially one `Union` operation.
+  - The `Find` operation with **path compression** takes `(O(α(V)))` time.
+  - The `Union` operation with **union by rank/size** takes `(O(α(V)))` time.
+  - Since each edge is processed once, and there are `(E)` edges, the total time for union-find operations is `(O(E * α(V)))`.
+
+Combining these steps, the total time complexity is `[O(E * log V) + O(V) + O(E * α(V))]`.
+
+Since `α(V)` is a very slowly growing function and is **practically constant** for all reasonable input sizes, the term `(O(E * α(V)))` can be considered as `(O(E))`.
+
+So, the overall time complexity simplifies to `O(E * log V)`.
+
+**Space Complexity: `(O(V + E))`**
+The space complexity primarily depends on the storage of the graph and the DSU data structure.
+- **Graph storage**: The graph is stored as an edge list, which takes `(O(E))` space.
+- **DSU storage**: The DSU data structure uses arrays to store parent and rank information for each vertex, resulting in `(O(V))` space.
+
+Combining these, the total space complexity is `(O(V + E))`.
 
 #### Problems
 #### [Minimum Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points)*
