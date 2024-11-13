@@ -252,8 +252,71 @@ def rightSideView(root):
 ```
 
 ### [Populating Next Right Pointers in Each Node](https://leetcode.com/problems/populating-next-right-pointers-in-each-node)
+You are given a perfect binary tree where all leaves are on the same level, and every parent has two children. The binary tree has the following definition:
 ```
-TODO
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+```
+Populate each next pointer to point to its next right node. If there is no next right node, the next pointer should be set to `NULL`.
+
+Initially, all next pointers are set to `NULL`.
+
+Example
+```
+       1 -> NULL  
+      / \  
+     2 -> 3 -> NULL  
+    / \  / \  
+   4->5->6->7-> NULL
+
+Input: root = [1,2,3,4,5,6,7]
+Output: [1,#,2,3,#,4,5,6,7,#]
+
+Explanation: Given the above perfect binary tree (Figure A), your function should populate each next pointer to point to its next right node, just like in Figure B. The serialized output is in level order as connected by the next pointers, with '#' signifying the end of each level.
+```
+
+#### Intuition
+- **Level Order Traversal**: Level order traversal processes nodes level by level, which aligns perfectly with the requirement to connect nodes at the same level. It ensures that we have access to all nodes at a given level before moving on to the next level.
+- **Connect Nodes**: For each node at the current level, set its next pointer to the next node in the queue if it is not the last node in that level. Enqueue the left and right children of each node to the queue for processing in the next level.
+- **Handle End of Levels**: Ensure the last node in each level points to `NULL` by naturally avoiding setting the next pointer for the last node in the queue.
+
+Code
+```python
+def connect(root):  
+    # If the tree is empty, there is nothing to connect  
+    if root is None:  
+        return None  
+      
+    # Initialize the queue with the root node to start level order traversal  
+    queue = deque()  
+    queue.append(root)  
+      
+    # Perform level order traversal using the queue  
+    while queue:  
+        # Get the number of nodes at the current level  
+        level_len = len(queue)  
+          
+        # Process all nodes at the current level  
+        for i in range(level_len):  
+            # Pop a node from the front of the queue  
+            node = queue.popleft()  
+              
+            # Connect the node's next pointer to the next node in the queue if it is not the last node in this level  
+            if i < (level_len - 1):  
+                node.next = queue[0]  
+              
+            # Enqueue the left and right children of the node to process in the next level  
+            if node.left:  
+                queue.append(node.left)  
+            if node.right:  
+                queue.append(node.right)  
+      
+    # Return the root of the modified tree  
+    return root
 ```
 
 ### [Vertical Order Traversal](https://leetcode.com/problems/vertical-order-traversal-of-a-binary-tree)*
@@ -1077,8 +1140,61 @@ def is_valid_BST(root):
 ```
 
 ### [Convert Sorted Array to Binary Search Tree](https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree)
+Given an integer array `nums` where the elements are sorted in **ascending order**, convert it to a *height-balanced binary search tree*.
+
+Example
+```mermaid
+graph TD;  
+    A[0]  
+    B[-3]  
+    C[9]  
+    D[-10]  
+    E[5]  
+  
+    A --> B  
+    A --> C  
+    B --> D  
+    C --> E
 ```
-TODO
+```
+Input: nums = [-10,-3,0,5,9]
+Output: [0,-3,9,-10,null,5]
+Explanation: [0,-10,5,null,-3,null,9] is also accepted  
+```
+
+#### Intuition
+- **Balanced BST Requirement**: To create a height-balanced binary search tree (BST) where for any given node, the depths of its two subtrees should not differ by more than one.
+- **Recursive Solution**:
+  - Given the sorted nature of the array, the **middle** element naturally becomes the `root` of the BST. 
+  - This is because the middle element divides the array into two halves, ensuring that the `left` half contains elements **less** than the `root` and the `right` half contains elements **greater** than the `root`.
+  - Recursively apply this logic to the `left` and `right` halves to construct the `left` and `right` subtrees, respectively.
+- **Base Condition**: When the left pointer crosses the right pointer.
+
+Code
+```python
+def sortedArrayToBST(nums):  
+    n = len(nums)  
+      
+    # Helper function to construct the BST recursively  
+    def solve(left, right):  
+        # Base case: if the left index exceeds the right, return None (no tree)  
+        if left > right:  
+            return None  
+          
+        # Find the middle element to be the root of the current subtree  
+        mid = left + (right - left) // 2  
+        root = TreeNode(nums[mid])  
+          
+        # Recursively construct the left subtree using the left half of the current segment  
+        root.left = solve(left, mid - 1)  
+          
+        # Recursively construct the right subtree using the right half of the current segment  
+        root.right = solve(mid + 1, right)  
+          
+        return root  
+      
+    # Start the recursion with the entire array  
+    return solve(0, n - 1)
 ```
 
 ### [Lowest Common Ancestor of a Binary Search Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree)*
@@ -1416,6 +1532,86 @@ def findTarget(root, k):
 ```
 
 ### [Maximum Sum BST in Binary Tree](https://leetcode.com/problems/maximum-sum-bst-in-binary-tree)
+Given a binary tree root, return the maximum sum of all keys of any sub-tree which is also a Binary Search Tree (BST).
+
+Assume a BST is defined as follows:
+- The left subtree of a node contains only nodes with keys less than the node's key.
+- The right subtree of a node contains only nodes with keys greater than the node's key.
+- Both the left and right subtrees must also be binary search trees.
+
+Example
+```mermaid
+graph TD;  
+    A[1]  
+    B[4]  
+    C[3]  
+    D[2]  
+    E[4]  
+    F[2]  
+    G[5]  
+    H[4]  
+    I[6]  
+  
+    A --> B  
+    A --> C  
+    B --> D  
+    B --> E  
+    C --> F  
+    C --> G  
+    G --> H  
+    G --> I  
+  
+    subgraph BST
+        direction TB  
+        C  
+        F  
+        G  
+        H  
+        I  
+    end  
 ```
-TODO
+
+```
+Input: root = [1,4,3,2,4,2,5,null,null,null,null,null,null,4,6]
+Output: 20
+Explanation: Maximum sum in a valid Binary search tree is obtained in root node with key equal to 3.
+```
+
+#### Intuition
+- **Binary Search Tree (BST) Properties**: A BST is a binary tree where for each node, all values in the left subtree are smaller, and all values in the right subtree are larger.
+- **Tree Traversal**: Use postorder traversal (left, right, root) to visit nodes. This helps validate and compute the sum of a subtree after visiting all its children.
+- **Validity Check**: For each node, determine if the subtree rooted at that node is a valid BST by ensuring the maximum value in the left subtree is less than the node’s value and the minimum value in the right subtree is greater than the node’s value.
+- **Sum Calculation**: If a subtree is a valid BST, calculate its sum by adding the values of all nodes in the subtree. Keep track of the maximum sum encountered.
+- **Aggregate Results**: Update the maximum sum whenever a new valid BST with a greater sum than previously found is encountered.
+
+```python 
+def maxSumBST(self, root: Optional[TreeNode]) -> int:  
+    def solve(node):  
+        nonlocal max_sum  
+        if node is None:  
+            # Base case: If the node is None, it's a valid BST with sum 0 and extreme min/max values  
+            return True, 0, float('inf'), float('-inf')  # isBST, sum, min, max  
+        
+        # Recursively check the left and right subtrees  
+        left_is_bst, left_sum, left_min, left_max = solve(node.left)  
+        right_is_bst, right_sum, right_min, right_max = solve(node.right)  
+            
+        # Check if the current node's subtree is a valid BST  
+        if left_is_bst and right_is_bst and left_max < node.val < right_min:  
+            # Calculate the current subtree's sum  
+            current_sum = left_sum + node.val + right_sum  
+            # Update the maximum sum if the current subtree's sum is greater  
+            max_sum = max(max_sum, current_sum)  
+            # Return the status of BST, current subtree sum, and updated min/max values  
+            return True, current_sum, min(left_min, node.val), max(right_max, node.val)  
+            
+        # If it's not a valid BST, return False and reset sum and extreme min/max values  
+        return False, 0, float('-inf'), float('inf')  
+        
+    # Initialize the maximum sum to 0  
+    max_sum = 0  
+    # Start the recursive solve function from the root  
+    solve(root)  
+    # Return the maximum sum of all valid BSTs found  
+    return max_sum    
 ```
