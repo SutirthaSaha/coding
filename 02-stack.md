@@ -594,11 +594,53 @@ Solve the Tower of Hanoi problem iteratively. Given three rods (source, auxiliar
 Implement a function iterativeHanoi(n, source, auxiliary, destination) that prints the steps to move the disks.
 
 #### Intuition
-Intuition behind the solution to this problem.
+The Tower of Hanoi problem can be solved iteratively using a non-recursive approach. The iterative solution leverages the fact that the pattern of moves is periodic and can be generated using a systematic approach. Here's how you can do it:
+
+- Total Moves: The total number of moves required to solve the Tower of Hanoi problem with n disks is `2^n - 1`.
+- Move Pattern: 
+  - For an even number of disks, the moves follow the pattern: source -> auxiliary, source -> destination, auxiliary -> destination. 
+  - For an odd number of disks, the moves follow the pattern: source -> destination, source -> auxiliary, destination -> auxiliary.
+- Using Stacks: 
+  - Use three stacks to represent the rods and manage the disks.
+  - Keep track of the moves and systematically move the top disks between the rods according to the pattern.
 
 Code
 ```python
-TODO
+def iterativeHanoi(n, source, auxiliary, destination):  
+    # Initialize the rods as stacks  
+    rods = {  
+        source: list(range(n, 0, -1)),  # Source rod with disks n to 1  
+        auxiliary: [],  
+        destination: []  
+    }  
+  
+    # Function to print the move  
+    def print_move(from_rod, to_rod):  
+        print(f"Move disk from {from_rod} to {to_rod}")  
+  
+    # Function to move the top disk from one rod to another  
+    def move_disk(from_rod, to_rod):  
+        disk = rods[from_rod].pop()  
+        rods[to_rod].append(disk)  
+        print_move(from_rod, to_rod)  
+  
+    # Determine the sequence of moves based on the number of disks  
+    if n % 2 == 0:  
+        moves = [(source, auxiliary), (source, destination), (auxiliary, destination)]  
+    else:  
+        moves = [(source, destination), (source, auxiliary), (destination, auxiliary)]  
+  
+    total_moves = 2 ** n - 1  
+  
+    # Perform the moves iteratively  
+    for i in range(1, total_moves + 1):  
+        from_rod, to_rod = moves[(i - 1) % 3]  
+          
+        # Determine which move to make  
+        if rods[from_rod] and (not rods[to_rod] or rods[from_rod][-1] < rods[to_rod][-1]):  
+            move_disk(from_rod, to_rod)  
+        else:  
+            move_disk(to_rod, from_rod)
 ```
 
 ### Generic Stack Problems:
