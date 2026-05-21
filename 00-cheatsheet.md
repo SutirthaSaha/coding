@@ -459,6 +459,38 @@ while heap:
 | [Redundant Connection](https://leetcode.com/problems/redundant-connection/) | Union-Find | First edge where both nodes already share root = redundant |
 | [Accounts Merge](https://leetcode.com/problems/accounts-merge/) | Union-Find | Union all emails in an account; group by root |
 
+**Minimum Spanning Tree — Prim's (grow from a node):**
+```python
+min_heap = [(0, start)]
+visited = set()
+mst_cost = 0
+while min_heap:
+    weight, node = heappop(min_heap)
+    if node in visited: continue
+    visited.add(node); mst_cost += weight
+    for neighbor, w in graph[node]:
+        if neighbor not in visited:
+            heappush(min_heap, (w, neighbor))
+# Complexity: O((V + E) log V)
+```
+
+**Minimum Spanning Tree — Kruskal's (sort edges + Union-Find):**
+```python
+edges.sort(key=lambda e: e[2])   # sort by weight
+mst_cost = mst_edges = 0
+for src, dest, weight in edges:
+    if find(src) != find(dest):
+        union(src, dest); mst_cost += weight; mst_edges += 1
+        if mst_edges == n - 1: break
+# Complexity: O(E log V)
+```
+
+**Prim vs Kruskal:** Dense graph → Prim's (fewer heap ops). Sparse graph → Kruskal's (sort dominates). Kruskal needs Union-Find; Prim grows from a seed like Dijkstra.
+
+| Problem | Algorithm | Key trick |
+|---------|-----------|-----------|
+| [Min Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points/) | Prim's | Points form an implicit complete graph; edge weight = Manhattan distance. For each newly added point push `(manhattan_dist, j)` for all unvisited j — no need to pre-build the graph |
+
 ---
 
 ## 16. Dynamic Programming
